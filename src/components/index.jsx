@@ -1,76 +1,95 @@
 import React, { useState, useEffect } from "react";
-import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 import Header from "./Header";
 import Table from "./Table";
 import Add from "./Add";
 import Edit from "./Edit";
+import Search from "./Search";
+import Pagination from "./Pagination.jsx";
 
+// Dữ liệu dự phòng (fallback) nếu API không trả về dữ liệu
 import { Students_data } from "../data/index.js";
 
 const Dashboard = ({ setIsAuthenticated }) => {
-  const [students, setStudents] = useState(Students_data);
+  const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+
+  // State cho search và pagination
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // số lượng sinh viên hiển thị trên mỗi trang
+
+  // Hàm refresh lấy danh sách sinh viên từ API
+  const refreshStudents = () => {
+    fetch("http://localhost:5000/students")
+      .then((res) => res.json())
+      .then((data) => {
+        setStudents(data);
+      })
+      .catch((err) => {
+        console.error("Error fetching students:", err);
+        // Nếu có lỗi, sử dụng dữ liệu dự phòng từ file JSON
+        setStudents(Students_data);
+      });
+  };
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("students_data"));
-    if (data !== null && Object.keys(data).length !== 0) setStudents(data);
+    refreshStudents();
   }, []);
 
+  const filteredStudents = students.filter((student) =>
+    student.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.student_id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Tính số trang và danh sách sinh viên ở trang hiện tại
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentStudents = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+
   const handleEdit = (id) => {
-    const [student] = students.filter((student) => student.id === id);
+    const [student] = students.filter((student) => student.student_id === id);
     setSelectedStudent(student);
     setIsEditing(true);
   };
 
+  // Sau khi xóa từ API, ta refresh lại danh sách student
   const handleDelete = (id) => {
-    Swal.fire({
-      icon: "warning",
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
-      buttonsStyling: false, // Tắt styling mặc định của SweetAlert2 để dễ dàng tùy chỉnh
-      customClass: {
-        confirmButton:
-          "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2", // Tailwind class cho nút xác nhận
-        cancelButton: "bg-red-300 text-gray-800 hover:bg-red-400 py-2 px-7", // Tailwind class cho nút hủy
-      },
-    }).then((result) => {
-      if (result.value) {
-        const [student] = students.filter((student) => student.id === id);
+    refreshStudents();
+  };
 
-        Swal.fire({
-          icon: "success",
-          title: "Deleted!",
-          text: `${student.firstName} ${student.lastName}'s data has been deleted.`,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
-        const studentsCopy = students.filter((student) => student.id !== id);
-        localStorage.setItem("students_data", JSON.stringify(studentsCopy));
-        setStudents(studentsCopy);
-      }
-    });
+  const handleView = (id) => {
+    navigate(`/students/${id}`);
+
   };
 
   return (
     <div className="container mx-auto p-6">
       {!isAdding && !isEditing && (
         <>
-          <Header
-            setIsAdding={setIsAdding}
-            setIsAuthenticated={setIsAuthenticated}
-          />
+          <Header setIsAdding={setIsAdding} setIsAuthenticated={setIsAuthenticated} />
+          <Search searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           <div className="mt-6">
             <Table
-              students={students}
+              students={currentStudents}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
+              handleView={handleView}
+              refreshStudents={refreshStudents}
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
         </>

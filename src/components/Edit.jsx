@@ -1,19 +1,50 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 
+const validFaculties = [
+  "Faculty of Law",
+  "Faculty of Business English",
+  "Faculty of Japanese",
+  "Faculty of French",
+];
+
+const validStatuses = ["Active", "Graduated", "Dropped Out"];
+
+// Regex kiểm tra định dạng email
+const emailRegex = /^\S+@\S+\.\S+$/;
+
+// Regex kiểm tra số điện thoại (cho phép số, dấu cách, dấu gạch ngang, dấu ngoặc)
+const phoneRegex = /^[0-9\s\-()]+$/;
+
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   const id = selectedStudent.id;
 
-  const [firstName, setFirstName] = useState(selectedStudent.firstName);
-  const [lastName, setLastName] = useState(selectedStudent.lastName);
+  const [fullName, setFullName] = useState(selectedStudent.fullName);
+  const [birthDate, setBirthDate] = useState(selectedStudent.birthDate);
+  const [sex, setSex] = useState(selectedStudent.sex);
+  const [faculty, setFaculty] = useState(selectedStudent.faculty);
+  const [schoolYear, setSchoolYear] = useState(selectedStudent.schoolYear);
+  const [program, setProgram] = useState(selectedStudent.program);
+  const [address, setAddress] = useState(selectedStudent.address);
   const [email, setEmail] = useState(selectedStudent.email);
-  const [salary, setSalary] = useState(selectedStudent.salary);
-  const [date, setDate] = useState(selectedStudent.date);
+  const [phone, setPhone] = useState(selectedStudent.phone);
+  const [status, setStatus] = useState(selectedStudent.status);
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
-    if (!firstName || !lastName || !email || !salary || !date) {
+    // Kiểm tra các trường bắt buộc
+    if (
+      !fullName ||
+      !birthDate ||
+      !sex ||
+      !faculty ||
+      !schoolYear ||
+      !program ||
+      !email ||
+      !phone ||
+      !status
+    ) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
@@ -22,132 +53,189 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
-    const updatedEmployee = {
+    // Kiểm tra định dạng email
+    if (!emailRegex.test(email)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid email format.",
+        showConfirmButton: true,
+      });
+    }
+
+    // Kiểm tra số điện thoại
+    if (!phoneRegex.test(phone)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid phone number format.",
+        showConfirmButton: true,
+      });
+    }
+
+    // Kiểm tra tên khoa hợp lệ
+    if (!validFaculties.includes(faculty)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid faculty name.",
+        showConfirmButton: true,
+      });
+    }
+
+    // Kiểm tra tình trạng sinh viên hợp lệ
+    if (!validStatuses.includes(status)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid student status.",
+        showConfirmButton: true,
+      });
+    }
+
+    const updatedStudent = {
       id,
-      firstName,
-      lastName,
+      fullName,
+      birthDate,
+      sex,
+      faculty,
+      schoolYear,
+      program,
+      address,
       email,
-      salary,
-      date,
+      phone,
+      status,
     };
 
-    const updatedStudents = students.map((emp) =>
-      emp.id === id ? updatedEmployee : emp
-    );
+    try {
+      const response = await fetch(`http://localhost:5000/api/students/${id}/edit`, {
+        method: "PUT", // hoặc PATCH nếu API của bạn sử dụng PATCH
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedStudent),
+      });
 
-    localStorage.setItem("students_data", JSON.stringify(updatedStudents));
-    setStudents(updatedStudents);
-    setIsEditing(false);
+      if (!response.ok) throw new Error("Failed to update student");
 
-    Swal.fire({
-      icon: "success",
-      title: "Updated!",
-      text: `${updatedEmployee.firstName} ${updatedEmployee.lastName}'s data has been updated.`,
-      showConfirmButton: false,
-      timer: 1500,
-    });
+      const data = await response.json();
+      const updatedStudents = students.map((student) =>
+        student.id === id ? data : student
+      );
+      setStudents(updatedStudents);
+      setIsEditing(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: `${fullName}'s data has been updated successfully.`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message,
+        showConfirmButton: true,
+      });
+    }
   };
 
   return (
     <div className="mx-auto max-w-xl rounded-lg bg-white p-6 shadow-lg">
-      <form onSubmit={handleUpdate}>
-        <h1 className="mb-6 text-2xl font-semibold">Edit Employee</h1>
-        <div className="mb-4">
-          <label
-            htmlFor="firstName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            First Name
-          </label>
-          <input
-            id="firstName"
-            type="text"
-            name="firstName"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="lastName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Last Name
-          </label>
-          <input
-            id="lastName"
-            type="text"
-            name="lastName"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="salary"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Salary ($)
-          </label>
-          <input
-            id="salary"
-            type="number"
-            name="salary"
-            value={salary}
-            onChange={(e) => setSalary(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="date"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Date
-          </label>
-          <input
-            id="date"
-            type="date"
-            name="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mt-6 flex justify-between">
+      <form onSubmit={handleUpdate} className="space-y-4">
+        <h1 className="mb-6 text-2xl font-semibold">Edit Student</h1>
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="date"
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <select
+          value={sex}
+          onChange={(e) => setSex(e.target.value)}
+          className="w-full p-2 border rounded"
+        >
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+        <select
+          value={faculty}
+          onChange={(e) => setFaculty(e.target.value)}
+          className="w-full p-2 border rounded"
+        >
+          <option value="">Select Faculty</option>
+          <option value="Faculty of Law">Faculty of Law</option>
+          <option value="Faculty of Business English">Faculty of Business English</option>
+          <option value="Faculty of Japanese">Faculty of Japanese</option>
+          <option value="Faculty of French">Faculty of French</option>
+        </select>
+        <input
+          type="number"
+          placeholder="School Year"
+          value={schoolYear}
+          onChange={(e) => setSchoolYear(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Program"
+          value={program}
+          onChange={(e) => setProgram(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="w-full p-2 border rounded"
+        >
+          <option value="">Select Status</option>
+          <option value="Active">Active</option>
+          <option value="Graduated">Graduated</option>
+          <option value="Dropped Out">Dropped Out</option>
+        </select>
+        <div className="flex justify-between mt-4">
           <button
             type="submit"
-            className="rounded-md bg-blue-600 px-6 py-2 text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           >
             Update
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="rounded-md bg-gray-500 px-6 py-2 text-white shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="w-full bg-gray-400 text-white p-2 rounded ml-2 hover:bg-gray-500"
           >
             Cancel
           </button>

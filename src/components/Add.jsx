@@ -1,17 +1,48 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 
-const Add = ({ students, setStudents, setIsAdding }) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [salary, setSalary] = useState("");
-  const [date, setDate] = useState("");
+const validFaculties = [
+  "Faculty of Law",
+  "Faculty of Business English",
+  "Faculty of Japanese",
+  "Faculty of French",
+];
 
-  const handleAdd = (e) => {
+const validStatuses = ["Active", "Graduated", "Dropped Out"];
+
+// Regex kiểm tra định dạng email đơn giản
+const emailRegex = /^\S+@\S+\.\S+$/;
+
+// Regex kiểm tra số điện thoại (cho phép chữ số, dấu cách, dấu gạch ngang, dấu ngoặc)
+const phoneRegex = /^[0-9\s\-()]+$/;
+
+const Add = ({ students, setStudents, setIsAdding }) => {
+  const [fullName, setFullName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [sex, setSex] = useState("");
+  const [faculty, setFaculty] = useState("");
+  const [schoolYear, setSchoolYear] = useState("");
+  const [program, setProgram] = useState("");
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState("");
+
+  const handleAdd = async (e) => {
     e.preventDefault();
 
-    if (!firstName || !lastName || !email || !salary || !date) {
+    // Kiểm tra tất cả các trường bắt buộc
+    if (
+      !fullName ||
+      !birthDate ||
+      !sex ||
+      !faculty ||
+      !schoolYear ||
+      !program ||
+      !email ||
+      !phone ||
+      !status
+    ) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
@@ -20,109 +51,160 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       });
     }
 
-    const id = students.length + 1;
-    const newEmployee = { id, firstName, lastName, email, salary, date };
+    // Kiểm tra định dạng email
+    if (!emailRegex.test(email)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid email format.",
+        showConfirmButton: true,
+      });
+    }
 
-    const updatedStudents = [...students, newEmployee];
-    localStorage.setItem("students_data", JSON.stringify(updatedStudents));
-    setStudents(updatedStudents);
-    setIsAdding(false);
+    // Kiểm tra số điện thoại
+    if (!phoneRegex.test(phone)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid phone number format.",
+        showConfirmButton: true,
+      });
+    }
 
-    Swal.fire({
-      icon: "success",
-      title: "Added!",
-      text: `${firstName} ${lastName}'s data has been added.`,
-      showConfirmButton: false,
-      timer: 1500,
-    });
+    // Kiểm tra tên khoa hợp lệ
+    if (!validFaculties.includes(faculty)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid faculty name.",
+        showConfirmButton: true,
+      });
+    }
+
+    // Kiểm tra tình trạng sinh viên hợp lệ
+    if (!validStatuses.includes(status)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid student status.",
+        showConfirmButton: true,
+      });
+    }
+
+    const newStudent = { fullName, birthDate, sex, faculty, schoolYear, program, address, email, phone, status };
+
+    try {
+
+      const response = await fetch("http://localhost:5000/api/students/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newStudent),
+      });
+
+      if (!response.ok) throw new Error("Failed to add student");
+
+      const addedStudent = await response.json();
+      setStudents([...students, addedStudent]);
+      setIsAdding(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Added!",
+        text: `${fullName}'s data has been added successfully.`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message,
+        showConfirmButton: true,
+      });
+    }
   };
 
   return (
     <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
-      <h1 className="mb-4 text-center text-2xl font-bold text-gray-700">
-        Add Employee
-      </h1>
+      <h1 className="mb-4 text-center text-2xl font-bold text-gray-700">Add Student</h1>
       <form onSubmit={handleAdd} className="space-y-4">
-        <div>
-          <label htmlFor="firstName" className="block text-gray-600">
-            First Name
-          </label>
-          <input
-            id="firstName"
-            type="text"
-            name="firstName"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="date"
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <select value={sex} onChange={(e) => setSex(e.target.value)} className="w-full p-2 border rounded">
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+        <select value={faculty} onChange={(e) => setFaculty(e.target.value)} className="w-full p-2 border rounded">
+          <option value="">Select Faculty</option>
+          <option value="Faculty of Law">Faculty of Law</option>
+          <option value="Faculty of Business English">Faculty of Business English</option>
+          <option value="Faculty of Japanese">Faculty of Japanese</option>
+          <option value="Faculty of French">Faculty of French</option>
+        </select>
+        <input
+          type="number"
+          placeholder="School Year"
+          value={schoolYear}
+          onChange={(e) => setSchoolYear(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Program"
+          value={program}
+          onChange={(e) => setProgram(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full p-2 border rounded"
+        />
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-2 border rounded">
+          <option value="">Select Status</option>
+          <option value="Active">Active</option>
+          <option value="Graduated">Graduated</option>
+          <option value="Dropped Out">Dropped Out</option>
+        </select>
 
-        <div>
-          <label htmlFor="lastName" className="block text-gray-600">
-            Last Name
-          </label>
-          <input
-            id="lastName"
-            type="text"
-            name="lastName"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block text-gray-600">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="salary" className="block text-gray-600">
-            Salary ($)
-          </label>
-          <input
-            id="salary"
-            type="number"
-            name="salary"
-            value={salary}
-            onChange={(e) => setSalary(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="date" className="block text-gray-600">
-            Date
-          </label>
-          <input
-            id="date"
-            type="date"
-            name="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <div className="mt-4 flex justify-between">
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-500 py-2 px-4 text-white transition hover:bg-blue-600"
-          >
+        <div className="flex justify-between mt-4">
+          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
             Add
           </button>
           <button
             type="button"
-            className="ml-2 w-full rounded-lg bg-gray-400 py-2 px-4 text-white transition hover:bg-gray-500"
+            className="w-full bg-gray-400 text-white p-2 rounded ml-2 hover:bg-gray-500"
             onClick={() => setIsAdding(false)}
           >
             Cancel
