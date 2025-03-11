@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import { addStudent } from "../service/studentProvider";
 
 const validFaculties = [
   "Faculty of Law",
@@ -95,19 +96,40 @@ const Add = ({ students, setStudents, setIsAdding }) => {
 
     try {
 
-      const response = await fetch("http://localhost:5000/api/students/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newStudent),
-      });
+      // const response = await fetch("http://localhost:5000/api/students/add", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(newStudent),
+      // });
 
-      if (!response.ok) throw new Error("Failed to add student");
+      // if (!response.ok) throw new Error("Failed to add student");
 
-      const addedStudent = await response.json();
-      setStudents([...students, addedStudent]);
-      setIsAdding(false);
+      // const addedStudent = await response.json();
+      // setStudents([...students, addedStudent]);
+      // setIsAdding(false);
+
+      const addingStudent = {
+        full_name: fullName,
+        birth_date: birthDate,
+        sex: sex,
+        faculty: faculty,
+        school_year: schoolYear,
+        program: program,
+        address: address,
+        email: email,
+        phone: phone,
+        status: status,
+      }
+      addStudent(addingStudent)
+        .then((new_id) => {
+          setStudents([...students, { student_id: new_id, ...addingStudent}]);
+          setIsAdding(false);
+        })
+        .catch((err) => {
+          throw err;
+        });
 
       Swal.fire({
         icon: "success",

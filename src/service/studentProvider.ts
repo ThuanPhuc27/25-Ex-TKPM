@@ -1,3 +1,5 @@
+import { Students_data } from "../data/index";
+
 type Student = {
   student_id?: string;
   full_name: string;
@@ -8,6 +10,7 @@ type Student = {
   program: string;
   address: string;
   email: string;
+  phone: string;
   status: string;
 };
 
@@ -133,7 +136,7 @@ async function _findStudentsByName(
   });
 }
 
-async function _connect(): Promise<IDBDatabase> {
+async function _connect(withInitialData: boolean = true): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = window.indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -151,6 +154,13 @@ async function _connect(): Promise<IDBDatabase> {
       objectStore.createIndex(STUDENT_NAME_FIELD, STUDENT_NAME_FIELD, {
         unique: false,
       });
+
+      // Push the initial data to it
+      if (withInitialData) {
+        Students_data.map((student) => {
+          objectStore.add(student);
+        });
+      }
     };
 
     request.onsuccess = (ev: Event) => {
