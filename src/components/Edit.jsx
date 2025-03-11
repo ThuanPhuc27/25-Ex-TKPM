@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import { upsertStudent } from "../service/studentProvider";
 
 const validFaculties = [
   "Faculty of Law",
@@ -17,7 +18,8 @@ const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
-  const id = selectedStudent.id;
+  // const id = selectedStudent.id;
+  const id = selectedStudent.student_id;
 
   const [fullName, setFullName] = useState(selectedStudent.fullName);
   const [birthDate, setBirthDate] = useState(selectedStudent.birthDate);
@@ -108,22 +110,54 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/students/${id}/edit`, {
-        method: "PUT", // hoặc PATCH nếu API của bạn sử dụng PATCH
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedStudent),
-      });
 
-      if (!response.ok) throw new Error("Failed to update student");
+      // const response = await fetch(`http://localhost:5000/api/students/${id}/edit`, {
+      //   method: "PUT", // hoặc PATCH nếu API của bạn sử dụng PATCH
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(updatedStudent),
+      // });
 
-      const data = await response.json();
-      const updatedStudents = students.map((student) =>
-        student.id === id ? data : student
-      );
-      setStudents(updatedStudents);
-      setIsEditing(false);
+      // if (!response.ok) throw new Error("Failed to update student");
+
+      // const data = await response.json();
+      // const updatedStudents = students.map((student) =>
+      //   student.id === id ? data : student
+      // );
+      // setStudents(updatedStudents);
+      // setIsEditing(false);
+
+      const editingStudent = {
+        student_id: id, // should be student_id
+        full_name: fullName,
+        sex: sex,
+        faculty: faculty,
+        school_year: schoolYear,
+        program: program,
+        address: address,
+        email: email,
+        phone: phone,
+        status: status,
+      }
+      upsertStudent(editingStudent)
+        .then((id) => {
+          console.log("previous_students: ", JSON.stringify(students))
+          console.log("current_student: ", JSON.stringify(editingStudent))
+          const existingStudentIndex = students.findIndex((student) => student.student_id === id)
+          console.log("existing_student_index: ", existingStudentIndex)
+          if (existingStudentIndex >= 0) {
+            const newStudents = [
+              ...students.slice(0, existingStudentIndex),
+              editingStudent,
+              ...students.slice(existingStudentIndex + 1)
+            ]
+            console.log("new_students: ", JSON.stringify(newStudents))
+            setStudents(newStudents)
+            setIsEditing(false)
+          }
+        })
+        .catch((err) => { throw err; });
 
       Swal.fire({
         icon: "success",

@@ -29,6 +29,13 @@ const addStudent = async (student: Student) => {
   return _addStudent(dbInstance!, student);
 };
 
+const upsertStudent = async (student: Student) => {
+  if (dbInstance === null) {
+    await initializeStudentData();
+  }
+  return _upsertStudent(dbInstance!, student);
+};
+
 const removeStudentById = async (studentId: string) => {
   if (dbInstance === null) {
     await initializeStudentData();
@@ -54,6 +61,7 @@ export {
   Student,
   initializeStudentData,
   addStudent,
+  upsertStudent,
   removeStudentById,
   fetchAllStudents,
   findStudentsByName,
@@ -78,6 +86,21 @@ async function _addStudent(db: IDBDatabase, data: Student): Promise<string> {
       resolve((ev.target as IDBRequest).result as string); // ev.target.result == data[STUDENT_STORE_KEY]
     request.onerror = (ev) =>
       reject(`Can't add an entry to ${STUDENT_STORE_NAME}'s object store!`);
+  });
+}
+
+async function _upsertStudent(db: IDBDatabase, data: Student): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const request = db
+      .transaction(STUDENT_STORE_NAME, "readwrite")
+      .objectStore(STUDENT_STORE_NAME)
+      .put(data);
+    request.onsuccess = (ev) =>
+      resolve((ev.target as IDBRequest).result as string); // ev.target.result == data[STUDENT_STORE_KEY]
+    request.onerror = (ev) =>
+      reject(
+        `Can't insert/update an entry to ${STUDENT_STORE_NAME}'s object store!`
+      );
   });
 }
 
@@ -174,32 +197,3 @@ async function _connect(withInitialData: boolean = true): Promise<IDBDatabase> {
     };
   });
 }
-
-// async function main() {
-//   try {
-//     const db = await connect();
-
-//     console.log("db ok!");
-
-//     await addStudent(db, {
-//       full_name: "Thuc",
-//       birth_date: "",
-//       sex: "Male",
-//       faculty: "Law",
-//       school_year: 2004,
-//       program: "Stardard",
-//       address: "",
-//       email: "",
-//       status: "studying",
-//     });
-
-//     console.log("add ok!");
-
-//     const res = await fetchAllStudents(db);
-//     console.log(res);
-//   } catch (error: any) {
-//     console.log("Database error: ", (error as Error).message);
-//   }
-// }
-
-// main();
