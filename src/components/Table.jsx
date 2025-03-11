@@ -1,28 +1,67 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-const Table = ({ students, handleEdit, handleDelete }) => {
-  const formatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: null,
-  });
+const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents }) => {
+  const navigate = useNavigate();
+
+  // Hàm gọi API xóa sinh viên
+  const deleteStudent = (studentId) => {
+    fetch(`http://localhost:5000/students/${studentId}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete student");
+        }
+        return res.json();
+      })
+      .then(() => {
+        // Sau khi xóa thành công, gọi hàm refresh để cập nhật lại danh sách (nếu được truyền vào)
+        if (refreshStudents) {
+          refreshStudents();
+        }
+        // Hoặc gọi callback handleDelete nếu bạn muốn xử lý tại component cha
+        if (handleDelete) {
+          handleDelete(studentId);
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting student:", error);
+      });
+  };
+
+  // Hàm xác nhận xóa bằng SweetAlert2
+  const confirmDelete = (studentId) => {
+    Swal.fire({
+      icon: "warning",
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      buttonsStyling: false, // Tắt styling mặc định của SweetAlert2 để dễ dàng tùy chỉnh
+      customClass: {
+        confirmButton: "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        cancelButton: "bg-red-300 text-gray-800 hover:bg-red-400 py-2 px-7",
+      },
+    }).then((result) => {
+      if (result.value) {
+        deleteStudent(studentId);
+      }
+    });
+  };
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
-            <th className="border border-gray-300 px-4 py-2">ID</th>
-            <th className="border border-gray-300 px-4 py-2">Name</th>
-            <th className="border border-gray-300 px-4 py-2">Birthday</th>
-            <th className="border border-gray-300 px-4 py-2">Gender</th>
-            <th className="border border-gray-300 px-4 py-2">Email</th>
-            <th className="border border-gray-300 px-4 py-2">Phone</th>
+            <th className="border border-gray-300 px-4 py-2">Student ID</th>
+            <th className="border border-gray-300 px-4 py-2">Full Name</th>
+            <th className="border border-gray-300 px-4 py-2">Faculty</th>
             <th className="border border-gray-300 px-4 py-2">Status</th>
-            <th
-              colSpan={3}
-              className="border border-gray-300 px-4 py-2 text-center"
-            >
+            <th colSpan={3} className="border border-gray-300 px-4 py-2 text-center">
               Actions
             </th>
           </tr>
@@ -30,42 +69,28 @@ const Table = ({ students, handleEdit, handleDelete }) => {
         <tbody>
           {students.length > 0 ? (
             students.map((student) => (
-              <tr
-                key={student.student_id}
-                className="text-center odd:bg-white even:bg-gray-100"
-              >
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.student_id}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.full_name}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.birth_date}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.sex}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.email}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.phone}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {student.status}
-                </td>
+              <tr key={student.student_id} className="text-center odd:bg-white even:bg-gray-100">
+                <td className="border border-gray-300 px-4 py-2">{student.student_id}</td>
+                <td className="border border-gray-300 px-4 py-2">{student.full_name}</td>
+                <td className="border border-gray-300 px-4 py-2">{student.faculty}</td>
+                <td className="border border-gray-300 px-4 py-2">{student.status}</td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => handleDelete(student.id)}
-                    className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-700"
+                    onClick={() => {
+                      if (handleView) {
+                        handleView(student.student_id);
+                      } else {
+                        navigate(`/students/${student.student_id}`);
+                      }
+                    }}
+                    className="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-700"
                   >
                     View
                   </button>
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => handleEdit(student.id)}
+                    onClick={() => handleEdit(student.student_id)}
                     className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-700"
                   >
                     Edit
@@ -73,7 +98,7 @@ const Table = ({ students, handleEdit, handleDelete }) => {
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => handleDelete(student.id)}
+                    onClick={() => confirmDelete(student.student_id)}
                     className="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-700"
                   >
                     Delete
@@ -83,10 +108,7 @@ const Table = ({ students, handleEdit, handleDelete }) => {
             ))
           ) : (
             <tr>
-              <td
-                colSpan={7}
-                className="border border-gray-300 px-4 py-2 text-center"
-              >
+              <td colSpan={7} className="border border-gray-300 px-4 py-2 text-center">
                 No students
               </td>
             </tr>
