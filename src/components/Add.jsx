@@ -28,6 +28,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState("");
+  const [studentId, setStudentId] = useState("");
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -155,6 +156,13 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         Add Student
       </h1>
       <form onSubmit={handleAdd} className="space-y-4">
+        <input
+          type="text"
+          placeholder="ID"
+          value={studentId}
+          onChange={(e) => setStudentId(e.target.value)}
+          className="w-full rounded border p-2"
+        />
         <input
           type="text"
           placeholder="Full Name"
