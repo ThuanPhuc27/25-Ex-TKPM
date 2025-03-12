@@ -82,18 +82,18 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
         <tbody>
           {students.length > 0 ? (
             students.map((student) => (
-              <tr key={student.student_id} className="text-center odd:bg-white even:bg-gray-100">
-                <td className="border border-gray-300 px-4 py-2">{student.student_id}</td>
-                <td className="border border-gray-300 px-4 py-2">{student.full_name}</td>
+              <tr key={student.studentId} className="text-center odd:bg-white even:bg-gray-100">
+                <td className="border border-gray-300 px-4 py-2">{student.studentId}</td>
+                <td className="border border-gray-300 px-4 py-2">{student.fullName}</td>
                 <td className="border border-gray-300 px-4 py-2">{student.faculty}</td>
                 <td className="border border-gray-300 px-4 py-2">{student.status}</td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
                     onClick={() => {
                       if (handleView) {
-                        handleView(student.student_id);
+                        handleView(student.studentId);
                       } else {
-                        navigate(`/students/${student.student_id}`);
+                        navigate(`/students/${student.studentId}`);
                       }
                     }}
                     className="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-700"
@@ -103,7 +103,7 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => handleEdit(student.student_id)}
+                    onClick={() => handleEdit(student.studentId)}
                     className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-700"
                   >
                     Edit
@@ -111,7 +111,7 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => confirmDelete(student.student_id)}
+                    onClick={() => confirmDelete(student.studentId)}
                     className="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-700"
                   >
                     Delete

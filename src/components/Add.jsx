@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { addStudent } from "../service/studentProvider";
+import { addStudent, STUDENT_STORE_KEY } from "../service/studentProvider";
 
 const validFaculties = [
   "Faculty of Law",
@@ -110,21 +110,9 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       // setStudents([...students, addedStudent]);
       // setIsAdding(false);
 
-      const addingStudent = {
-        full_name: fullName,
-        birth_date: birthDate,
-        sex: sex,
-        faculty: faculty,
-        school_year: schoolYear,
-        program: program,
-        address: address,
-        email: email,
-        phone: phone,
-        status: status,
-      }
-      addStudent(addingStudent)
+      addStudent(newStudent)
         .then((new_id) => {
-          setStudents([...students, { student_id: new_id, ...addingStudent}]);
+          setStudents([...students, { [STUDENT_STORE_KEY]: new_id, ...newStudent}]);
           setIsAdding(false);
         })
         .catch((err) => {

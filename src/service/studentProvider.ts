@@ -1,17 +1,17 @@
 import { Students_data } from "../data/index";
 
 type Student = {
-  student_id?: string;
-  full_name: string;
-  birth_date: string;
-  sex: string;
-  faculty: string;
-  school_year: number;
-  program: string;
-  address: string;
-  email: string;
-  phone: string;
-  status: string;
+  studentId: string;
+  fullName: string;
+};
+
+const STUDENT_STORE_KEY = "studentId";
+const STUDENT_NAME_FIELD = "fullName";
+
+const StudentKeyCheckResponse = {
+  VALID_KEY: `The key propery "${STUDENT_STORE_KEY}" contains valid value to be added to the database`,
+  KEY_NOT_FOUND: `The key property "${STUDENT_STORE_KEY}" not found in the data object`,
+  EXISTED_KEY: `The key property "${STUDENT_STORE_KEY}" having existed value in the database"`,
 };
 
 let dbInstance: IDBDatabase | null = null;
@@ -22,6 +22,14 @@ const initializeStudentData = async () => {
   }
 };
 
+const checkStudentKey = async (data: any) => {
+  if (dbInstance === null) {
+    await initializeStudentData();
+  }
+  return _checkStudentKey(dbInstance!, data);
+};
+
+/// Throw "ConstraintError" DOMException if the key has existed
 const addStudent = async (student: Student) => {
   if (dbInstance === null) {
     await initializeStudentData();
@@ -59,7 +67,10 @@ const findStudentsByName = async (studentName: string) => {
 
 export {
   Student,
+  STUDENT_STORE_KEY,
+  StudentKeyCheckResponse,
   initializeStudentData,
+  checkStudentKey,
   addStudent,
   upsertStudent,
   removeStudentById,
@@ -68,13 +79,27 @@ export {
 };
 
 //---
-
 const DB_NAME = "students";
 const DB_VERSION = 1;
 
 const STUDENT_STORE_NAME = "students";
-const STUDENT_STORE_KEY = "student_id";
-const STUDENT_NAME_FIELD = "full_name";
+
+async function _checkStudentKey(db: IDBDatabase, data: any): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!data[STUDENT_STORE_KEY]) {
+      resolve(StudentKeyCheckResponse.KEY_NOT_FOUND);
+    }
+    const request = db
+      .transaction(STUDENT_STORE_NAME, "readonly")
+      .objectStore(STUDENT_STORE_NAME)
+      .getKey(data[STUDENT_STORE_KEY]);
+    request.onsuccess = (ev: Event) =>
+      resolve(StudentKeyCheckResponse.EXISTED_KEY);
+    request.onerror = (ev: Event) => {
+      resolve(StudentKeyCheckResponse.KEY_NOT_FOUND);
+    };
+  });
+}
 
 async function _addStudent(db: IDBDatabase, data: Student): Promise<string> {
   return new Promise((resolve, reject) => {

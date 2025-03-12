@@ -56,8 +56,8 @@ const Dashboard = ({ setIsAuthenticated }) => {
   }, []);
 
   const filteredStudents = students.filter((student) =>
-    student.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.student_id.toLowerCase().includes(searchQuery.toLowerCase())
+    student.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Tính số trang và danh sách sinh viên ở trang hiện tại
@@ -67,7 +67,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const currentStudents = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleEdit = (id) => {
-    const [student] = students.filter((student) => student.student_id === id);
+    const [student] = students.filter((student) => student.studentId === id);
     setSelectedStudent(student);
     setIsEditing(true);
   };

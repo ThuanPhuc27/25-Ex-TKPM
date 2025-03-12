@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { upsertStudent } from "../service/studentProvider";
+import { STUDENT_STORE_KEY, upsertStudent } from "../service/studentProvider";
 
 const validFaculties = [
   "Faculty of Law",
@@ -19,7 +19,7 @@ const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   // const id = selectedStudent.id;
-  const id = selectedStudent.student_id;
+  const id = selectedStudent[STUDENT_STORE_KEY];
 
   const [fullName, setFullName] = useState(selectedStudent.fullName);
   const [birthDate, setBirthDate] = useState(selectedStudent.birthDate);
@@ -96,7 +96,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
     }
 
     const updatedStudent = {
-      id,
+      studentId: id,
       fullName,
       birthDate,
       sex,
@@ -128,28 +128,16 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       // setStudents(updatedStudents);
       // setIsEditing(false);
 
-      const editingStudent = {
-        student_id: id, // should be student_id
-        full_name: fullName,
-        sex: sex,
-        faculty: faculty,
-        school_year: schoolYear,
-        program: program,
-        address: address,
-        email: email,
-        phone: phone,
-        status: status,
-      }
-      upsertStudent(editingStudent)
-        .then((id) => {
+      upsertStudent(updatedStudent)
+        .then((updatedId) => {
           console.log("previous_students: ", JSON.stringify(students))
-          console.log("current_student: ", JSON.stringify(editingStudent))
-          const existingStudentIndex = students.findIndex((student) => student.student_id === id)
+          console.log("current_student: ", JSON.stringify(updatedStudent))
+          const existingStudentIndex = students.findIndex((student) => student[STUDENT_STORE_KEY] === updatedId)
           console.log("existing_student_index: ", existingStudentIndex)
           if (existingStudentIndex >= 0) {
             const newStudents = [
               ...students.slice(0, existingStudentIndex),
-              editingStudent,
+              updatedStudent,
               ...students.slice(existingStudentIndex + 1)
             ]
             console.log("new_students: ", JSON.stringify(newStudents))
