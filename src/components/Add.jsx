@@ -9,7 +9,7 @@ const validFaculties = [
   "Faculty of French",
 ];
 
-const validStatuses = ["Active", "Graduated", "Dropped Out"];
+const validStatuses = ["Active", "Graduated", "Dropped Out", "Paused"];
 
 // Regex kiểm tra định dạng email đơn giản
 const emailRegex = /^\S+@\S+\.\S+$/;
@@ -92,10 +92,20 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       });
     }
 
-    const newStudent = { fullName, birthDate, sex, faculty, schoolYear, program, address, email, phone, status };
+    const newStudent = {
+      fullName,
+      birthDate,
+      sex,
+      faculty,
+      schoolYear,
+      program,
+      address,
+      email,
+      phone,
+      status,
+    };
 
     try {
-
       // const response = await fetch("http://localhost:5000/api/students/add", {
       //   method: "POST",
       //   headers: {
@@ -112,7 +122,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
 
       addStudent(newStudent)
         .then((new_id) => {
-          setStudents([...students, { [STUDENT_STORE_KEY]: new_id, ...newStudent}]);
+          setStudents([
+            ...students,
+            { [STUDENT_STORE_KEY]: new_id, ...newStudent },
+          ]);
           setIsAdding(false);
         })
         .catch((err) => {
@@ -138,31 +151,43 @@ const Add = ({ students, setStudents, setIsAdding }) => {
 
   return (
     <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
-      <h1 className="mb-4 text-center text-2xl font-bold text-gray-700">Add Student</h1>
+      <h1 className="mb-4 text-center text-2xl font-bold text-gray-700">
+        Add Student
+      </h1>
       <form onSubmit={handleAdd} className="space-y-4">
         <input
           type="text"
           placeholder="Full Name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="date"
           value={birthDate}
           onChange={(e) => setBirthDate(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
-        <select value={sex} onChange={(e) => setSex(e.target.value)} className="w-full p-2 border rounded">
+        <select
+          value={sex}
+          onChange={(e) => setSex(e.target.value)}
+          className="w-full rounded border p-2"
+        >
           <option value="">Select Gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
           <option value="Other">Other</option>
         </select>
-        <select value={faculty} onChange={(e) => setFaculty(e.target.value)} className="w-full p-2 border rounded">
+        <select
+          value={faculty}
+          onChange={(e) => setFaculty(e.target.value)}
+          className="w-full rounded border p-2"
+        >
           <option value="">Select Faculty</option>
           <option value="Faculty of Law">Faculty of Law</option>
-          <option value="Faculty of Business English">Faculty of Business English</option>
+          <option value="Faculty of Business English">
+            Faculty of Business English
+          </option>
           <option value="Faculty of Japanese">Faculty of Japanese</option>
           <option value="Faculty of French">Faculty of French</option>
         </select>
@@ -170,51 +195,65 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           type="number"
           placeholder="School Year"
           value={schoolYear}
-          onChange={(e) => setSchoolYear(e.target.value)}
-          className="w-full p-2 border rounded"
+          onChange={(e) => {
+            const value = parseInt(e.target.value, 10);
+            if (!isNaN(value) && value > 0) {
+              setSchoolYear(value);
+            } else {
+              setSchoolYear(""); // Nếu nhập giá trị không hợp lệ, đặt lại thành rỗng
+            }
+          }}
+          className="w-full rounded border p-2"
         />
         <input
           type="text"
           placeholder="Program"
           value={program}
           onChange={(e) => setProgram(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="text"
           placeholder="Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="text"
           placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-2 border rounded">
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="w-full rounded border p-2"
+        >
           <option value="">Select Status</option>
           <option value="Active">Active</option>
           <option value="Graduated">Graduated</option>
           <option value="Dropped Out">Dropped Out</option>
         </select>
 
-        <div className="flex justify-between mt-4">
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+        <div className="mt-4 flex justify-between">
+          <button
+            type="submit"
+            className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
+          >
             Add
           </button>
           <button
             type="button"
-            className="w-full bg-gray-400 text-white p-2 rounded ml-2 hover:bg-gray-500"
+            className="ml-2 w-full rounded bg-gray-400 p-2 text-white hover:bg-gray-500"
             onClick={() => setIsAdding(false)}
           >
             Cancel

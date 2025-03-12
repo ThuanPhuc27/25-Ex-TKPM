@@ -2,9 +2,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import { removeStudentById } from "../service/studentProvider"
+import { removeStudentById } from "../service/studentProvider";
 
-const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents }) => {
+const Table = ({
+  students,
+  handleEdit,
+  handleDelete,
+  handleView,
+  refreshStudents,
+}) => {
   const navigate = useNavigate();
 
   // Hàm gọi API xóa sinh viên
@@ -12,13 +18,12 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
     removeStudentById(studentId)
       .then(() => {
         if (handleDelete) {
-          handleDelete(studentId)
+          handleDelete(studentId);
         }
       })
       .catch((err) => {
-        console.log(`Error deleting student with id ${studentId}: ${err}`)
+        console.log(`Error deleting student with id ${studentId}: ${err}`);
       });
-
 
     // fetch(`http://localhost:5000/students/${studentId}`, {
     //   method: "DELETE",
@@ -55,7 +60,8 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
       cancelButtonText: "No",
       buttonsStyling: false, // Tắt styling mặc định của SweetAlert2 để dễ dàng tùy chỉnh
       customClass: {
-        confirmButton: "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        confirmButton:
+          "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
         cancelButton: "bg-red-300 text-gray-800 hover:bg-red-400 py-2 px-7",
       },
     }).then((result) => {
@@ -74,7 +80,10 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
             <th className="border border-gray-300 px-4 py-2">Full Name</th>
             <th className="border border-gray-300 px-4 py-2">Faculty</th>
             <th className="border border-gray-300 px-4 py-2">Status</th>
-            <th colSpan={3} className="border border-gray-300 px-4 py-2 text-center">
+            <th
+              colSpan={3}
+              className="border border-gray-300 px-4 py-2 text-center"
+            >
               Actions
             </th>
           </tr>
@@ -82,18 +91,31 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
         <tbody>
           {students.length > 0 ? (
             students.map((student) => (
-              <tr key={student.studentId} className="text-center odd:bg-white even:bg-gray-100">
-                <td className="border border-gray-300 px-4 py-2">{student.studentId}</td>
-                <td className="border border-gray-300 px-4 py-2">{student.fullName}</td>
-                <td className="border border-gray-300 px-4 py-2">{student.faculty}</td>
-                <td className="border border-gray-300 px-4 py-2">{student.status}</td>
+              <tr
+                key={student.studentId}
+                className="text-center odd:bg-white even:bg-gray-100"
+              >
+                <td className="border border-gray-300 px-4 py-2">
+                  {student.studentId}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {student.fullName}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {student.faculty}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {student.status}
+                </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
                     onClick={() => {
                       if (handleView) {
-                        handleView(student.studentId);
+                        handleView(student.studentId, student);
                       } else {
-                        navigate(`/students/${student.studentId}`);
+                        navigate(`/students/${student.studentId}`, {
+                          state: { student },
+                        });
                       }
                     }}
                     className="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-700"
@@ -121,7 +143,10 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
             ))
           ) : (
             <tr>
-              <td colSpan={7} className="border border-gray-300 px-4 py-2 text-center">
+              <td
+                colSpan={7}
+                className="border border-gray-300 px-4 py-2 text-center"
+              >
                 No students
               </td>
             </tr>

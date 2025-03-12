@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  Push_Image:
+    runs-on: ubuntu-latest
+
+    env: 
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USER }}/studentservice:latest
+
+    steps: 
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Docker build image
+      run: docker build -t $IMAGE_NAME .
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
+
+    - name: Push Docker image
+      run: docker push $IMAGE_NAME
+

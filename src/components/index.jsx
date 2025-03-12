@@ -11,7 +11,10 @@ import Pagination from "./Pagination.jsx";
 // Dữ liệu dự phòng (fallback) nếu API không trả về dữ liệu
 import { Students_data } from "../data/index.js";
 
-import { fetchAllStudents, removeStudentById } from "../service/studentProvider"
+import {
+  fetchAllStudents,
+  removeStudentById,
+} from "../service/studentProvider";
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
@@ -55,16 +58,23 @@ const Dashboard = ({ setIsAuthenticated }) => {
     refreshStudentsLocally();
   }, []);
 
-  const filteredStudents = students.filter((student) =>
-    student.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStudents = students.filter(
+    (student) =>
+      student.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.studentId
+        .toString()
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
   );
 
   // Tính số trang và danh sách sinh viên ở trang hiện tại
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentStudents = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+  const currentStudents = filteredStudents.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handleEdit = (id) => {
     const [student] = students.filter((student) => student.studentId === id);
@@ -83,16 +93,20 @@ const Dashboard = ({ setIsAuthenticated }) => {
     setCurrentPage(page);
   };
 
-  const handleView = (id) => {
-    navigate(`/students/${id}`);
-
+  const handleView = (id, student) => {
+    navigate(`/students/${id}`, {
+      state: { student },
+    });
   };
 
   return (
     <div className="container mx-auto p-6">
       {!isAdding && !isEditing && (
         <>
-          <Header setIsAdding={setIsAdding} setIsAuthenticated={setIsAuthenticated} />
+          <Header
+            setIsAdding={setIsAdding}
+            setIsAuthenticated={setIsAuthenticated}
+          />
           <Search searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           <div className="mt-6">
             <Table
