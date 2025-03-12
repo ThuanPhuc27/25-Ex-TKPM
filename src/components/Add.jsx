@@ -242,6 +242,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           <option value="Active">Active</option>
           <option value="Graduated">Graduated</option>
           <option value="Dropped Out">Dropped Out</option>
+          <option value="Paused">Paused</option>
         </select>
 
         <div className="mt-4 flex justify-between">

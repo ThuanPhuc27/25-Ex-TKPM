@@ -9,7 +9,7 @@ const validFaculties = [
   "Faculty of French",
 ];
 
-const validStatuses = ["Active", "Graduated", "Dropped Out"];
+const validStatuses = ["Active", "Graduated", "Dropped Out", "Paused"];
 
 // Regex kiểm tra định dạng email
 const emailRegex = /^\S+@\S+\.\S+$/;
@@ -110,7 +110,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
     };
 
     try {
-
       // const response = await fetch(`http://localhost:5000/api/students/${id}/edit`, {
       //   method: "PUT", // hoặc PATCH nếu API của bạn sử dụng PATCH
       //   headers: {
@@ -130,22 +129,26 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
 
       upsertStudent(updatedStudent)
         .then((updatedId) => {
-          console.log("previous_students: ", JSON.stringify(students))
-          console.log("current_student: ", JSON.stringify(updatedStudent))
-          const existingStudentIndex = students.findIndex((student) => student[STUDENT_STORE_KEY] === updatedId)
-          console.log("existing_student_index: ", existingStudentIndex)
+          console.log("previous_students: ", JSON.stringify(students));
+          console.log("current_student: ", JSON.stringify(updatedStudent));
+          const existingStudentIndex = students.findIndex(
+            (student) => student[STUDENT_STORE_KEY] === updatedId
+          );
+          console.log("existing_student_index: ", existingStudentIndex);
           if (existingStudentIndex >= 0) {
             const newStudents = [
               ...students.slice(0, existingStudentIndex),
               updatedStudent,
-              ...students.slice(existingStudentIndex + 1)
-            ]
-            console.log("new_students: ", JSON.stringify(newStudents))
-            setStudents(newStudents)
-            setIsEditing(false)
+              ...students.slice(existingStudentIndex + 1),
+            ];
+            console.log("new_students: ", JSON.stringify(newStudents));
+            setStudents(newStudents);
+            setIsEditing(false);
           }
         })
-        .catch((err) => { throw err; });
+        .catch((err) => {
+          throw err;
+        });
 
       Swal.fire({
         icon: "success",
@@ -173,18 +176,18 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           placeholder="Full Name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="date"
           value={birthDate}
           onChange={(e) => setBirthDate(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <select
           value={sex}
           onChange={(e) => setSex(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         >
           <option value="">Select Gender</option>
           <option value="Male">Male</option>
@@ -194,11 +197,13 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         <select
           value={faculty}
           onChange={(e) => setFaculty(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         >
           <option value="">Select Faculty</option>
           <option value="Faculty of Law">Faculty of Law</option>
-          <option value="Faculty of Business English">Faculty of Business English</option>
+          <option value="Faculty of Business English">
+            Faculty of Business English
+          </option>
           <option value="Faculty of Japanese">Faculty of Japanese</option>
           <option value="Faculty of French">Faculty of French</option>
         </select>
@@ -207,57 +212,58 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           placeholder="School Year"
           value={schoolYear}
           onChange={(e) => setSchoolYear(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="text"
           placeholder="Program"
           value={program}
           onChange={(e) => setProgram(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="text"
           placeholder="Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <input
           type="text"
           placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         >
           <option value="">Select Status</option>
           <option value="Active">Active</option>
           <option value="Graduated">Graduated</option>
           <option value="Dropped Out">Dropped Out</option>
+          <option value="Paused">Paused</option>
         </select>
-        <div className="flex justify-between mt-4">
+        <div className="mt-4 flex justify-between">
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
           >
             Update
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="w-full bg-gray-400 text-white p-2 rounded ml-2 hover:bg-gray-500"
+            className="ml-2 w-full rounded bg-gray-400 p-2 text-white hover:bg-gray-500"
           >
             Cancel
           </button>

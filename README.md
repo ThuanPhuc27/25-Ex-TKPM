@@ -37,7 +37,7 @@
 
     services:
       app:
-        image: thuanlp/studentservice
+        image: thuanlp/studentservice:latest
         container_name: studentservice
         volumes:
           - .:/app
