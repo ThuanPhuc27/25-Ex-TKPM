@@ -2,33 +2,46 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
+import { removeStudentById } from "../service/studentProvider"
+
 const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents }) => {
   const navigate = useNavigate();
 
   // Hàm gọi API xóa sinh viên
   const deleteStudent = (studentId) => {
-    fetch(`http://localhost:5000/students/${studentId}`, {
-      method: "DELETE",
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to delete student");
-        }
-        return res.json();
-      })
+    removeStudentById(studentId)
       .then(() => {
-        // Sau khi xóa thành công, gọi hàm refresh để cập nhật lại danh sách (nếu được truyền vào)
-        if (refreshStudents) {
-          refreshStudents();
-        }
-        // Hoặc gọi callback handleDelete nếu bạn muốn xử lý tại component cha
         if (handleDelete) {
-          handleDelete(studentId);
+          handleDelete(studentId)
         }
       })
-      .catch((error) => {
-        console.error("Error deleting student:", error);
+      .catch((err) => {
+        console.log(`Error deleting student with id ${studentId}: ${err}`)
       });
+
+
+    // fetch(`http://localhost:5000/students/${studentId}`, {
+    //   method: "DELETE",
+    // })
+    //   .then((res) => {
+    //     if (!res.ok) {
+    //       throw new Error("Failed to delete student");
+    //     }
+    //     return res.json();
+    //   })
+    //   .then(() => {
+    //     // Sau khi xóa thành công, gọi hàm refresh để cập nhật lại danh sách (nếu được truyền vào)
+    //     if (refreshStudents) {
+    //       refreshStudents();
+    //     }
+    //     // Hoặc gọi callback handleDelete nếu bạn muốn xử lý tại component cha
+    //     if (handleDelete) {
+    //       handleDelete(studentId);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error deleting student:", error);
+    //   });
   };
 
   // Hàm xác nhận xóa bằng SweetAlert2
@@ -69,18 +82,18 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
         <tbody>
           {students.length > 0 ? (
             students.map((student) => (
-              <tr key={student.student_id} className="text-center odd:bg-white even:bg-gray-100">
-                <td className="border border-gray-300 px-4 py-2">{student.student_id}</td>
-                <td className="border border-gray-300 px-4 py-2">{student.full_name}</td>
+              <tr key={student.studentId} className="text-center odd:bg-white even:bg-gray-100">
+                <td className="border border-gray-300 px-4 py-2">{student.studentId}</td>
+                <td className="border border-gray-300 px-4 py-2">{student.fullName}</td>
                 <td className="border border-gray-300 px-4 py-2">{student.faculty}</td>
                 <td className="border border-gray-300 px-4 py-2">{student.status}</td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
                     onClick={() => {
                       if (handleView) {
-                        handleView(student.student_id);
+                        handleView(student.studentId);
                       } else {
-                        navigate(`/students/${student.student_id}`);
+                        navigate(`/students/${student.studentId}`);
                       }
                     }}
                     className="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-700"
@@ -90,7 +103,7 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => handleEdit(student.student_id)}
+                    onClick={() => handleEdit(student.studentId)}
                     className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-700"
                   >
                     Edit
@@ -98,7 +111,7 @@ const Table = ({ students, handleEdit, handleDelete, handleView, refreshStudents
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button
-                    onClick={() => confirmDelete(student.student_id)}
+                    onClick={() => confirmDelete(student.studentId)}
                     className="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-700"
                   >
                     Delete

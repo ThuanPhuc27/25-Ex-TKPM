@@ -11,6 +11,8 @@ import Pagination from "./Pagination.jsx";
 // Dữ liệu dự phòng (fallback) nếu API không trả về dữ liệu
 import { Students_data } from "../data/index.js";
 
+import { fetchAllStudents, removeStudentById } from "../service/studentProvider"
+
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -37,13 +39,25 @@ const Dashboard = ({ setIsAuthenticated }) => {
       });
   };
 
+  const refreshStudentsLocally = () => {
+    fetchAllStudents()
+      .then((data) => {
+        setStudents(data);
+      })
+      .catch((err) => {
+        console.error(`Error fetching students: ${err}`);
+      });
+  };
+
   useEffect(() => {
-    refreshStudents();
+    // refreshStudents();
+
+    refreshStudentsLocally();
   }, []);
 
   const filteredStudents = students.filter((student) =>
-    student.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.student_id.toLowerCase().includes(searchQuery.toLowerCase())
+    student.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Tính số trang và danh sách sinh viên ở trang hiện tại
@@ -53,14 +67,16 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const currentStudents = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleEdit = (id) => {
-    const [student] = students.filter((student) => student.student_id === id);
+    const [student] = students.filter((student) => student.studentId === id);
     setSelectedStudent(student);
     setIsEditing(true);
   };
 
   // Sau khi xóa từ API, ta refresh lại danh sách student
   const handleDelete = (id) => {
-    refreshStudents();
+    // refreshStudents();
+
+    refreshStudentsLocally();
   };
 
   const handlePageChange = (page) => {
@@ -84,7 +100,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
               handleEdit={handleEdit}
               handleDelete={handleDelete}
               handleView={handleView}
-              refreshStudents={refreshStudents}
+              refreshStudents={refreshStudents} // Currently not used, please change to `refreshStudentsLocally` if needed to use
             />
             <Pagination
               currentPage={currentPage}

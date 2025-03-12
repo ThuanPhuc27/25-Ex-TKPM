@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import { addStudent, STUDENT_STORE_KEY } from "../service/studentProvider";
 
 const validFaculties = [
   "Faculty of Law",
@@ -95,19 +96,28 @@ const Add = ({ students, setStudents, setIsAdding }) => {
 
     try {
 
-      const response = await fetch("http://localhost:5000/api/students/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newStudent),
-      });
+      // const response = await fetch("http://localhost:5000/api/students/add", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(newStudent),
+      // });
 
-      if (!response.ok) throw new Error("Failed to add student");
+      // if (!response.ok) throw new Error("Failed to add student");
 
-      const addedStudent = await response.json();
-      setStudents([...students, addedStudent]);
-      setIsAdding(false);
+      // const addedStudent = await response.json();
+      // setStudents([...students, addedStudent]);
+      // setIsAdding(false);
+
+      addStudent(newStudent)
+        .then((new_id) => {
+          setStudents([...students, { [STUDENT_STORE_KEY]: new_id, ...newStudent}]);
+          setIsAdding(false);
+        })
+        .catch((err) => {
+          throw err;
+        });
 
       Swal.fire({
         icon: "success",
