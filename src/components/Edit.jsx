@@ -211,7 +211,14 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           type="number"
           placeholder="School Year"
           value={schoolYear}
-          onChange={(e) => setSchoolYear(e.target.value)}
+          onChange={(e) => {
+            const value = parseInt(e.target.value, 10);
+            if (!isNaN(value) && value > 0) {
+              setSchoolYear(value);
+            } else {
+              setSchoolYear(""); // Nếu nhập giá trị không hợp lệ, đặt lại thành rỗng
+            }
+          }}
           className="w-full rounded border p-2"
         />
         <input

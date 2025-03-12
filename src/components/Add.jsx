@@ -94,6 +94,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
     }
 
     const newStudent = {
+      studentId,
       fullName,
       birthDate,
       sex,
