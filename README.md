@@ -1,5 +1,18 @@
 # Student Management
 
+25-Ex-TKPM
+
+## Group members
+
+| Student Id | Name           |
+| ---------- | -------------- |
+| 2212 0358  | Phạm Chí Thuần |
+| 2212 0360  | Lê Phúc Thuận  |
+| 2212 0363  | Phan Hồng Thức |
+
+
+# Student Management
+
 Ứng dụng quản lý sinh viên cho phép người dùng thêm, sửa, xóa và xem danh sách sinh viên. Dự án được xây dựng bằng React, Vite và Tailwind CSS.
 
 Các tính năng chính bao gồm:
