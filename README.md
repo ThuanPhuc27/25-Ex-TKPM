@@ -1,10 +1,4 @@
 # Student Management
-## Cau truc thu muc
-Chắc chắn rồi, đây là một ví dụ đầy đủ về file README.md cho dự án "Student Management" của bạn, bao gồm tất cả các phần đã thảo luận và một số bổ sung:
-
-Markdown
-
-# Student Management
 
 Ứng dụng quản lý sinh viên cho phép người dùng thêm, sửa, xóa và xem danh sách sinh viên. Dự án được xây dựng bằng React, Vite và Tailwind CSS.
 
