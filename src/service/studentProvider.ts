@@ -1,4 +1,4 @@
-import { Students_data } from "../data/index";
+import { Students_data } from "../model/student.js";
 
 /**
  * Type represents the required fields for the storing data

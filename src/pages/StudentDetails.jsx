@@ -67,7 +67,7 @@ const StudentDetails = () => {
           <strong>Full Name:</strong> {student.fullName}
         </p>
         <p>
-          <strong>Birth Date:</strong> {student.birthDate}
+          <strong>Birth Date:</strong> {student.birthDate.toLocaleDateString()}
         </p>
         <p>
           <strong>Sex:</strong> {student.sex}
