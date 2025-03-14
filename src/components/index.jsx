@@ -9,7 +9,8 @@ import Search from "./Search";
 import Pagination from "./Pagination.jsx";
 
 // Dữ liệu dự phòng (fallback) nếu API không trả về dữ liệu
-import { Students_data } from "../data/index.js";
+// import { Students_data } from "../data/index.js";
+import { Students_data } from "../model/student.js";
 
 import {
   fetchAllStudents,
