@@ -63,7 +63,7 @@ Markdown
 3.  Sử dụng chức năng tìm kiếm để tìm kiếm sinh viên theo tên hoặc mã sinh viên.
 
 ## Cấu Trúc Thư Mục
-
+```
 .
 ├── src/
 │   ├── components/      # Các component UI 
@@ -84,11 +84,9 @@ Markdown
 ├── Dockerfile           # Cấu hình Docker
 ├── package.json         # Thông tin dự án và dependencies
 ├── package-lock.json    # Thông tin chi tiết về dependencies
-├── postcss.config.cjs   # Cấu hình PostCSS
-├── prettier.config.cjs # Cấu hình Prettier
 ├── tailwind.config.cjs # Cấu hình Tailwind CSS
 └── vite.config.js      # Cấu hình Vite
-
+```
 ## Hướng Dẫn Cài Đặt và Chạy
 
 ### Chạy Thủ Công
@@ -113,37 +111,3 @@ Markdown
     ```
 
     Ứng dụng sẽ chạy tại `http://localhost:5173` 
-
-### Chạy với Docker
-
-1.  **Tạo File `docker-compose.yml`:**
-
-    Tạo một file `docker-compose.yml` trong thư mục gốc của dự án với nội dung sau:
-
-    ```yaml
-    version: '3.8'
-
-    services:
-      app:
-        image: thuanlp/studentservice:latest
-        container_name: studentservice
-        ports:
-          - "5173:5173"
-        networks:
-          - studentservice
-
-    networks:
-      studentservice:
-        driver: bridge
-    ```
-
-2.  **Chạy Docker Compose:**
-
-    ```bash
-    docker-compose up -d
-    ```
-
-3.  **Truy Cập Ứng Dụng:**
-
-    Truy cập ứng dụng tại `http://localhost:5173` trong trình duyệt.
-
