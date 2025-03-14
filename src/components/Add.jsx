@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { addStudent, STUDENT_STORE_KEY } from "../service/studentProvider";
+import {
+  addStudent,
+  fetchAllStudents,
+  STUDENT_STORE_KEY,
+} from "../service/studentProvider";
 
 const validFaculties = [
   "Faculty of Law",
@@ -121,6 +125,20 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       // const addedStudent = await response.json();
       // setStudents([...students, addedStudent]);
       // setIsAdding(false);
+
+      // Kiểm tra studentId có trùng ko
+      const isDuplicate = students.some(
+        (student) => student.studentId === newStudent.studentId
+      );
+
+      if (isDuplicate) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Student ID is duplicate.",
+          showConfirmButton: true,
+        });
+      }
 
       addStudent(newStudent)
         .then((new_id) => {
