@@ -13,6 +13,7 @@ connectToDatabase().catch((onrejected) => {
   console.log(`[server]: Database connection error - (${onrejected})`);
 });
 
+app.use(express.json());
 app.use("/students", studentRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
