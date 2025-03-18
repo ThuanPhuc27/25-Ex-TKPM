@@ -1,13 +1,17 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
-import studentRoutes from "@routes/students";
-
+import studentRoutes from "@routes/students.router";
+import { connectToDatabase } from "@service/database.service";
 // Guide link: https://blog.logrocket.com/how-to-set-up-node-typescript-express/
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+connectToDatabase().catch((onrejected) => {
+  console.log(`[server]: Database connection error - (${onrejected})`);
+});
 
 app.use("/students", studentRoutes);
 
