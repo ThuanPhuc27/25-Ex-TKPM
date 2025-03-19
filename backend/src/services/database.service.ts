@@ -1,11 +1,7 @@
 // External Dependencies
-import { Collection, Db, MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import { Student } from "@models/Student";
-import logger from '../logger';
-
-// Global Variables
-export const collections: { students?: Collection<Student> } = {};
+import logger from "../logger";
+import mongoose from "mongoose";
 
 // Initialize Connection
 export const connectToDatabase = async () => {
@@ -13,7 +9,6 @@ export const connectToDatabase = async () => {
 
   const connectionString = process.env.DB_CONNECTION_STRING;
   const databaseName = process.env.DB_NAME;
-  const studentCollectionName = process.env.DB_STUDENT_COLLECTION_NAME;
   if (!connectionString) {
     throw new Error(
       "DB_CONNECTION_STRING is not defined in the environment variables"
@@ -22,18 +17,13 @@ export const connectToDatabase = async () => {
   if (!databaseName) {
     throw new Error("DB_NAME is not defined in the environment variables");
   }
-  if (!studentCollectionName) {
-    throw new Error(
-      "DB_STUDENT_COLLECTION_NAME is not defined in the environment variables"
-    );
-  }
 
-  const client: MongoClient = new MongoClient(connectionString);
-  await client.connect();
-
-  const db: Db = client.db(databaseName);
-
-  collections.students = db.collection(studentCollectionName);
+  mongoose.connect(connectionString, {
+    dbName: databaseName,
+    // I don't know what these are, but I see it in [https://www.mongodb.com/developer/languages/javascript/getting-started-with-mongodb-and-mongoose/]
+    retryWrites: true,
+    w: "majority",
+  });
 
   logger.info(
     `[server]: Successfully connected to the database and its collections`

@@ -1,7 +1,6 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
-// Tạo interface cho model
-export interface IStudent extends Document {
+export interface IStudent {
   studentId: string;
   fullName: string;
   birthDate: Date;
@@ -15,24 +14,31 @@ export interface IStudent extends Document {
   status: string;
 }
 
-// Tạo schema cho model
-const studentSchema: Schema<IStudent> = new Schema(
+export type IStudentWithId = IStudent & { _id: mongoose.Types.ObjectId };
+
+// Mongoose checks to make sure that every path in your schema is defined in your document interface
+// But it does NOT check for paths that exist in your document interface but not in your schema.
+const studentSchema = new Schema<IStudent>(
   {
     studentId: { type: String, required: true },
     fullName: { type: String, required: true },
     birthDate: { type: Date, required: true },
-    sex: { type: String, enum: ['male', 'female', 'other'], default: 'other' },
+    sex: { type: String, enum: ["Male", "Female", "Other"], default: "Other" },
     faculty: { type: String, required: true },
     schoolYear: { type: Number, required: true },
     program: { type: String, required: true },
     address: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: {
+      type: String,
+      enum: ["Active", "Graduated", "Dropped out", "Paused"],
+      default: "Active",
+    },
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
-// Tạo mongoose model từ schema
-export default mongoose.model<IStudent>('Student', studentSchema);
+const Student = mongoose.model<IStudent>("Student", studentSchema);
 
+export default Student;

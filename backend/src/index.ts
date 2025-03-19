@@ -1,9 +1,9 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import studentRoutes from "@routes/studentsRoute";
-import { connectToDatabase } from "@service/database.service";
-import logger from './logger';
+import studentRoutes from "@routes/studentRoute";
+import { connectToDatabase } from "@services/database.service";
+import logger from "./logger";
 
 // Guide link: https://blog.logrocket.com/how-to-set-up-node-typescript-express/
 
