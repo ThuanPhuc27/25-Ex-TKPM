@@ -1,8 +1,8 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY ./frontend/package.json ./frontend/package-lock.json* ./
 RUN npm install --frozen-lockfile
-COPY . .
+COPY ./frontend ./
 RUN npm run build
 
 
