@@ -132,6 +132,8 @@ export const updateStudent = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(`[database]: Cannot update student - ${error}`);
-    res.status(http.INTERNAL_SERVER_ERROR).send("Cannot update student");
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .send({ reason: "Cannot update student" });
   }
 };
