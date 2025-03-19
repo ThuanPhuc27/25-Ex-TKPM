@@ -10,12 +10,13 @@ import Pagination from "./Pagination.jsx";
 
 // Dữ liệu dự phòng (fallback) nếu API không trả về dữ liệu
 // import { Students_data } from "../data/index.js";
-import { Students_data } from "../model/student.js";
+import { Student, Students_data } from "../model/student.js";
 
 import {
   fetchAllStudents,
   removeStudentById,
 } from "../service/studentProvider";
+import config from "../config.js";
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
@@ -31,32 +32,30 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   // Hàm refresh lấy danh sách sinh viên từ API
   const refreshStudents = () => {
-    fetch("http://localhost:5000/students")
+    fetch(`${config.backendApiRoot}${config.apiPaths.students}`)
       .then((res) => res.json())
       .then((data) => {
-        setStudents(data);
+        setStudents(data.students.map((student) => Student.from(student)));
       })
       .catch((err) => {
         console.error("Error fetching students:", err);
         // Nếu có lỗi, sử dụng dữ liệu dự phòng từ file JSON
-        setStudents(Students_data);
+        // setStudents(Students_data);
       });
   };
 
-  const refreshStudentsLocally = () => {
-    fetchAllStudents()
-      .then((data) => {
-        setStudents(data);
-      })
-      .catch((err) => {
-        console.error(`Error fetching students: ${err}`);
-      });
-  };
+  // const refreshStudentsLocally = () => {
+  //   fetchAllStudents()
+  //     .then((data) => {
+  //       setStudents(data);
+  //     })
+  //     .catch((err) => {
+  //       console.error(`Error fetching students: ${err}`);
+  //     });
+  // };
 
   useEffect(() => {
-    // refreshStudents();
-
-    refreshStudentsLocally();
+    refreshStudents();
   }, []);
 
   const filteredStudents = students.filter(
@@ -85,9 +84,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   // Sau khi xóa từ API, ta refresh lại danh sách student
   const handleDelete = (id) => {
-    // refreshStudents();
-
-    refreshStudentsLocally();
+    refreshStudents();
   };
 
   const handlePageChange = (page) => {
@@ -115,7 +112,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
               handleEdit={handleEdit}
               handleDelete={handleDelete}
               handleView={handleView}
-              refreshStudents={refreshStudents} // Currently not used, please change to `refreshStudentsLocally` if needed to use
+              refreshStudents={refreshStudents}
             />
             <Pagination
               currentPage={currentPage}

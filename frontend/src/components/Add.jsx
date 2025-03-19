@@ -5,6 +5,8 @@ import {
   fetchAllStudents,
   STUDENT_STORE_KEY,
 } from "../service/studentProvider";
+import config from "../config";
+import { Student } from "../model/student";
 
 const validFaculties = [
   "Faculty of Law",
@@ -112,20 +114,6 @@ const Add = ({ students, setStudents, setIsAdding }) => {
     };
 
     try {
-      // const response = await fetch("http://localhost:5000/api/students/add", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(newStudent),
-      // });
-
-      // if (!response.ok) throw new Error("Failed to add student");
-
-      // const addedStudent = await response.json();
-      // setStudents([...students, addedStudent]);
-      // setIsAdding(false);
-
       // Kiểm tra studentId có trùng ko
       const isDuplicate = students.some(
         (student) => student.studentId === newStudent.studentId
@@ -140,17 +128,36 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         });
       }
 
-      addStudent(newStudent)
-        .then((new_id) => {
-          setStudents([
-            ...students,
-            { [STUDENT_STORE_KEY]: new_id, ...newStudent },
-          ]);
-          setIsAdding(false);
-        })
-        .catch((err) => {
-          throw err;
-        });
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.students}/add-one`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...newStudent,
+            studentId: newStudent.studentId.toString(),
+          }),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to add student");
+
+      const addedStudent = (await response.json()).newStudent;
+      setStudents([...students, Student.from(addedStudent)]);
+      setIsAdding(false);
+
+      // addStudent(newStudent)
+      //   .then((new_id) => {
+      //     setStudents([
+      //       ...students,
+      //       { [STUDENT_STORE_KEY]: new_id, ...newStudent },
+      //     ]);
+      //     setIsAdding(false);
+      //   })
+      //   .catch((err) => {
+      //     throw err;
+      //   });
 
       Swal.fire({
         icon: "success",

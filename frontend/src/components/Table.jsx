@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import { removeStudentById } from "../service/studentProvider";
+import config from "../config";
 
 const Table = ({
   students,
@@ -15,38 +16,30 @@ const Table = ({
 
   // Hàm gọi API xóa sinh viên
   const deleteStudent = (studentId) => {
-    removeStudentById(studentId)
-      .then(() => {
-        if (handleDelete) {
-          handleDelete(studentId);
-        }
-      })
-      .catch((err) => {
-        console.log(`Error deleting student with id ${studentId}: ${err}`);
-      });
-
-    // fetch(`http://localhost:5000/students/${studentId}`, {
-    //   method: "DELETE",
-    // })
-    //   .then((res) => {
-    //     if (!res.ok) {
-    //       throw new Error("Failed to delete student");
-    //     }
-    //     return res.json();
-    //   })
+    // removeStudentById(studentId)
     //   .then(() => {
-    //     // Sau khi xóa thành công, gọi hàm refresh để cập nhật lại danh sách (nếu được truyền vào)
-    //     if (refreshStudents) {
-    //       refreshStudents();
-    //     }
-    //     // Hoặc gọi callback handleDelete nếu bạn muốn xử lý tại component cha
     //     if (handleDelete) {
     //       handleDelete(studentId);
     //     }
     //   })
-    //   .catch((error) => {
-    //     console.error("Error deleting student:", error);
+    //   .catch((err) => {
+    //     console.log(`Error deleting student with id ${studentId}: ${err}`);
     //   });
+
+    fetch(`${config.backendApiRoot}${config.apiPaths.students}/${studentId}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete student");
+        }
+        if (handleDelete) {
+          handleDelete(studentId);
+        }
+      })
+      .catch((error) => {
+        console.log(`Error deleting student with id ${studentId}: ${err}`);
+      });
   };
 
   // Hàm xác nhận xóa bằng SweetAlert2

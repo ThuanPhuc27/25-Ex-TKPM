@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { STUDENT_STORE_KEY, upsertStudent } from "../service/studentProvider";
+import config from "../config";
+import { Student } from "../model/student";
+import { formatDateToInput } from "../utils/dateFormatter";
 
 const validFaculties = [
   "Faculty of Law",
@@ -110,45 +113,47 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
     };
 
     try {
-      // const response = await fetch(`http://localhost:5000/api/students/${id}/edit`, {
-      //   method: "PUT", // hoặc PATCH nếu API của bạn sử dụng PATCH
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(updatedStudent),
-      // });
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.students}/${updatedStudent.studentId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedStudent),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to update student");
 
-      // if (!response.ok) throw new Error("Failed to update student");
+      const returnedStudent = (await response.json()).newStudent;
+      const updatedStudents = students.map((student) =>
+        student.studentId === id ? Student.from(returnedStudent) : student
+      );
+      setStudents(updatedStudents);
+      setIsEditing(false);
 
-      // const data = await response.json();
-      // const updatedStudents = students.map((student) =>
-      //   student.id === id ? data : student
-      // );
-      // setStudents(updatedStudents);
-      // setIsEditing(false);
-
-      upsertStudent(updatedStudent)
-        .then((updatedId) => {
-          console.log("previous_students: ", JSON.stringify(students));
-          console.log("current_student: ", JSON.stringify(updatedStudent));
-          const existingStudentIndex = students.findIndex(
-            (student) => student[STUDENT_STORE_KEY] === updatedId
-          );
-          console.log("existing_student_index: ", existingStudentIndex);
-          if (existingStudentIndex >= 0) {
-            const newStudents = [
-              ...students.slice(0, existingStudentIndex),
-              updatedStudent,
-              ...students.slice(existingStudentIndex + 1),
-            ];
-            console.log("new_students: ", JSON.stringify(newStudents));
-            setStudents(newStudents);
-            setIsEditing(false);
-          }
-        })
-        .catch((err) => {
-          throw err;
-        });
+      // upsertStudent(updatedStudent)
+      //   .then((updatedId) => {
+      //     console.log("previous_students: ", JSON.stringify(students));
+      //     console.log("current_student: ", JSON.stringify(updatedStudent));
+      //     const existingStudentIndex = students.findIndex(
+      //       (student) => student[STUDENT_STORE_KEY] === updatedId
+      //     );
+      //     console.log("existing_student_index: ", existingStudentIndex);
+      //     if (existingStudentIndex >= 0) {
+      //       const newStudents = [
+      //         ...students.slice(0, existingStudentIndex),
+      //         updatedStudent,
+      //         ...students.slice(existingStudentIndex + 1),
+      //       ];
+      //       console.log("new_students: ", JSON.stringify(newStudents));
+      //       setStudents(newStudents);
+      //       setIsEditing(false);
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     throw err;
+      //   });
 
       Swal.fire({
         icon: "success",
@@ -180,8 +185,8 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         />
         <input
           type="date"
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
+          value={formatDateToInput(birthDate)}
+          onChange={(e) => setBirthDate(new Date(e.target.value))}
           className="w-full rounded border p-2"
         />
         <select
