@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { STUDENT_STORE_KEY, upsertStudent } from "../service/studentProvider";
 import config from "../config";
 import { Student } from "../model/student";
 import { formatDateToInput } from "../utils/dateFormatter";
@@ -22,7 +21,7 @@ const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   // const id = selectedStudent.id;
-  const id = selectedStudent[STUDENT_STORE_KEY];
+  const id = selectedStudent["studentId"];
 
   const [fullName, setFullName] = useState(selectedStudent.fullName);
   const [birthDate, setBirthDate] = useState(selectedStudent.birthDate);
@@ -131,29 +130,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       );
       setStudents(updatedStudents);
       setIsEditing(false);
-
-      // upsertStudent(updatedStudent)
-      //   .then((updatedId) => {
-      //     console.log("previous_students: ", JSON.stringify(students));
-      //     console.log("current_student: ", JSON.stringify(updatedStudent));
-      //     const existingStudentIndex = students.findIndex(
-      //       (student) => student[STUDENT_STORE_KEY] === updatedId
-      //     );
-      //     console.log("existing_student_index: ", existingStudentIndex);
-      //     if (existingStudentIndex >= 0) {
-      //       const newStudents = [
-      //         ...students.slice(0, existingStudentIndex),
-      //         updatedStudent,
-      //         ...students.slice(existingStudentIndex + 1),
-      //       ];
-      //       console.log("new_students: ", JSON.stringify(newStudents));
-      //       setStudents(newStudents);
-      //       setIsEditing(false);
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     throw err;
-      //   });
 
       Swal.fire({
         icon: "success",

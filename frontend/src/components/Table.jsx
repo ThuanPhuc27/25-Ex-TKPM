@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import { removeStudentById } from "../service/studentProvider";
 import config from "../config";
 
 const Table = ({
@@ -16,16 +15,6 @@ const Table = ({
 
   // Hàm gọi API xóa sinh viên
   const deleteStudent = (studentId) => {
-    // removeStudentById(studentId)
-    //   .then(() => {
-    //     if (handleDelete) {
-    //       handleDelete(studentId);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(`Error deleting student with id ${studentId}: ${err}`);
-    //   });
-
     fetch(`${config.backendApiRoot}${config.apiPaths.students}/${studentId}`, {
       method: "DELETE",
     })

@@ -1,10 +1,5 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import {
-  addStudent,
-  fetchAllStudents,
-  STUDENT_STORE_KEY,
-} from "../service/studentProvider";
 import config from "../config";
 import { Student } from "../model/student";
 
@@ -146,18 +141,6 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       const addedStudent = (await response.json()).newStudent;
       setStudents([...students, Student.from(addedStudent)]);
       setIsAdding(false);
-
-      // addStudent(newStudent)
-      //   .then((new_id) => {
-      //     setStudents([
-      //       ...students,
-      //       { [STUDENT_STORE_KEY]: new_id, ...newStudent },
-      //     ]);
-      //     setIsAdding(false);
-      //   })
-      //   .catch((err) => {
-      //     throw err;
-      //   });
 
       Swal.fire({
         icon: "success",

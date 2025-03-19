@@ -8,14 +8,8 @@ import Edit from "./Edit";
 import Search from "./Search";
 import Pagination from "./Pagination.jsx";
 
-// Dữ liệu dự phòng (fallback) nếu API không trả về dữ liệu
-// import { Students_data } from "../data/index.js";
-import { Student, Students_data } from "../model/student.js";
+import { Student } from "../model/student.js";
 
-import {
-  fetchAllStudents,
-  removeStudentById,
-} from "../service/studentProvider";
 import config from "../config.js";
 
 const Dashboard = ({ setIsAuthenticated }) => {
@@ -39,20 +33,8 @@ const Dashboard = ({ setIsAuthenticated }) => {
       })
       .catch((err) => {
         console.error("Error fetching students:", err);
-        // Nếu có lỗi, sử dụng dữ liệu dự phòng từ file JSON
-        // setStudents(Students_data);
       });
   };
-
-  // const refreshStudentsLocally = () => {
-  //   fetchAllStudents()
-  //     .then((data) => {
-  //       setStudents(data);
-  //     })
-  //     .catch((err) => {
-  //       console.error(`Error fetching students: ${err}`);
-  //     });
-  // };
 
   useEffect(() => {
     refreshStudents();
