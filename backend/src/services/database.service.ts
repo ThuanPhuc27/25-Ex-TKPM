@@ -1,7 +1,8 @@
 // External Dependencies
 import { Collection, Db, MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import { Student } from "@models/student";
+import { Student } from "@models/Student";
+import logger from '../logger';
 
 // Global Variables
 export const collections: { students?: Collection<Student> } = {};
@@ -34,7 +35,7 @@ export const connectToDatabase = async () => {
 
   collections.students = db.collection(studentCollectionName);
 
-  console.log(
+  logger.info(
     `[server]: Successfully connected to the database and its collections`
   );
 };
