@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import studentRoutes from "@routes/studentsRoute";
 import { connectToDatabase } from "@service/database.service";
@@ -15,7 +16,17 @@ connectToDatabase().catch((onrejected) => {
   logger.info(`[server]: Database connection error - (${onrejected})`);
 });
 
+// Allow the app to accept JSON
 app.use(express.json());
+
+// Same-origin policy countermeasure
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+  })
+);
+
 app.use("/students", studentRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

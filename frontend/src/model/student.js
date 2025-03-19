@@ -51,6 +51,22 @@ class Student {
     this.status = status
   }
 
+  static from(obj) {
+    return new Student(
+      obj.studentId.toString(),
+      obj.fullName,
+      new Date(obj.birthDate),
+      obj.sex,
+      obj.faculty,
+      obj.schoolYear,
+      obj.program,
+      obj.address,
+      obj.email,
+      obj.phone,
+      obj.status
+    );
+  }
+
   getInfo() {
     return `ID: ${this.studentId}, Name: ${this.fullName}, Faculty: ${this.faculty}, Status: ${this.status}`
   }
@@ -213,4 +229,4 @@ const Students_data = [
 // In danh sách sinh viên
 Students_data.forEach((student) => console.log(student.getInfo()))
 
-export { Students_data }
+export { Student, Students_data }
