@@ -135,8 +135,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
       try {
         const parsedJsonData = JSON.parse(jsonData);
         console.log("parsedJsonData", JSON.stringify(parsedJsonData));
-        const studentsContainer = parsedJsonData.students as TextWrappedObject;
-        // console.log(JSON.stringify(parsedJsonData));
+
         const studentsContainer = (
           Array.isArray(parsedJsonData.students.student)
             ? parsedJsonData.students.student
