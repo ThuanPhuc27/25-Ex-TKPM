@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
-import { Student } from "../model/student";
 
 const validFaculties = [
   "Faculty of Law",
@@ -19,133 +18,134 @@ const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Add = ({ students, setStudents, setIsAdding }) => {
-  const [fullName, setFullName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [sex, setSex] = useState("");
-  const [faculty, setFaculty] = useState("");
-  const [schoolYear, setSchoolYear] = useState("");
-  const [program, setProgram] = useState("");
-  const [address, setAddress] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [status, setStatus] = useState("");
-  const [studentId, setStudentId] = useState("");
+  const [formData, setFormData] = useState({
+    studentId: "",
+    fullName: "",
+    birthDate: "",
+    sex: "",
+    faculty: "",
+    schoolYear: "",
+    program: "",
+    nationality: "",
+    email: "",
+    phone: "",
+    status: "",
+    permanentAddress: {
+      street: "",
+      ward: "",
+      district: "",
+      city: "",
+      country: "",
+    },
+    temporaryAddress: {
+      street: "",
+      ward: "",
+      district: "",
+      city: "",
+      country: "",
+    },
+    mailingAddress: {
+      street: "",
+      ward: "",
+      district: "",
+      city: "",
+      country: "",
+    },
+    identityDocuments: [
+      {
+        type: "",
+        number: "",
+        issueDate: "",
+        issuePlace: "",
+        expirationDate: "",
+      },
+    ],
+  });
+
+  // Xử lý thay đổi cho các trường cơ bản
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Xử lý thay đổi cho các trường địa chỉ
+  const handleAddressChange = (e, addressType, field) => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      [addressType]: { ...prev[addressType], [field]: value },
+    }));
+  };
+
+  // Xử lý thay đổi cho giấy tờ tùy thân (ở đây chỉ cập nhật identityDocuments[0])
+  const handleIdentityDocChange = (e, field) => {
+    const value = e.target.value;
+    setFormData((prev) => {
+      const newDocs = [...prev.identityDocuments];
+      newDocs[0] = { ...newDocs[0], [field]: value };
+      return { ...prev, identityDocuments: newDocs };
+    });
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
+    const { email, phone, faculty, status, studentId } = formData;
 
-    // Kiểm tra tất cả các trường bắt buộc
-    if (
-      !fullName ||
-      !birthDate ||
-      !sex ||
-      !faculty ||
-      !schoolYear ||
-      !program ||
-      !email ||
-      !phone ||
-      !status
-    ) {
+    // Kiểm tra định dạng email và phone
+    if (!emailRegex.test(email) || !phoneRegex.test(phone)) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "All fields are required.",
+        text: "Invalid email or phone number format.",
         showConfirmButton: true,
       });
     }
 
-    // Kiểm tra định dạng email
-    if (!emailRegex.test(email)) {
+    // Kiểm tra faculty và status hợp lệ
+    if (!validFaculties.includes(faculty) || !validStatuses.includes(status)) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "Invalid email format.",
+        text: "Invalid faculty or status.",
         showConfirmButton: true,
       });
     }
 
-    // Kiểm tra số điện thoại
-    if (!phoneRegex.test(phone)) {
+    // Kiểm tra trùng studentId
+    if (students.some((student) => student.studentId === studentId)) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "Invalid phone number format.",
+        text: "Student ID is duplicate.",
         showConfirmButton: true,
       });
     }
-
-    // Kiểm tra tên khoa hợp lệ
-    if (!validFaculties.includes(faculty)) {
-      return Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Invalid faculty name.",
-        showConfirmButton: true,
-      });
-    }
-
-    // Kiểm tra tình trạng sinh viên hợp lệ
-    if (!validStatuses.includes(status)) {
-      return Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Invalid student status.",
-        showConfirmButton: true,
-      });
-    }
-
-    const newStudent = {
-      studentId,
-      fullName,
-      birthDate,
-      sex,
-      faculty,
-      schoolYear,
-      program,
-      address,
-      email,
-      phone,
-      status,
-    };
 
     try {
-      // Kiểm tra studentId có trùng ko
-      const isDuplicate = students.some(
-        (student) => student.studentId === newStudent.studentId
-      );
-
-      if (isDuplicate) {
-        return Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: "Student ID is duplicate.",
-          showConfirmButton: true,
-        });
-      }
+      // Chuyển schoolYear sang kiểu Number nếu cần
+      const dataToSend = {
+        ...formData,
+        schoolYear: Number(formData.schoolYear),
+      };
 
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.students}/add-one`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...newStudent,
-            studentId: newStudent.studentId.toString(),
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dataToSend),
         }
       );
-      if (!response.ok) throw new Error("Failed to add student");
 
+      if (!response.ok) throw new Error("Failed to add student");
       const addedStudent = (await response.json()).newStudent;
-      setStudents([...students, Student.from(addedStudent)]);
+      setStudents([...students, addedStudent]);
       setIsAdding(false);
 
       Swal.fire({
         icon: "success",
         title: "Added!",
-        text: `${fullName}'s data has been added successfully.`,
+        text: `${formData.fullName}'s data has been added successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
@@ -165,118 +165,419 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         Add Student
       </h1>
       <form onSubmit={handleAdd} className="space-y-4">
-        <input
-          type="text"
-          placeholder="ID"
-          value={studentId}
-          onChange={(e) => setStudentId(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="date"
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <select
-          value={sex}
-          onChange={(e) => setSex(e.target.value)}
-          className="w-full rounded border p-2"
-        >
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-        <select
-          value={faculty}
-          onChange={(e) => setFaculty(e.target.value)}
-          className="w-full rounded border p-2"
-        >
-          <option value="">Select Faculty</option>
-          <option value="Faculty of Law">Faculty of Law</option>
-          <option value="Faculty of Business English">
-            Faculty of Business English
-          </option>
-          <option value="Faculty of Japanese">Faculty of Japanese</option>
-          <option value="Faculty of French">Faculty of French</option>
-        </select>
-        <input
-          type="number"
-          placeholder="School Year"
-          value={schoolYear}
-          onChange={(e) => {
-            const value = parseInt(e.target.value, 10);
-            if (!isNaN(value) && value > 0) {
-              setSchoolYear(value);
-            } else {
-              setSchoolYear(""); // Nếu nhập giá trị không hợp lệ, đặt lại thành rỗng
-            }
-          }}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Program"
-          value={program}
-          onChange={(e) => setProgram(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-full rounded border p-2"
-        >
-          <option value="">Select Status</option>
-          <option value="Active">Active</option>
-          <option value="Graduated">Graduated</option>
-          <option value="Dropped Out">Dropped Out</option>
-          <option value="Paused">Paused</option>
-        </select>
-
-        <div className="mt-4 flex justify-between">
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
-          >
-            Add
-          </button>
-          <button
-            type="button"
-            className="ml-2 w-full rounded bg-gray-400 p-2 text-white hover:bg-gray-500"
-            onClick={() => setIsAdding(false)}
-          >
-            Cancel
-          </button>
+        {/* Thông tin cơ bản */}
+        <div>
+          <label htmlFor="studentId" className="block font-medium">
+            Student ID
+          </label>
+          <input
+            type="text"
+            id="studentId"
+            name="studentId"
+            placeholder="Student ID"
+            value={formData.studentId}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
         </div>
+        <div>
+          <label htmlFor="fullName" className="block font-medium">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            placeholder="Full Name"
+            value={formData.fullName}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="birthDate" className="block font-medium">
+            Birth Date
+          </label>
+          <input
+            type="date"
+            id="birthDate"
+            name="birthDate"
+            value={formData.birthDate}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="sex" className="block font-medium">
+            Gender
+          </label>
+          <select
+            id="sex"
+            name="sex"
+            value={formData.sex}
+            onChange={handleChange}
+            className="w-full border p-2"
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="nationality" className="block font-medium">
+            Nationality
+          </label>
+          <input
+            type="text"
+            id="nationality"
+            name="nationality"
+            placeholder="Nationality"
+            value={formData.nationality}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="block font-medium">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="phone" className="block font-medium">
+            Phone
+          </label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="faculty" className="block font-medium">
+            Faculty
+          </label>
+          <select
+            id="faculty"
+            name="faculty"
+            value={formData.faculty}
+            onChange={handleChange}
+            className="w-full border p-2"
+          >
+            <option value="">Select Faculty</option>
+            {validFaculties.map((fac) => (
+              <option key={fac} value={fac}>
+                {fac}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="status" className="block font-medium">
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="w-full border p-2"
+          >
+            <option value="">Select Status</option>
+            {validStatuses.map((st) => (
+              <option key={st} value={st}>
+                {st}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="program" className="block font-medium">
+            Program
+          </label>
+          <input
+            type="text"
+            id="program"
+            name="program"
+            placeholder="Program"
+            value={formData.program}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="schoolYear" className="block font-medium">
+            School Year
+          </label>
+          <input
+            type="number"
+            id="schoolYear"
+            name="schoolYear"
+            placeholder="School Year"
+            value={formData.schoolYear}
+            onChange={handleChange}
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Permanent Address */}
+        <h3 className="mt-4 font-bold">Permanent Address</h3>
+        <div>
+          <label className="block font-medium">Street</label>
+          <input
+            type="text"
+            placeholder="Street"
+            value={formData.permanentAddress.street}
+            onChange={(e) =>
+              handleAddressChange(e, "permanentAddress", "street")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Ward</label>
+          <input
+            type="text"
+            placeholder="Ward"
+            value={formData.permanentAddress.ward}
+            onChange={(e) => handleAddressChange(e, "permanentAddress", "ward")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            value={formData.permanentAddress.district}
+            onChange={(e) =>
+              handleAddressChange(e, "permanentAddress", "district")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={formData.permanentAddress.city}
+            onChange={(e) => handleAddressChange(e, "permanentAddress", "city")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Country</label>
+          <input
+            type="text"
+            placeholder="Country"
+            value={formData.permanentAddress.country}
+            onChange={(e) =>
+              handleAddressChange(e, "permanentAddress", "country")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Temporary Address (Optional) */}
+        <h3 className="mt-4 font-bold">Temporary Address (Optional)</h3>
+        <div>
+          <label className="block font-medium">Street</label>
+          <input
+            type="text"
+            placeholder="Street"
+            value={formData.temporaryAddress.street}
+            onChange={(e) =>
+              handleAddressChange(e, "temporaryAddress", "street")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Ward</label>
+          <input
+            type="text"
+            placeholder="Ward"
+            value={formData.temporaryAddress.ward}
+            onChange={(e) => handleAddressChange(e, "temporaryAddress", "ward")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            value={formData.temporaryAddress.district}
+            onChange={(e) =>
+              handleAddressChange(e, "temporaryAddress", "district")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={formData.temporaryAddress.city}
+            onChange={(e) => handleAddressChange(e, "temporaryAddress", "city")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Country</label>
+          <input
+            type="text"
+            placeholder="Country"
+            value={formData.temporaryAddress.country}
+            onChange={(e) =>
+              handleAddressChange(e, "temporaryAddress", "country")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Mailing Address (Optional) */}
+        <h3 className="mt-4 font-bold">Mailing Address (Optional)</h3>
+        <div>
+          <label className="block font-medium">Street</label>
+          <input
+            type="text"
+            placeholder="Street"
+            value={formData.mailingAddress.street}
+            onChange={(e) => handleAddressChange(e, "mailingAddress", "street")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Ward</label>
+          <input
+            type="text"
+            placeholder="Ward"
+            value={formData.mailingAddress.ward}
+            onChange={(e) => handleAddressChange(e, "mailingAddress", "ward")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            value={formData.mailingAddress.district}
+            onChange={(e) =>
+              handleAddressChange(e, "mailingAddress", "district")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={formData.mailingAddress.city}
+            onChange={(e) => handleAddressChange(e, "mailingAddress", "city")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Country</label>
+          <input
+            type="text"
+            placeholder="Country"
+            value={formData.mailingAddress.country}
+            onChange={(e) =>
+              handleAddressChange(e, "mailingAddress", "country")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Identity Document */}
+        <h3 className="mt-4 font-bold">Identity Document</h3>
+        <div>
+          <label className="block font-medium">Document Type</label>
+          <select
+            value={formData.identityDocuments[0].type}
+            onChange={(e) => handleIdentityDocChange(e, "type")}
+            className="w-full border p-2"
+          >
+            <option value="">Select Document Type</option>
+            <option value="CMND">CMND</option>
+            <option value="CCCD">CCCD</option>
+            <option value="passport">Passport</option>
+          </select>
+        </div>
+        <div>
+          <label className="block font-medium">Document Number</label>
+          <input
+            type="text"
+            placeholder="Document Number"
+            value={formData.identityDocuments[0].number}
+            onChange={(e) => handleIdentityDocChange(e, "number")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Issue Date</label>
+          <input
+            type="date"
+            placeholder="Issue Date"
+            value={formData.identityDocuments[0].issueDate}
+            onChange={(e) => handleIdentityDocChange(e, "issueDate")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Issue Place</label>
+          <input
+            type="text"
+            placeholder="Issue Place"
+            value={formData.identityDocuments[0].issuePlace}
+            onChange={(e) => handleIdentityDocChange(e, "issuePlace")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Expiration Date</label>
+          <input
+            type="date"
+            placeholder="Expiration Date"
+            value={formData.identityDocuments[0].expirationDate}
+            onChange={(e) => handleIdentityDocChange(e, "expirationDate")}
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Các nút điều khiển */}
+        <button
+          type="submit"
+          className="w-full rounded bg-blue-500 p-2 text-white"
+        >
+          Add
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsAdding(false)}
+          className="mt-2 w-full rounded bg-gray-400 p-2 text-white"
+        >
+          Cancel
+        </button>
       </form>
     </div>
   );

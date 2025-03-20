@@ -8,19 +8,25 @@ import Edit from "./Edit";
 import Search from "./Search";
 import Pagination from "./Pagination.jsx";
 
-import { Student } from "../model/student.js";
-
 import config from "../config.js";
+
+// Danh sách các khoa hợp lệ (có thể thay đổi theo dự án)
+const validFaculties = [
+  "Faculty of Law",
+  "Faculty of Business English",
+  "Faculty of Japanese",
+  "Faculty of French",
+];
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
 
   // State cho search và pagination
   const [searchQuery, setSearchQuery] = useState("");
+  const [facultyFilter, setFacultyFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // số lượng sinh viên hiển thị trên mỗi trang
 
@@ -29,7 +35,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
     fetch(`${config.backendApiRoot}${config.apiPaths.students}`)
       .then((res) => res.json())
       .then((data) => {
-        setStudents(data.students.map((student) => Student.from(student)));
+        setStudents(data.students);
       })
       .catch((err) => {
         console.error("Error fetching students:", err);
@@ -40,14 +46,15 @@ const Dashboard = ({ setIsAuthenticated }) => {
     refreshStudents();
   }, []);
 
-  const filteredStudents = students.filter(
-    (student) =>
-      student.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.studentId
-        .toString()
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-  );
+  // Lọc sinh viên theo tên (searchQuery) và khoa (facultyFilter)
+  const filteredStudents = students.filter((student) => {
+    const searchLower = searchQuery.toLowerCase();
+    const matchName = student.fullName.toLowerCase().includes(searchLower);
+    const matchId = student.studentId.toLowerCase().includes(searchLower);
+    const matchFaculty =
+      facultyFilter === "" || student.faculty === facultyFilter;
+    return (matchName || matchId) && matchFaculty;
+  });
 
   // Tính số trang và danh sách sinh viên ở trang hiện tại
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
@@ -64,19 +71,13 @@ const Dashboard = ({ setIsAuthenticated }) => {
     setIsEditing(true);
   };
 
-  // Sau khi xóa từ API, ta refresh lại danh sách student
+  // Sau khi xóa từ API, refresh lại danh sách student
   const handleDelete = (id) => {
     refreshStudents();
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-  };
-
-  const handleView = (id, student) => {
-    navigate(`/students/${id}`, {
-      state: { student },
-    });
   };
 
   return (
@@ -87,14 +88,18 @@ const Dashboard = ({ setIsAuthenticated }) => {
             setIsAdding={setIsAdding}
             setIsAuthenticated={setIsAuthenticated}
           />
-          <Search searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          <Search
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            facultyFilter={facultyFilter}
+            setFacultyFilter={setFacultyFilter}
+            faculties={validFaculties}
+          />
           <div className="mt-6">
             <Table
               students={currentStudents}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
-              handleView={handleView}
-              refreshStudents={refreshStudents}
             />
             <Pagination
               currentPage={currentPage}
