@@ -20,7 +20,7 @@ export const getStudentById = async (
   return await Student.findOne({ studentId }).exec();
 };
 
-export const getAllStudents = async (): Promise<IStudentWithId[]> => {
+export const getAllStudents = async (): Promise<IStudent[]> => {
   return await Student.find().exec();
 };
 
@@ -32,7 +32,7 @@ export const updateStudentById = async (
     returnDocument: "after",
     new: true,
     runValidators: true,
-  });
+  }).exec();
 };
 
 export const deleteStudentById = async (
@@ -40,3 +40,20 @@ export const deleteStudentById = async (
 ): Promise<IStudent | null> => {
   return await Student.findOneAndDelete({ studentId }).exec();
 };
+
+export const importStudent = async (
+  student: IStudent
+): Promise<IStudentWithId | null> => {
+  const existingStudent = await Student.findOneAndUpdate(
+    { studentId: student.studentId },
+    student,
+    {
+      upsert: true,
+      returnDocument: "before",
+      runValidators: true,
+    }
+  ).exec();
+  return existingStudent;
+};
+
+// Why `.exec()`?: [https://mongoosejs.com/docs/promises.html#should-you-use-exec-with-await]

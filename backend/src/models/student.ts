@@ -11,8 +11,6 @@ export interface IIdentityDocument {
   notes?: string; // Ghi chú, nếu có
 }
 
-export type IStudentWithId = IStudent & { _id: mongoose.Types.ObjectId };
-
 export interface IAddress {
   street: string; // Số nhà, tên đường
   ward: string; // Phường/Xã
@@ -38,6 +36,8 @@ export interface IStudent {
   phone: string;
   status: string;
 }
+
+export type IStudentWithId = IStudent & { _id?: mongoose.Types.ObjectId };
 
 const studentSchema = new Schema<IStudent>(
   {
@@ -71,7 +71,11 @@ const studentSchema = new Schema<IStudent>(
     },
     identityDocuments: [
       {
-        type: { type: String, enum: ["CMND", "CCCD", "passport"], required: true },
+        type: {
+          type: String,
+          enum: ["CMND", "CCCD", "passport"],
+          required: true,
+        },
         number: { type: String, required: true },
         issueDate: { type: Date, required: true },
         issuePlace: { type: String, required: true },
