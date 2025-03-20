@@ -2,6 +2,11 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import studentRoutes from "@routes/studentRoute";
+import studentStatusRoutes from "@routes/studentStatusRoute";
+import facultyRoutes from "@routes/facultyRoute";
+import programRoutes from "@routes/programRoute";
+import configRoutes from "@routes/configRoute";
+
 import { connectToDatabase } from "@services/database.service";
 import logger from "./logger";
 
@@ -28,6 +33,10 @@ app.use(
 );
 
 app.use("/students", studentRoutes);
+app.use("/config", configRoutes);
+app.use("/studentStatus", studentStatusRoutes);
+app.use("/faculty", facultyRoutes);
+app.use("/program", programRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error(`[server]: Something broke on the server!`);
