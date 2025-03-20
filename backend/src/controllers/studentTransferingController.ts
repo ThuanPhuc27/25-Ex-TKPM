@@ -66,19 +66,27 @@ export const exportAllStudentsController = async (
 
 type TextWrappedObject = { [key: string]: { _text: string } | any };
 
-// Remove the _text wrapper from the object, bound by `xml2json` function
+// Hàm unwrapText đệ quy để loại bỏ tất cả `_text`
 function unwrapText<T extends TextWrappedObject>(
   jsonArray: T[]
 ): Record<string, any>[] {
   return jsonArray.map((obj) => {
     let newObj: Record<string, any> = {};
+
     for (let key in obj) {
-      if (obj[key] && typeof obj[key] === "object" && "_text" in obj[key]) {
-        newObj[key] = obj[key]._text; // Extract the text value
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+        if (Object.keys(obj[key]).length === 0) {
+          newObj[key] = ""; // Nếu object rỗng, gán thành chuỗi rỗng
+        } else if ("_text" in obj[key]) {
+          newObj[key] = obj[key]._text; // Nếu có _text, lấy giá trị
+        } else {
+          newObj[key] = unwrapText([obj[key]])[0]; // Gọi đệ quy nếu là object lồng nhau
+        }
       } else {
-        newObj[key] = obj[key]; // Keep other values as they are
+        newObj[key] = obj[key]; // Giữ nguyên nếu không phải object
       }
     }
+
     return newObj;
   });
 }
@@ -99,9 +107,11 @@ export const importStudentsController = async (req: Request, res: Response) => {
         });
         return;
       }
+
       break;
     case "application/xml":
       const xmlData = req.body as Buffer;
+      console.log("xmlData", xmlData);
 
       let jsonData: string;
       try {
@@ -124,7 +134,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
 
       try {
         const parsedJsonData = JSON.parse(jsonData);
-        // console.log(JSON.stringify(parsedJsonData));
+        console.log("parsedJsonData", JSON.stringify(parsedJsonData));
 
         const studentsContainer = (
           Array.isArray(parsedJsonData.students.student)
@@ -164,10 +174,13 @@ export const importStudentsController = async (req: Request, res: Response) => {
 
   // Save imported students to database
   const replacedStudents: Record<string, IStudentWithId | null> = {};
+  //console.log("importedStudents", importedStudents);
   const failedStudents: Record<string, string> = {};
   for (const student of importedStudents) {
     try {
+      console.log("studnet", JSON.stringify(student));
       const replacedStudent = await importStudent(student);
+
       replacedStudents[`${student.studentId}`] = replacedStudent;
     } catch (error: any) {
       logger.error(
