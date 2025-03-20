@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**' 
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'  
+
+jobs:
+  Push_Image:
+    runs-on: ubuntu-latest
+
+    env: 
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USER }}/studentmanagerment_be:latest
+
+    steps: 
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Docker build image
+      run: docker build -t $IMAGE_NAME -f ./backend/Dockerfile .
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
+
+    - name: Push Docker image
+      run: docker push $IMAGE_NAME

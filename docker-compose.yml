@@ -1,0 +1,48 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  
+
+  frontend:
+    image: thuanlp/studentmanagerment_fe:latest
+    container_name: frontend
+    ports:
+      - "5731:5731"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:3001
+
+  backend:
+    image: thuanlp/studentmanagerment_be:latest
+    container_name: backend
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+    environment:
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_USER=user
+      - DB_PASSWORD=pass
+      - DB_NAME=studentmanagerment
+
+volumes:
+  mongodb_data:
+
+networks:
+  app-network:
+    driver: bridge
