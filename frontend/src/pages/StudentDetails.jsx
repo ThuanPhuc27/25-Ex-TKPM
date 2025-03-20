@@ -1,76 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const StudentDetails = () => {
-  const { id } = useParams(); // Lấy id sinh viên từ URL
   const navigate = useNavigate();
-  // const [student, setStudent] = useState(null);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);
   const location = useLocation();
-
   const student = location.state.student;
-  // Dữ liệu ảo dùng làm fallback nếu không lấy được dữ liệu từ API
-  // const student = {
-  //   fullName: "John Doe",
-  //   birthDate: "1990-01-01",
-  //   sex: "Male",
-  //   faculty: "Engineering",
-  //   schoolYear: "2010-2014",
-  //   program: "Computer Science",
-  //   address: "123 Fake Street",
-  //   email: "johndoe@example.com",
-  //   phone: "123456789",
-  //   status: "Active",
-  // };
 
-  // useEffect(() => {
-  //   // Gọi API lấy thông tin sinh viên
-  //   fetch(`http://localhost:5000/api/students/${id}`)
-  //     .then((res) => {
-  //       if (!res.ok) {
-  //         throw new Error("Không tìm thấy sinh viên!");
-  //       }
-  //       return res.json();
-  //     })
-  //     .then((data) => {
-  //       setStudent(data);
-  //       setLoading(false);
-  //     })
-  //     .catch((err) => {
-  //       console.error("Error fetching student:", err);
-  //       // Nếu có lỗi, sử dụng dữ liệu ảo
-  //       setStudent(fakeStudent);
-  //       setError(err.message);
-  //       setLoading(false);
-  //     });
-  // }, [id]);
+  // Chuyển đổi birthDate nếu cần
+  const birthDate = new Date(student.birthDate).toLocaleDateString();
 
-  // if (loading) {
-  //   return <div>Đang tải dữ liệu...</div>;
-  // }
+  // Hàm chuyển đổi địa chỉ thành chuỗi hiển thị
+  const formatAddress = (address) => {
+    if (!address) return "N/A";
+    const { street, ward, district, city, country } = address;
+    return `${street}, ${ward}, ${district}, ${city}, ${country}`;
+  };
 
-  // if (error && !student) {
-  //   return <div className="text-red-500">{error}</div>;
-  // }
+  // Hiển thị thông tin của identityDocuments (chỉ hiện phần tử đầu tiên, có thể lặp nếu cần)
+  const identityDoc =
+    student.identityDocuments && student.identityDocuments.length > 0
+      ? student.identityDocuments[0]
+      : null;
 
   return (
-    <div className="mx-auto mt-6 max-w-lg rounded-lg bg-white p-6 shadow-md">
+    <div className="mx-auto mt-6 max-w-xl rounded-lg bg-white p-6 shadow-md">
       <h2 className="mb-4 text-2xl font-semibold text-gray-700">
         Student Details
       </h2>
       <div className="space-y-2">
         <p>
-          <strong>ID:</strong> {id}
+          <strong>Student ID:</strong> {student.studentId}
         </p>
         <p>
           <strong>Full Name:</strong> {student.fullName}
         </p>
         <p>
-          <strong>Birth Date:</strong> {student.birthDate.toLocaleDateString()}
+          <strong>Birth Date:</strong> {birthDate}
         </p>
         <p>
-          <strong>Sex:</strong> {student.sex}
+          <strong>Gender:</strong> {student.sex}
+        </p>
+        <p>
+          <strong>Nationality:</strong> {student.nationality}
         </p>
         <p>
           <strong>Faculty:</strong> {student.faculty}
@@ -82,8 +53,38 @@ const StudentDetails = () => {
           <strong>Program:</strong> {student.program}
         </p>
         <p>
-          <strong>Address:</strong> {student.address}
+          <strong>Permanent Address:</strong>{" "}
+          {formatAddress(student.permanentAddress)}
         </p>
+        <p>
+          <strong>Temporary Address:</strong>{" "}
+          {formatAddress(student.temporaryAddress)}
+        </p>
+        <p>
+          <strong>Mailing Address:</strong>{" "}
+          {formatAddress(student.mailingAddress)}
+        </p>
+        {identityDoc && (
+          <>
+            <p>
+              <strong>Document Type:</strong> {identityDoc.type}
+            </p>
+            <p>
+              <strong>Document Number:</strong> {identityDoc.number}
+            </p>
+            <p>
+              <strong>Issue Date:</strong>{" "}
+              {new Date(identityDoc.issueDate).toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Issue Place:</strong> {identityDoc.issuePlace}
+            </p>
+            <p>
+              <strong>Expiration Date:</strong>{" "}
+              {new Date(identityDoc.expirationDate).toLocaleDateString()}
+            </p>
+          </>
+        )}
         <p>
           <strong>Email:</strong> {student.email}
         </p>
