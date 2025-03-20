@@ -1,15 +1,14 @@
-FROM node:18-alpine
-
+FROM node:18-alpine AS build
 WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
+COPY backend/package*.json ./
+RUN npm ci
+COPY backend ./
 RUN npm run build
 
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
 EXPOSE 3001
-
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/index.js"]
