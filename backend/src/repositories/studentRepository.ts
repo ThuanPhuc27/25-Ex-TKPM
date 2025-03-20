@@ -7,6 +7,13 @@ export const createStudent = async (
   return await student.save();
 };
 
+export const createStudents = async (
+  studentsData: IStudent[]
+): Promise<IStudent[]> => {
+  const students = await Student.insertMany(studentsData);
+  return students;
+};
+
 export const getStudentById = async (
   studentId: string
 ): Promise<IStudent | null> => {

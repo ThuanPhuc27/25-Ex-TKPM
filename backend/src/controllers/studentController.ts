@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import {
   createStudent,
+  createStudents,
   getAllStudents,
   getStudentById,
   updateStudentById,
   deleteStudentById,
+
 } from "../repositories/studentRepository";
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
@@ -21,7 +23,11 @@ export const addStudentController = async (req: Request, res: Response) => {
       faculty,
       schoolYear,
       program,
-      address,
+      permanentAddress, 
+      temporaryAddress, 
+      mailingAddress, 
+      identityDocuments, 
+      nationality, 
       email,
       phone,
       status,
@@ -35,7 +41,11 @@ export const addStudentController = async (req: Request, res: Response) => {
       faculty,
       schoolYear,
       program,
-      address,
+      permanentAddress,
+      temporaryAddress,
+      mailingAddress, 
+      identityDocuments, 
+      nationality,
       email,
       phone,
       status,
@@ -51,6 +61,24 @@ export const addStudentController = async (req: Request, res: Response) => {
       .send({ reason: `Cannot add student - ${error}` });
   }
 };
+
+export const addStudentsController = async (req: Request, res: Response) => {
+  try {
+    const studentsData = req.body;
+
+    if (!Array.isArray(studentsData) || studentsData.length === 0) {
+      res.status(http.NOT_FOUND).json({ message: "Invalid or empty student data" });
+    }
+
+    const addedStudents = await createStudents(studentsData);
+
+    res.status(http.CREATED).json({newStudents: addedStudents });
+  } catch (error) {
+    logger.error(`Error adding multiple students:  ${error}`);
+    res.status(http.INTERNAL_SERVER_ERROR).json({ message: `An error occurred while adding students:  ${error}`});
+  }
+};
+
 
 // Lấy tất cả sinh viên
 export const getStudentsController = async (req: Request, res: Response) => {
@@ -121,7 +149,11 @@ export const updateStudentController = async (req: Request, res: Response) => {
       faculty,
       schoolYear,
       program,
-      address,
+      permanentAddress,
+      temporaryAddress, 
+      mailingAddress, 
+      identityDocuments, 
+      nationality,      
       email,
       phone,
       status,
@@ -141,7 +173,11 @@ export const updateStudentController = async (req: Request, res: Response) => {
       faculty,
       schoolYear,
       program,
-      address,
+      permanentAddress,
+      temporaryAddress, 
+      mailingAddress, 
+      identityDocuments, 
+      nationality, 
       email,
       phone,
       status,
