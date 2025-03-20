@@ -108,6 +108,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
         jsonData = xml2json(xmlData.toString(), {
           compact: true,
           spaces: 2,
+          // alwaysArray: true,
         });
       } catch (error: any) {
         logger.error(
@@ -123,11 +124,21 @@ export const importStudentsController = async (req: Request, res: Response) => {
 
       try {
         const parsedJsonData = JSON.parse(jsonData);
-        const studentsContainer = parsedJsonData.students as TextWrappedObject;
+        // console.log(JSON.stringify(parsedJsonData));
 
-        importedStudents = (
-          unwrapText(studentsContainer.student as any[]) as IStudentWithId[]
-        ).map((student) => {
+        const studentsContainer = (
+          Array.isArray(parsedJsonData.students.student)
+            ? parsedJsonData.students.student
+            : [parsedJsonData.students.student]
+        ) as TextWrappedObject[];
+        // console.log(JSON.stringify(studentsContainer));
+
+        const unwrapStudents = unwrapText(
+          studentsContainer
+        ) as IStudentWithId[];
+        console.log(JSON.stringify(unwrapStudents));
+
+        importedStudents = unwrapStudents.map((student) => {
           // Remove _id field from the student object
           delete student._id;
           return student;
@@ -148,6 +159,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
         reason:
           "Invalid content type. Please use 'application/json' or 'application/xml'",
       });
+      return;
   }
 
   // Save imported students to database
