@@ -118,6 +118,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
         jsonData = xml2json(xmlData.toString(), {
           compact: true,
           spaces: 2,
+          // alwaysArray: true,
         });
       } catch (error: any) {
         logger.error(
@@ -135,10 +136,20 @@ export const importStudentsController = async (req: Request, res: Response) => {
         const parsedJsonData = JSON.parse(jsonData);
         console.log("parsedJsonData", JSON.stringify(parsedJsonData));
         const studentsContainer = parsedJsonData.students as TextWrappedObject;
+        // console.log(JSON.stringify(parsedJsonData));
+        const studentsContainer = (
+          Array.isArray(parsedJsonData.students.student)
+            ? parsedJsonData.students.student
+            : [parsedJsonData.students.student]
+        ) as TextWrappedObject[];
+        // console.log(JSON.stringify(studentsContainer));
 
-        importedStudents = (
-          unwrapText(studentsContainer.student as any[]) as IStudentWithId[]
-        ).map((student) => {
+        const unwrapStudents = unwrapText(
+          studentsContainer
+        ) as IStudentWithId[];
+        console.log(JSON.stringify(unwrapStudents));
+
+        importedStudents = unwrapStudents.map((student) => {
           // Remove _id field from the student object
           delete student._id;
           return student;
