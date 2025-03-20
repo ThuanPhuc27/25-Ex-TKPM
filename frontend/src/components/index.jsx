@@ -8,8 +8,6 @@ import Edit from "./Edit";
 import Search from "./Search";
 import Pagination from "./Pagination.jsx";
 
-import { Student } from "../model/student.js";
-
 import config from "../config.js";
 
 const Dashboard = ({ setIsAuthenticated }) => {
@@ -29,7 +27,8 @@ const Dashboard = ({ setIsAuthenticated }) => {
     fetch(`${config.backendApiRoot}${config.apiPaths.students}`)
       .then((res) => res.json())
       .then((data) => {
-        setStudents(data.students.map((student) => Student.from(student)));
+        //console.log("data: ", data);
+        setStudents(data.students);
       })
       .catch((err) => {
         console.error("Error fetching students:", err);
@@ -61,6 +60,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const handleEdit = (id) => {
     const [student] = students.filter((student) => student.studentId === id);
     setSelectedStudent(student);
+    //console.log("selected student: ", student);
     setIsEditing(true);
   };
 
