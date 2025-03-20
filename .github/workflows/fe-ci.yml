@@ -3,15 +3,19 @@ name: CI
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'frontend/**' 
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'frontend/**'  
 
 jobs:
   Push_Image:
     runs-on: ubuntu-latest
 
     env: 
-      IMAGE_NAME: ${{ secrets.DOCKERHUB_USER }}/studentservice:latest
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USER }}/studentmanagerment_fe:latest
 
     steps: 
     - name: Checkout source code
