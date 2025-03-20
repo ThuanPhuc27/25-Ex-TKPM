@@ -1,7 +1,6 @@
 import { getAllStudents, importStudent } from "@repositories/studentRepository";
 import { Request, Response } from "express";
-import { json2xml, xml2js, xml2json } from "xml-js";
-import { parseStringPromise } from "xml2js";
+import { json2xml, xml2json } from "xml-js";
 import logger from "../logger";
 import { http } from "../constants/httpStatusCodes";
 import { IStudent, IStudentWithId } from "@models/student";
@@ -47,7 +46,6 @@ export const exportAllStudentsController = async (
           })),
         },
       };
-      logger.info(JSON.stringify(formattedStudents));
       const xmlContent = json2xml(JSON.stringify(formattedStudents), {
         compact: true,
         spaces: 2,
@@ -68,6 +66,7 @@ export const exportAllStudentsController = async (
 
 type TextWrappedObject = { [key: string]: { _text: string } | any };
 
+// Remove the _text wrapper from the object, bound by `xml2json` function
 function unwrapText<T extends TextWrappedObject>(
   jsonArray: T[]
 ): Record<string, any>[] {
@@ -89,21 +88,20 @@ export const importStudentsController = async (req: Request, res: Response) => {
   const contentType = req.get("content-type");
   switch (contentType) {
     case "application/json":
-      try {
-        importedStudents = req.body;
-      } catch (error: any) {
+      importedStudents = req.body;
+      if (!Array.isArray(importedStudents)) {
         logger.error(
-          `[database]: Cannot parse JSON data - ${error?.message || error}`
+          `[database]: Imported JSON data is not in the correct form (should be an array of student objects)`
         );
         res.status(http.BAD_REQUEST).send({
-          reason: "Can't parse JSON data - " + error,
+          reason:
+            "Imported JSON data is not in the correct form (should be an array of student objects)",
         });
         return;
       }
       break;
     case "application/xml":
       const xmlData = req.body as Buffer;
-      // console.log(xmlData.toString());
 
       let jsonData: string;
       try {
@@ -111,7 +109,6 @@ export const importStudentsController = async (req: Request, res: Response) => {
           compact: true,
           spaces: 2,
         });
-        // console.log(jsonData);
       } catch (error: any) {
         logger.error(
           `[database]: Cannot parse XML data to JSON - ${
@@ -131,10 +128,10 @@ export const importStudentsController = async (req: Request, res: Response) => {
         importedStudents = (
           unwrapText(studentsContainer.student as any[]) as IStudentWithId[]
         ).map((student) => {
+          // Remove _id field from the student object
           delete student._id;
           return student;
         });
-        // console.log(JSON.stringify(importedStudents));
       } catch (error: any) {
         logger.error(
           `[database]: Cannot parse JSON data - ${error?.message || error}`
@@ -145,61 +142,6 @@ export const importStudentsController = async (req: Request, res: Response) => {
         return;
       }
 
-      // try {
-      //   const conversionResult: Object = xml2js(xmlData.toString());
-      //   console.log(JSON.stringify(conversionResult));
-
-      //   // type StudentAttributes = Record<string, string>;
-
-      //   // interface StudentElement {
-      //   //   type: string;
-      //   //   name: string;
-      //   //   attributes: StudentAttributes;
-      //   // }
-
-      //   // interface StudentsContainer {
-      //   //   type: string;
-      //   //   name: string;
-      //   //   elements: StudentElement[];
-      //   // }
-
-      //   // interface RootObject {
-      //   //   elements: StudentsContainer[];
-      //   // }
-
-      //   // function extractAttributes(data: RootObject): StudentAttributes[] {
-      //   //   return data.elements.flatMap((container) =>
-      //   //     container.elements.map((student) => student.attributes)
-      //   //   );
-      //   // }
-
-      //   // importedStudents = extractAttributes(
-      //   //   conversionResult as RootObject
-      //   // ) as unknown as IStudentWithId[];
-
-      //   importedStudents = (conversionResult as any).students
-      //     .student as IStudentWithId[];
-      // } catch (error: any) {
-      //   logger.error(
-      //     `[database]: Cannot parse XML data - ${error?.message || error}`
-      //   );
-      //   res.status(http.BAD_REQUEST).send({
-      //     reason: "Can't parse XML data - " + error,
-      //   });
-      //   return;
-      // }
-
-      // try {
-      //   importedStudents = await parseStringPromise(xmlData.toString());
-      // } catch (error: any) {
-      //   logger.error(
-      //     `[database]: Cannot parse XML data - ${error?.message || error}`
-      //   );
-      //   res.status(http.BAD_REQUEST).send({
-      //     reason: "Can't parse XML data - " + error,
-      //   });
-      //   return;
-      // }
       break;
     default:
       res.status(http.BAD_REQUEST).send({
