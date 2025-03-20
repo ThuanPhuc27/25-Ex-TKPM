@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { raw, Router } from "express";
 import {
   addStudentController,
   getStudentsController,
@@ -6,14 +6,23 @@ import {
   updateStudentController,
   deleteStudentController,
 } from "../controllers/studentController";
+import {
+  exportAllStudentsController,
+  importStudentsController,
+} from "@controllers/studentTransferingController";
 
 const router = Router();
 
-router.post("/add-one", addStudentController);
-
+router.get("/export-all", exportAllStudentsController);
+router.get("/:studentId", getOneStudentController);
 router.get("/", getStudentsController);
 
-router.get("/:studentId", getOneStudentController);
+router.post("/add-one", addStudentController);
+router.post(
+  "/import",
+  raw({ type: "application/xml" }),
+  importStudentsController
+);
 
 router.patch("/:studentId", updateStudentController);
 

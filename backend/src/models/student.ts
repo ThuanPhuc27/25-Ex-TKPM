@@ -14,7 +14,7 @@ export interface IStudent {
   status: string;
 }
 
-export type IStudentWithId = IStudent & { _id: mongoose.Types.ObjectId };
+export type IStudentWithId = IStudent & { _id?: mongoose.Types.ObjectId };
 
 // Mongoose checks to make sure that every path in your schema is defined in your document interface
 // But it does NOT check for paths that exist in your document interface but not in your schema.
