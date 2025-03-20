@@ -1,6 +1,7 @@
 import { raw, Router } from "express";
 import {
   addStudentController,
+  addStudentsController,
   getStudentsController,
   getOneStudentController,
   updateStudentController,
@@ -18,6 +19,7 @@ router.get("/:studentId", getOneStudentController);
 router.get("/", getStudentsController);
 
 router.post("/add-one", addStudentController);
+router.post("/add-multi", addStudentsController);
 router.post(
   "/import",
   raw({ type: "application/xml" }),

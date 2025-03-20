@@ -1,14 +1,11 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine AS build
 WORKDIR /app
-COPY ./frontend/package.json ./frontend/package-lock.json* ./
-RUN npm install --frozen-lockfile
-COPY ./frontend ./
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend ./
 RUN npm run build
 
-
-FROM node:18-alpine
-WORKDIR /app
-RUN npm install -g serve
-COPY --from=builder /app/dist /app/dist
-EXPOSE 3000
-CMD ["serve", "-s", "dist", "-l", "5731"]
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 5731
+CMD ["nginx", "-g", "daemon off;"]
