@@ -4,13 +4,7 @@ import Swal from "sweetalert2";
 
 import config from "../config";
 
-const Table = ({
-  students,
-  handleEdit,
-  handleDelete,
-  handleView,
-  refreshStudents,
-}) => {
+const Table = ({ students, handleEdit, handleDelete }) => {
   const navigate = useNavigate();
 
   // Hàm gọi API xóa sinh viên
@@ -92,13 +86,9 @@ const Table = ({
                 <td className="border border-gray-300 py-2 text-center">
                   <button
                     onClick={() => {
-                      if (handleView) {
-                        handleView(student.studentId, student);
-                      } else {
-                        navigate(`/students/${student.studentId}`, {
-                          state: { student },
-                        });
-                      }
+                      navigate(`/students/${student.studentId}`, {
+                        state: { student },
+                      });
                     }}
                     className="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-700"
                   >

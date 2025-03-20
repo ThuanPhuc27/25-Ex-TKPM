@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
-import { Student } from "../model/student";
 import { formatDateToInput } from "../utils/dateFormatter";
 
 const validFaculties = [
@@ -189,7 +188,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
 
       const returnedStudent = (await response.json()).newStudent;
       const updatedStudents = students.map((student) =>
-        student.studentId === id ? Student.from(returnedStudent) : student
+        student.studentId === id ? returnedStudent : student
       );
       setStudents(updatedStudents);
       setIsEditing(false);

@@ -5,7 +5,7 @@ const StudentDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const student = location.state.student;
-  console.log("student", student);
+  console.log("student in detail", student);
 
   // Chuyển đổi birthDate nếu cần
   const birthDate = new Date(student.birthDate).toLocaleDateString();

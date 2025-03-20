@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
-import { Student } from "../model/student";
 
 const validFaculties = [
   "Faculty of Law",
@@ -140,7 +139,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
 
       if (!response.ok) throw new Error("Failed to add student");
       const addedStudent = (await response.json()).newStudent;
-      setStudents([...students, Student.from(addedStudent)]);
+      setStudents([...students, addedStudent]);
       setIsAdding(false);
 
       Swal.fire({
