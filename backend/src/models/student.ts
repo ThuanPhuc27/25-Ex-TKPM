@@ -1,7 +1,6 @@
-import { ObjectId } from "mongodb";
+import mongoose, { Schema } from "mongoose";
 
-class Student {
-  _id?: ObjectId;
+export interface IStudent {
   studentId: string;
   fullName: string;
   birthDate: Date;
@@ -13,77 +12,33 @@ class Student {
   email: string;
   phone: string;
   status: string;
-
-  constructor(
-    studentId?: string | null,
-    fullName?: string | null,
-    birthDate?: Date | null,
-    sex?: string | null,
-    faculty?: string | null,
-    schoolYear?: number | null,
-    program?: string | null,
-    address?: string | null,
-    email?: string | null,
-    phone?: string | null,
-    status?: string | null
-  ) {
-    this.studentId = studentId || "";
-    this.fullName = fullName || "";
-    this.birthDate = birthDate ? new Date(birthDate) : new Date();
-    this.sex = sex || "other";
-    this.faculty = faculty || "";
-    this.schoolYear = schoolYear || 1900;
-    this.program = program || "";
-    this.address = address || "";
-    this.email = email || "";
-    this.phone = phone || "";
-    this.status = status || "active";
-  }
-
-  static from(student: Student) {
-    let newly_created_student = new Student(
-      student.studentId,
-      student.fullName,
-      student.birthDate,
-      student.sex,
-      student.faculty,
-      student.schoolYear,
-      student.program,
-      student.address,
-      student.email,
-      student.phone,
-      student.status
-    );
-    newly_created_student._id = student._id;
-    return newly_created_student;
-  }
-
-  update(
-    studentId?: string | null,
-    fullName?: string | null,
-    birthDate?: Date | null,
-    sex?: string | null,
-    faculty?: string | null,
-    schoolYear?: number | null,
-    program?: string | null,
-    address?: string | null,
-    email?: string | null,
-    phone?: string | null,
-    status?: string | null
-  ) {
-    if (studentId) this.studentId = studentId;
-    if (fullName) this.fullName = fullName;
-    if (birthDate) this.birthDate = new Date(birthDate);
-    if (sex) this.sex = sex;
-    if (faculty) this.faculty = faculty;
-    if (schoolYear) this.schoolYear = schoolYear;
-    if (program) this.program = program;
-    if (address) this.address = address;
-    if (email) this.email = email;
-    if (phone) this.phone = phone;
-    if (status) this.status = status;
-    return this;
-  }
 }
 
-export { Student };
+export type IStudentWithId = IStudent & { _id: mongoose.Types.ObjectId };
+
+// Mongoose checks to make sure that every path in your schema is defined in your document interface
+// But it does NOT check for paths that exist in your document interface but not in your schema.
+const studentSchema = new Schema<IStudent>(
+  {
+    studentId: { type: String, required: true },
+    fullName: { type: String, required: true },
+    birthDate: { type: Date, required: true },
+    sex: { type: String, enum: ["Male", "Female", "Other"], default: "Other" },
+    faculty: { type: String, required: true },
+    schoolYear: { type: Number, required: true },
+    program: { type: String, required: true },
+    address: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ["Active", "Graduated", "Dropped out", "Paused"],
+      default: "Active",
+    },
+  },
+  { timestamps: true }
+);
+
+const Student = mongoose.model<IStudent>("Student", studentSchema);
+
+export default Student;
