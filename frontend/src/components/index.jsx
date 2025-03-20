@@ -9,6 +9,7 @@ import Search from "./Search";
 import Pagination from "./Pagination.jsx";
 
 import config from "../config.js";
+import ImportExport from "./ImportExport.jsx";
 
 // Danh sách các khoa hợp lệ (có thể thay đổi theo dự án)
 const validFaculties = [
@@ -88,6 +89,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             setIsAdding={setIsAdding}
             setIsAuthenticated={setIsAuthenticated}
           />
+          <ImportExport refreshStudents={refreshStudents} />
           <Search
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
