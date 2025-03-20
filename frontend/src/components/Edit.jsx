@@ -13,26 +13,88 @@ const validFaculties = [
 
 const validStatuses = ["Active", "Graduated", "Dropped Out", "Paused"];
 
-// Regex kiểm tra định dạng email
 const emailRegex = /^\S+@\S+\.\S+$/;
-
-// Regex kiểm tra số điện thoại (cho phép số, dấu cách, dấu gạch ngang, dấu ngoặc)
 const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
-  // const id = selectedStudent.id;
-  const id = selectedStudent["studentId"];
+  // Lấy studentId từ selectedStudent
+  const id = selectedStudent.studentId;
 
+  console.log("selectedStudent: ", selectedStudent);
+
+  // Chuyển đổi chuỗi ngày thành đối tượng Date khi khởi tạo state
   const [fullName, setFullName] = useState(selectedStudent.fullName);
-  const [birthDate, setBirthDate] = useState(selectedStudent.birthDate);
+  const [birthDate, setBirthDate] = useState(
+    new Date(selectedStudent.birthDate)
+  );
   const [sex, setSex] = useState(selectedStudent.sex);
+  const [nationality, setNationality] = useState(selectedStudent.nationality);
   const [faculty, setFaculty] = useState(selectedStudent.faculty);
   const [schoolYear, setSchoolYear] = useState(selectedStudent.schoolYear);
   const [program, setProgram] = useState(selectedStudent.program);
-  const [address, setAddress] = useState(selectedStudent.address);
+  const [permanentAddress, setPermanentAddress] = useState(
+    selectedStudent.permanentAddress
+  );
+  const [temporaryAddress, setTemporaryAddress] = useState(
+    selectedStudent.temporaryAddress || {
+      street: "",
+      ward: "",
+      district: "",
+      city: "",
+      country: "",
+    }
+  );
+  const [mailingAddress, setMailingAddress] = useState(
+    selectedStudent.mailingAddress || {
+      street: "",
+      ward: "",
+      district: "",
+      city: "",
+      country: "",
+    }
+  );
+  // Xử lý identityDocuments: chuyển đổi các trường ngày về Date nếu có dữ liệu
+  const [identityDocument, setIdentityDocument] = useState(() => {
+    if (
+      selectedStudent.identityDocuments &&
+      selectedStudent.identityDocuments.length > 0
+    ) {
+      const doc = selectedStudent.identityDocuments[0];
+      return {
+        ...doc,
+        issueDate: doc.issueDate ? new Date(doc.issueDate) : "",
+        expirationDate: doc.expirationDate ? new Date(doc.expirationDate) : "",
+      };
+    }
+    return {
+      type: "",
+      number: "",
+      issueDate: "",
+      issuePlace: "",
+      expirationDate: "",
+    };
+  });
   const [email, setEmail] = useState(selectedStudent.email);
   const [phone, setPhone] = useState(selectedStudent.phone);
   const [status, setStatus] = useState(selectedStudent.status);
+
+  // Xử lý thay đổi cho địa chỉ
+  const handleAddressChange = (e, addressType, field) => {
+    const value = e.target.value;
+    if (addressType === "permanentAddress") {
+      setPermanentAddress({ ...permanentAddress, [field]: value });
+    } else if (addressType === "temporaryAddress") {
+      setTemporaryAddress({ ...temporaryAddress, [field]: value });
+    } else if (addressType === "mailingAddress") {
+      setMailingAddress({ ...mailingAddress, [field]: value });
+    }
+  };
+
+  // Xử lý thay đổi cho identity document
+  const handleIdentityDocChange = (e, field) => {
+    const value = e.target.value;
+    setIdentityDocument({ ...identityDocument, [field]: value });
+  };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -42,6 +104,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       !fullName ||
       !birthDate ||
       !sex ||
+      !nationality ||
       !faculty ||
       !schoolYear ||
       !program ||
@@ -57,7 +120,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
-    // Kiểm tra định dạng email
     if (!emailRegex.test(email)) {
       return Swal.fire({
         icon: "error",
@@ -67,7 +129,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
-    // Kiểm tra số điện thoại
     if (!phoneRegex.test(phone)) {
       return Swal.fire({
         icon: "error",
@@ -77,7 +138,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
-    // Kiểm tra tên khoa hợp lệ
     if (!validFaculties.includes(faculty)) {
       return Swal.fire({
         icon: "error",
@@ -87,7 +147,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
-    // Kiểm tra tình trạng sinh viên hợp lệ
     if (!validStatuses.includes(status)) {
       return Swal.fire({
         icon: "error",
@@ -97,15 +156,21 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
+    // Tạo object cập nhật bao gồm tất cả các trường theo schema.
+    // Nếu cần, chuyển đổi lại các đối tượng Date thành chuỗi (hoặc giữ nguyên nếu backend chấp nhận Date)
     const updatedStudent = {
       studentId: id,
       fullName,
       birthDate,
       sex,
+      nationality,
       faculty,
       schoolYear,
       program,
-      address,
+      permanentAddress,
+      temporaryAddress,
+      mailingAddress,
+      identityDocuments: [identityDocument],
       email,
       phone,
       status,
@@ -116,9 +181,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         `${config.backendApiRoot}${config.apiPaths.students}/${updatedStudent.studentId}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedStudent),
         }
       );
@@ -152,95 +215,356 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
     <div className="mx-auto max-w-xl rounded-lg bg-white p-6 shadow-lg">
       <form onSubmit={handleUpdate} className="space-y-4">
         <h1 className="mb-6 text-2xl font-semibold">Edit Student</h1>
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="date"
-          value={formatDateToInput(birthDate)}
-          onChange={(e) => setBirthDate(new Date(e.target.value))}
-          className="w-full rounded border p-2"
-        />
-        <select
-          value={sex}
-          onChange={(e) => setSex(e.target.value)}
-          className="w-full rounded border p-2"
-        >
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-        <select
-          value={faculty}
-          onChange={(e) => setFaculty(e.target.value)}
-          className="w-full rounded border p-2"
-        >
-          <option value="">Select Faculty</option>
-          <option value="Faculty of Law">Faculty of Law</option>
-          <option value="Faculty of Business English">
-            Faculty of Business English
-          </option>
-          <option value="Faculty of Japanese">Faculty of Japanese</option>
-          <option value="Faculty of French">Faculty of French</option>
-        </select>
-        <input
-          type="number"
-          placeholder="School Year"
-          value={schoolYear}
-          onChange={(e) => {
-            const value = parseInt(e.target.value, 10);
-            if (!isNaN(value) && value > 0) {
-              setSchoolYear(value);
-            } else {
-              setSchoolYear(""); // Nếu nhập giá trị không hợp lệ, đặt lại thành rỗng
+
+        {/* Full Name */}
+        <div>
+          <label htmlFor="fullName" className="block font-medium">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="fullName"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full rounded border p-2"
+          />
+        </div>
+
+        {/* Birth Date */}
+        <div>
+          <label htmlFor="birthDate" className="block font-medium">
+            Birth Date
+          </label>
+          <input
+            type="date"
+            id="birthDate"
+            value={formatDateToInput(birthDate)}
+            onChange={(e) => setBirthDate(new Date(e.target.value))}
+            className="w-full rounded border p-2"
+          />
+        </div>
+
+        {/* Gender */}
+        <div>
+          <label htmlFor="sex" className="block font-medium">
+            Gender
+          </label>
+          <select
+            id="sex"
+            value={sex}
+            onChange={(e) => setSex(e.target.value)}
+            className="w-full rounded border p-2"
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        {/* Nationality */}
+        <div>
+          <label htmlFor="nationality" className="block font-medium">
+            Nationality
+          </label>
+          <input
+            type="text"
+            id="nationality"
+            placeholder="Nationality"
+            value={nationality}
+            onChange={(e) => setNationality(e.target.value)}
+            className="w-full rounded border p-2"
+          />
+        </div>
+
+        {/* Faculty */}
+        <div>
+          <label htmlFor="faculty" className="block font-medium">
+            Faculty
+          </label>
+          <select
+            id="faculty"
+            value={faculty}
+            onChange={(e) => setFaculty(e.target.value)}
+            className="w-full rounded border p-2"
+          >
+            <option value="">Select Faculty</option>
+            {validFaculties.map((fac) => (
+              <option key={fac} value={fac}>
+                {fac}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* School Year */}
+        <div>
+          <label htmlFor="schoolYear" className="block font-medium">
+            School Year
+          </label>
+          <input
+            type="number"
+            id="schoolYear"
+            placeholder="School Year"
+            value={schoolYear}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (!isNaN(value) && value > 0) {
+                setSchoolYear(value);
+              } else {
+                setSchoolYear("");
+              }
+            }}
+            className="w-full rounded border p-2"
+          />
+        </div>
+
+        {/* Program */}
+        <div>
+          <label htmlFor="program" className="block font-medium">
+            Program
+          </label>
+          <input
+            type="text"
+            id="program"
+            placeholder="Program"
+            value={program}
+            onChange={(e) => setProgram(e.target.value)}
+            className="w-full rounded border p-2"
+          />
+        </div>
+
+        {/* Permanent Address */}
+        <h3 className="mt-4 font-bold">Permanent Address</h3>
+        <div>
+          <label className="block font-medium">Street</label>
+          <input
+            type="text"
+            placeholder="Street"
+            value={permanentAddress.street}
+            onChange={(e) =>
+              handleAddressChange(e, "permanentAddress", "street")
             }
-          }}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Program"
-          value={program}
-          onChange={(e) => setProgram(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-full rounded border p-2"
-        >
-          <option value="">Select Status</option>
-          <option value="Active">Active</option>
-          <option value="Graduated">Graduated</option>
-          <option value="Dropped Out">Dropped Out</option>
-          <option value="Paused">Paused</option>
-        </select>
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Ward</label>
+          <input
+            type="text"
+            placeholder="Ward"
+            value={permanentAddress.ward}
+            onChange={(e) => handleAddressChange(e, "permanentAddress", "ward")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            value={permanentAddress.district}
+            onChange={(e) =>
+              handleAddressChange(e, "permanentAddress", "district")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={permanentAddress.city}
+            onChange={(e) => handleAddressChange(e, "permanentAddress", "city")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Country</label>
+          <input
+            type="text"
+            placeholder="Country"
+            value={permanentAddress.country}
+            onChange={(e) =>
+              handleAddressChange(e, "permanentAddress", "country")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Temporary Address (Optional) */}
+        <h3 className="mt-4 font-bold">Temporary Address (Optional)</h3>
+        <div>
+          <label className="block font-medium">Street</label>
+          <input
+            type="text"
+            placeholder="Street"
+            value={temporaryAddress.street}
+            onChange={(e) =>
+              handleAddressChange(e, "temporaryAddress", "street")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Ward</label>
+          <input
+            type="text"
+            placeholder="Ward"
+            value={temporaryAddress.ward}
+            onChange={(e) => handleAddressChange(e, "temporaryAddress", "ward")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            value={temporaryAddress.district}
+            onChange={(e) =>
+              handleAddressChange(e, "temporaryAddress", "district")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={temporaryAddress.city}
+            onChange={(e) => handleAddressChange(e, "temporaryAddress", "city")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Country</label>
+          <input
+            type="text"
+            placeholder="Country"
+            value={temporaryAddress.country}
+            onChange={(e) =>
+              handleAddressChange(e, "temporaryAddress", "country")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Mailing Address (Optional) */}
+        <h3 className="mt-4 font-bold">Mailing Address (Optional)</h3>
+        <div>
+          <label className="block font-medium">Street</label>
+          <input
+            type="text"
+            placeholder="Street"
+            value={mailingAddress.street}
+            onChange={(e) => handleAddressChange(e, "mailingAddress", "street")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Ward</label>
+          <input
+            type="text"
+            placeholder="Ward"
+            value={mailingAddress.ward}
+            onChange={(e) => handleAddressChange(e, "mailingAddress", "ward")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            value={mailingAddress.district}
+            onChange={(e) =>
+              handleAddressChange(e, "mailingAddress", "district")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={mailingAddress.city}
+            onChange={(e) => handleAddressChange(e, "mailingAddress", "city")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Country</label>
+          <input
+            type="text"
+            placeholder="Country"
+            value={mailingAddress.country}
+            onChange={(e) =>
+              handleAddressChange(e, "mailingAddress", "country")
+            }
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Identity Document */}
+        <h3 className="mt-4 font-bold">Identity Document</h3>
+        <div>
+          <label className="block font-medium">Document Type</label>
+          <select
+            value={identityDocument.type}
+            onChange={(e) => handleIdentityDocChange(e, "type")}
+            className="w-full border p-2"
+          >
+            <option value="">Select Document Type</option>
+            <option value="CMND">CMND</option>
+            <option value="CCCD">CCCD</option>
+            <option value="passport">Passport</option>
+          </select>
+        </div>
+        <div>
+          <label className="block font-medium">Document Number</label>
+          <input
+            type="text"
+            placeholder="Document Number"
+            value={identityDocument.number}
+            onChange={(e) => handleIdentityDocChange(e, "number")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Issue Date</label>
+          <input
+            type="date"
+            value={formatDateToInput(identityDocument.issueDate)}
+            onChange={(e) => handleIdentityDocChange(e, "issueDate")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Issue Place</label>
+          <input
+            type="text"
+            placeholder="Issue Place"
+            value={identityDocument.issuePlace}
+            onChange={(e) => handleIdentityDocChange(e, "issuePlace")}
+            className="w-full border p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Expiration Date</label>
+          <input
+            type="date"
+            value={formatDateToInput(identityDocument.expirationDate)}
+            onChange={(e) => handleIdentityDocChange(e, "expirationDate")}
+            className="w-full border p-2"
+          />
+        </div>
+
+        {/* Nút điều khiển */}
         <div className="mt-4 flex justify-between">
           <button
             type="submit"

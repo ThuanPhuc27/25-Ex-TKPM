@@ -5,18 +5,24 @@ const StudentDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const student = location.state.student;
+  console.log("student", student);
 
   // Chuyển đổi birthDate nếu cần
   const birthDate = new Date(student.birthDate).toLocaleDateString();
 
   // Hàm chuyển đổi địa chỉ thành chuỗi hiển thị
   const formatAddress = (address) => {
-    if (!address) return "N/A";
     const { street, ward, district, city, country } = address;
     return `${street}, ${ward}, ${district}, ${city}, ${country}`;
   };
 
-  // Hiển thị thông tin của identityDocuments (chỉ hiện phần tử đầu tiên, có thể lặp nếu cần)
+  // Hàm kiểm tra địa chỉ rỗng (tất cả các trường đều trống hoặc chỉ chứa khoảng trắng)
+  const isAddressEmpty = (address) => {
+    if (!address) return true;
+    return Object.values(address).every((val) => !val || val.trim() === "");
+  };
+
+  // Hiển thị thông tin của identityDocuments (chỉ hiện phần tử đầu tiên)
   const identityDoc =
     student.identityDocuments && student.identityDocuments.length > 0
       ? student.identityDocuments[0]
@@ -52,18 +58,30 @@ const StudentDetails = () => {
         <p>
           <strong>Program:</strong> {student.program}
         </p>
-        <p>
-          <strong>Permanent Address:</strong>{" "}
-          {formatAddress(student.permanentAddress)}
-        </p>
-        <p>
-          <strong>Temporary Address:</strong>{" "}
-          {formatAddress(student.temporaryAddress)}
-        </p>
-        <p>
-          <strong>Mailing Address:</strong>{" "}
-          {formatAddress(student.mailingAddress)}
-        </p>
+        {/* Hiển thị Permanent Address nếu có và không trống */}
+        {student.permanentAddress &&
+          !isAddressEmpty(student.permanentAddress) && (
+            <p>
+              <strong>Permanent Address:</strong>{" "}
+              {formatAddress(student.permanentAddress)}
+            </p>
+          )}
+        {/* Hiển thị Temporary Address nếu có và không trống */}
+        {student.temporaryAddress &&
+          !isAddressEmpty(student.temporaryAddress) && (
+            <p>
+              <strong>Temporary Address:</strong>{" "}
+              {formatAddress(student.temporaryAddress)}
+            </p>
+          )}
+        {/* Hiển thị Mailing Address nếu có và không trống */}
+        {student.mailingAddress && !isAddressEmpty(student.mailingAddress) && (
+          <p>
+            <strong>Mailing Address:</strong>{" "}
+            {formatAddress(student.mailingAddress)}
+          </p>
+        )}
+        {/* Identity Document */}
         {identityDoc && (
           <>
             <p>
