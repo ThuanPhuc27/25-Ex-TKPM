@@ -5,10 +5,11 @@ import StudentDetails from "./pages/StudentDetails";
 import Faculties from "./pages/Faculties";
 import StudentStatuses from "./pages/StudentStatuses";
 import Programs from "./pages/Programs";
-
+import Header from "./components/Header";
 function App() {
   return (
     <Router>
+      <Header />
       <div>
         <Routes>
           <Route path="/" element={<Dashboard />} />

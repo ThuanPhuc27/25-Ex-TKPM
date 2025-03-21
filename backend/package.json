@@ -7,7 +7,9 @@
     "build": "npx tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "ts-node dist/index.js",
     "dev": "nodemon -r tsconfig-paths/register src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "npx migrate-mongo up",
+    "migrate undo": "npx migrate-mongo down"
   },
   "author": "",
   "license": "ISC",
