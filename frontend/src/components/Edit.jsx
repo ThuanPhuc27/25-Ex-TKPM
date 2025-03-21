@@ -1,26 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
 import { formatDateToInput } from "../utils/dateFormatter";
-
-const validFaculties = [
-  "Faculty of Law",
-  "Faculty of Business English",
-  "Faculty of Japanese",
-  "Faculty of French",
-];
-
-const validStatuses = ["Active", "Graduated", "Dropped Out", "Paused"];
+import { getFaculties } from "../utils/getFaculties";
+import { getStudentStatuses } from "../utils/getStudentStatuses";
+import { getPrograms } from "../utils/getPrograms";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
-  // Lấy studentId từ selectedStudent
   const id = selectedStudent.studentId;
-
-  console.log("selectedStudent: ", selectedStudent);
-
   // Chuyển đổi chuỗi ngày thành đối tượng Date khi khởi tạo state
   const [fullName, setFullName] = useState(selectedStudent.fullName);
   const [birthDate, setBirthDate] = useState(
@@ -31,6 +21,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   const [faculty, setFaculty] = useState(selectedStudent.faculty);
   const [schoolYear, setSchoolYear] = useState(selectedStudent.schoolYear);
   const [program, setProgram] = useState(selectedStudent.program);
+  const [status, setStatus] = useState(selectedStudent.status);
   const [permanentAddress, setPermanentAddress] = useState(
     selectedStudent.permanentAddress
   );
@@ -52,6 +43,27 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       country: "",
     }
   );
+
+  // State để lưu danh sách faculties, statuses, programs
+  const [faculties, setFaculties] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fac = await getFaculties();
+        const sts = await getStudentStatuses();
+        const pros = await getPrograms();
+        setFaculties(fac);
+        setStatuses(sts);
+        setPrograms(pros);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   // Xử lý identityDocuments: chuyển đổi các trường ngày về Date nếu có dữ liệu
   const [identityDocument, setIdentityDocument] = useState(() => {
     if (
@@ -75,7 +87,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   });
   const [email, setEmail] = useState(selectedStudent.email);
   const [phone, setPhone] = useState(selectedStudent.phone);
-  const [status, setStatus] = useState(selectedStudent.status);
 
   // Xử lý thay đổi cho địa chỉ
   const handleAddressChange = (e, addressType, field) => {
@@ -133,24 +144,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         icon: "error",
         title: "Error!",
         text: "Invalid phone number format.",
-        showConfirmButton: true,
-      });
-    }
-
-    if (!validFaculties.includes(faculty)) {
-      return Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Invalid faculty name.",
-        showConfirmButton: true,
-      });
-    }
-
-    if (!validStatuses.includes(status)) {
-      return Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Invalid student status.",
         showConfirmButton: true,
       });
     }
@@ -289,9 +282,49 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
             className="w-full rounded border p-2"
           >
             <option value="">Select Faculty</option>
-            {validFaculties.map((fac) => (
-              <option key={fac} value={fac}>
-                {fac}
+            {faculties.map((fac) => (
+              <option key={fac._id} value={fac.name}>
+                {fac.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Program */}
+        <div>
+          <label htmlFor="program" className="block font-medium">
+            Program
+          </label>
+          <select
+            id="program"
+            value={program}
+            onChange={(e) => setProgram(e.target.value)}
+            className="w-full rounded border p-2"
+          >
+            <option value="">Select Program</option>
+            {programs.map((pro) => (
+              <option key={pro._id} value={pro.name}>
+                {pro.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Program */}
+        <div>
+          <label htmlFor="status" className="block font-medium">
+            Status
+          </label>
+          <select
+            id="status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full rounded border p-2"
+          >
+            <option value="">Select Status</option>
+            {statuses.map((st) => (
+              <option key={st._id} value={st.name}>
+                {st.name}
               </option>
             ))}
           </select>
@@ -315,21 +348,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
                 setSchoolYear("");
               }
             }}
-            className="w-full rounded border p-2"
-          />
-        </div>
-
-        {/* Program */}
-        <div>
-          <label htmlFor="program" className="block font-medium">
-            Program
-          </label>
-          <input
-            type="text"
-            id="program"
-            placeholder="Program"
-            value={program}
-            onChange={(e) => setProgram(e.target.value)}
             className="w-full rounded border p-2"
           />
         </div>

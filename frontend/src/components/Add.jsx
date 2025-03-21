@@ -1,16 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
-
-const validFaculties = [
-  "Faculty of Law",
-  "Faculty of Business English",
-  "Faculty of Japanese",
-  "Faculty of French",
-];
-
-const validStatuses = ["Active", "Graduated", "Dropped Out", "Paused"];
-
+import { getFaculties } from "../utils/getFaculties";
+import { getStudentStatuses } from "../utils/getStudentStatuses";
+import { getPrograms } from "../utils/getPrograms";
 // Regex kiểm tra định dạng email đơn giản
 const emailRegex = /^\S+@\S+\.\S+$/;
 
@@ -62,6 +55,27 @@ const Add = ({ students, setStudents, setIsAdding }) => {
     ],
   });
 
+  // State để lưu danh sách faculties, statuses, programs
+  const [faculties, setFaculties] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [programs, setPrograms] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fac = await getFaculties();
+        const sts = await getStudentStatuses();
+        const pros = await getPrograms();
+        setFaculties(fac);
+        setStatuses(sts);
+        setPrograms(pros);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   // Xử lý thay đổi cho các trường cơ bản
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -97,16 +111,6 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         icon: "error",
         title: "Error!",
         text: "Invalid email or phone number format.",
-        showConfirmButton: true,
-      });
-    }
-
-    // Kiểm tra faculty và status hợp lệ
-    if (!validFaculties.includes(faculty) || !validStatuses.includes(status)) {
-      return Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "Invalid faculty or status.",
         showConfirmButton: true,
       });
     }
@@ -278,9 +282,9 @@ const Add = ({ students, setStudents, setIsAdding }) => {
             className="w-full border p-2"
           >
             <option value="">Select Faculty</option>
-            {validFaculties.map((fac) => (
-              <option key={fac} value={fac}>
-                {fac}
+            {faculties.map((fac) => (
+              <option key={fac._id} value={fac.name}>
+                {fac.name}
               </option>
             ))}
           </select>
@@ -297,9 +301,9 @@ const Add = ({ students, setStudents, setIsAdding }) => {
             className="w-full border p-2"
           >
             <option value="">Select Status</option>
-            {validStatuses.map((st) => (
-              <option key={st} value={st}>
-                {st}
+            {statuses.map((st) => (
+              <option key={st._id} value={st.name}>
+                {st.name}
               </option>
             ))}
           </select>
@@ -308,15 +312,20 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           <label htmlFor="program" className="block font-medium">
             Program
           </label>
-          <input
-            type="text"
+          <select
             id="program"
             name="program"
-            placeholder="Program"
             value={formData.program}
             onChange={handleChange}
             className="w-full border p-2"
-          />
+          >
+            <option value="">Select Program</option>
+            {programs.map((pro) => (
+              <option key={pro._id} value={pro.name}>
+                {pro.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="schoolYear" className="block font-medium">
