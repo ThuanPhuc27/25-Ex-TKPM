@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import config from "../config.js";
 
-const ImportExport = ({ refreshStudents }) => {
+const ImportExport = ({ refreshStudents, setIsAdding }) => {
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -83,38 +83,48 @@ const ImportExport = ({ refreshStudents }) => {
   };
 
   return (
-    <div className="mt-4 mb-4">
-      <h2 className="mb-2 text-lg font-semibold">Import / Export Students</h2>
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      <div className="flex items-center gap-3">
-        <select
-          className="rounded border p-2"
-          value={exportFormat}
-          onChange={(e) => setExportFormat(e.target.value)}
-        >
-          <option value="json">JSON</option>
-          <option value="xml">XML</option>
-        </select>
+    <div className="mb-2 flex justify-between">
+      <div className="">
+        <h2 className="mb-2 text-lg font-semibold">Import / Export Students</h2>
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        <div className="flex items-center gap-3">
+          <select
+            className="rounded border p-2"
+            value={exportFormat}
+            onChange={(e) => setExportFormat(e.target.value)}
+          >
+            <option value="json">JSON</option>
+            <option value="xml">XML</option>
+          </select>
+          <button
+            className="rounded bg-blue-500 px-4 py-2 text-white"
+            onClick={handleExport}
+            disabled={loading}
+          >
+            Export
+          </button>
+          <input
+            type="file"
+            accept=".json, .xml"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleImport}
+          />
+          <button
+            className="rounded bg-yellow-500 px-4 py-2 text-white"
+            onClick={() => fileInputRef.current.click()}
+            disabled={loading}
+          >
+            Import File
+          </button>
+        </div>
+      </div>
+      <div className="mt-8 mb-4">
         <button
-          className="rounded bg-blue-500 px-4 py-2 text-white"
-          onClick={handleExport}
-          disabled={loading}
+          onClick={() => setIsAdding(true)}
+          className="rounded bg-white px-4 py-2 text-blue-500 shadow-md transition hover:bg-gray-200"
         >
-          Export
-        </button>
-        <input
-          type="file"
-          accept=".json, .xml"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={handleImport}
-        />
-        <button
-          className="rounded bg-yellow-500 px-4 py-2 text-white"
-          onClick={() => fileInputRef.current.click()}
-          disabled={loading}
-        >
-          Import File
+          Add Student
         </button>
       </div>
     </div>

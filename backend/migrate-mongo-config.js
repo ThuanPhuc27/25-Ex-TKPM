@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
   mongodb: {
     url: process.env.DB_CONNECTION_STRING,
-    databaseName: "studentmanagerment",
+    databaseName: process.env.DB_NAME,
   },
   options: {
     useNewUrlParser: true,

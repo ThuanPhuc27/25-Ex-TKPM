@@ -87,11 +87,10 @@ const Dashboard = ({ setIsAuthenticated }) => {
     <div className="container mx-auto p-6">
       {!isAdding && !isEditing && (
         <>
-          <Header
+          <ImportExport
+            refreshStudents={refreshStudents}
             setIsAdding={setIsAdding}
-            setIsAuthenticated={setIsAuthenticated}
           />
-          <ImportExport refreshStudents={refreshStudents} />
           <Search
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}

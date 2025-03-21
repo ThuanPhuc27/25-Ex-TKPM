@@ -90,7 +90,6 @@ const studentSchema = new Schema<IStudent>(
     phone: { type: String, required: true },
     status: {
       type: String,
-      enum: ["Active", "Graduated", "Dropped out", "Paused"],
       default: "Active",
     },
   },

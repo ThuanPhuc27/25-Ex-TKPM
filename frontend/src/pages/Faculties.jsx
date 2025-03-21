@@ -136,13 +136,40 @@ const Faculties = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="mb-6 text-3xl font-bold">Faculties</h1>
       {loading && <div className="text-center">Loading...</div>}
       {error && (
         <div className="mb-4 text-center text-red-500">Error: {error}</div>
       )}
+      <div className=" rounded-l">
+        <div className="flex w-full flex-col items-center justify-around gap-6 md:flex-row md:gap-8">
+          <h1 className="by-2 border-r-2 pr-2 text-xl font-bold">
+            New Faculty
+          </h1>
 
-      <ul className="space-y-4">
+          <input
+            name="code"
+            placeholder="Code"
+            value={newFaculty.code}
+            onChange={handleNewFacultyChange}
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/4"
+          />
+          <input
+            name="name"
+            placeholder="Name"
+            value={newFaculty.name}
+            onChange={handleNewFacultyChange}
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/2"
+          />
+          <button
+            onClick={handleAddFaculty}
+            className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white transition-colors duration-300 hover:bg-green-700 focus:outline-none"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+
+      <ul className="mt-10 space-y-4">
         {faculties.map((fac) => (
           <li
             key={fac._id}
@@ -201,32 +228,6 @@ const Faculties = () => {
           </li>
         ))}
       </ul>
-
-      <div className="mt-8 rounded bg-white p-6 shadow">
-        <h2 className="mb-4 text-2xl font-semibold">Add New Faculty</h2>
-        <div className="flex flex-col gap-4 md:flex-row">
-          <input
-            name="code"
-            placeholder="Code"
-            value={newFaculty.code}
-            onChange={handleNewFacultyChange}
-            className="w-full rounded border px-3 py-2 md:w-1/4"
-          />
-          <input
-            name="name"
-            placeholder="Name"
-            value={newFaculty.name}
-            onChange={handleNewFacultyChange}
-            className="w-full rounded border px-3 py-2 md:w-1/2"
-          />
-          <button
-            onClick={handleAddFaculty}
-            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-          >
-            Add
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

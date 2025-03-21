@@ -126,11 +126,37 @@ const Programs = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="mb-6 text-3xl font-bold">Programs</h1>
       {loading && <div className="text-center">Loading...</div>}
       {error && (
         <div className="mb-4 text-center text-red-500">Error: {error}</div>
       )}
+      <div className=" mb-4 rounded bg-white ">
+        <div className="flex flex-col items-center justify-around gap-4 md:flex-row">
+          <h1 className="by-2 border-r-2 pr-2 text-xl font-bold">
+            New Program
+          </h1>
+          <input
+            name="code"
+            placeholder="Code"
+            value={newProgram.code}
+            onChange={handleNewProgramChange}
+            className="w-full rounded border px-3 py-2 md:w-1/4"
+          />
+          <input
+            name="name"
+            placeholder="Name"
+            value={newProgram.name}
+            onChange={handleNewProgramChange}
+            className="w-full rounded border px-3 py-2 md:w-1/2"
+          />
+          <button
+            onClick={handleAddProgram}
+            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+          >
+            Add
+          </button>
+        </div>
+      </div>
 
       <ul className="space-y-4">
         {programs.map((pro) => (
@@ -191,32 +217,6 @@ const Programs = () => {
           </li>
         ))}
       </ul>
-
-      <div className="mt-8 rounded bg-white p-6 shadow">
-        <h2 className="mb-4 text-2xl font-semibold">Add New Program</h2>
-        <div className="flex flex-col gap-4 md:flex-row">
-          <input
-            name="code"
-            placeholder="Code"
-            value={newProgram.code}
-            onChange={handleNewProgramChange}
-            className="w-full rounded border px-3 py-2 md:w-1/4"
-          />
-          <input
-            name="name"
-            placeholder="Name"
-            value={newProgram.name}
-            onChange={handleNewProgramChange}
-            className="w-full rounded border px-3 py-2 md:w-1/2"
-          />
-          <button
-            onClick={handleAddProgram}
-            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-          >
-            Add
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
