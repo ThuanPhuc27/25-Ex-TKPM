@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
 import Header from "./Header";
 import Table from "./Table";
 import Add from "./Add";
@@ -10,20 +8,14 @@ import Pagination from "./Pagination.jsx";
 
 import config from "../config.js";
 import ImportExport from "./ImportExport.jsx";
-
-// Danh sách các khoa hợp lệ (có thể thay đổi theo dự án)
-const validFaculties = [
-  "Faculty of Law",
-  "Faculty of Business English",
-  "Faculty of Japanese",
-  "Faculty of French",
-];
+import { getFaculties } from "../utils/getFaculties";
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [faculties, setFaculties] = useState([]);
 
   // State cho search và pagination
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,8 +35,18 @@ const Dashboard = ({ setIsAuthenticated }) => {
       });
   };
 
+  const getAllFaculties = async () => {
+    try {
+      const fac = await getFaculties();
+      setFaculties(fac);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    }
+  };
+
   useEffect(() => {
     refreshStudents();
+    getAllFaculties();
   }, []);
 
   // Lọc sinh viên theo tên (searchQuery) và khoa (facultyFilter)
@@ -95,7 +97,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             setSearchQuery={setSearchQuery}
             facultyFilter={facultyFilter}
             setFacultyFilter={setFacultyFilter}
-            faculties={validFaculties}
+            faculties={faculties}
           />
           <div className="mt-6">
             <Table
