@@ -10,33 +10,104 @@ Group25-Ex-TKPM
 | 2212 0360  | Lê Phúc Thuận  |
 | 2212 0363  | Phan Hồng Thức |
 
-
-# Student Management
-
 ## Cấu Trúc Thư Mục
 ```
 .
-├── src/
-│   ├── components/      # Các component UI 
-│   │   ├── index.jsx
-│   │   ├── Header.jsx
-│   │   └── ...
-│   ├── pages/           # Các trang của ứng dụng
-│   │   ├── AddStudent.jsx
-│   │   └── ...
-│   ├── model/          
-│   │   ├── student/
-│   │   └── ...
-│   ├── App.js           # Component gốc của ứng dụng
-│   └── main.jsx         # Điểm vào của ứng dụng
-├── public/              # Các file tĩnh (index.html)
-├── .env                 # Biến môi trường
-├── .gitignore           # File bỏ qua cho Git
-├── Dockerfile           # Cấu hình Docker
-├── package.json         # Thông tin dự án và dependencies
-├── package-lock.json    # Thông tin chi tiết về dependencies
-├── tailwind.config.cjs # Cấu hình Tailwind CSS
-└── vite.config.js      # Cấu hình Vite
+├── README.md
+├── backend
+│   ├── Dockerfile
+│   ├── migrate-mongo-config.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   │   ├── constants
+│   │   │   └── httpStatusCodes.ts
+│   │   ├── controllers
+│   │   │   ├── configController.ts
+│   │   │   ├── facultyController.ts
+│   │   │   ├── programController.ts
+│   │   │   ├── studentController.ts
+│   │   │   ├── studentStatusController.ts
+│   │   │   └── studentTransferingController.ts
+│   │   ├── index.ts
+│   │   ├── logger
+│   │   │   └── index.ts
+│   │   ├── migration
+│   │   │   ├── 20250320-add-student-collection.js
+│   │   │   ├── 20250320-create-faculty.js
+│   │   │   ├── 20250320-create-programs.js
+│   │   │   └── 20250321-create-studentstatuses.js
+│   │   ├── models
+│   │   │   ├── faculty.ts
+│   │   │   ├── program.ts
+│   │   │   ├── student.ts
+│   │   │   └── studentStatus.ts
+│   │   ├── repositories
+│   │   │   ├── facultyRepository.ts
+│   │   │   ├── programRepository.ts
+│   │   │   ├── studentRepository.ts
+│   │   │   └── studentStatusRepository.ts
+│   │   ├── routes
+│   │   │   ├── configRoute.ts
+│   │   │   ├── facultyRoute.ts
+│   │   │   ├── programRoute.ts
+│   │   │   ├── studentRoute.ts
+│   │   │   └── studentStatusRoute.ts
+│   │   └── services
+│   │       └── database.service.ts
+│   └── tsconfig.json
+├── docker-compose.yml
+├── frontend
+│   ├── Dockerfile
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.cjs
+│   ├── prettier.config.cjs
+│   ├── src
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   │   ├── bg-boost-desktop.svg
+│   │   │   ├── bg-boost-mobile.svg
+│   │   │   ├── bg-shorten-desktop.svg
+│   │   │   ├── bg-shorten-mobile.svg
+│   │   │   ├── icon-brand-recognition.svg
+│   │   │   ├── icon-detailed-records.svg
+│   │   │   ├── icon-facebook.svg
+│   │   │   ├── icon-fully-customizable.svg
+│   │   │   ├── icon-instagram.svg
+│   │   │   ├── icon-pinterest.svg
+│   │   │   ├── icon-twitter.svg
+│   │   │   ├── illustration-working.svg
+│   │   │   ├── logo.svg
+│   │   │   └── menu-outline.svg
+│   │   ├── components
+│   │   │   ├── Add.jsx
+│   │   │   ├── Edit.jsx
+│   │   │   ├── Header.jsx
+│   │   │   ├── ImportExport.jsx
+│   │   │   ├── Pagination.jsx
+│   │   │   ├── Search.jsx
+│   │   │   ├── Table.jsx
+│   │   │   └── index.jsx
+│   │   ├── config.js
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── Faculties.jsx
+│   │   │   ├── Programs.jsx
+│   │   │   ├── StudentDetails.jsx
+│   │   │   └── StudentStatuses.jsx
+│   │   └── utils
+│   │       ├── dateFormatter.js
+│   │       ├── getFaculties.js
+│   │       ├── getPrograms.js
+│   │       └── getStudentStatuses.js
+│   ├── tailwind.config.cjs
+│   └── vite.config.js
+└── public
+    └── favicon-32x32.png
+
 ```
 ## Hướng Dẫn Cài Đặt và Chạy
 
@@ -84,42 +155,54 @@ Trong file docker-compose.yml, bạn cần cấu hình dịch vụ MongoDB như 
     ```
     npx migrate-mongo up
     ```
+
+
 2.  **Chạy Ứng Dụng:**
-Sau khi chạy migration xong, bạn có thể cấu hình các dịch vụ (frontend và backend) trong docker-compose.yml như sau:
-    ```
-    services:
-        frontend:
-            image: thuanlp/studentmanagerment_fe:latest
-            container_name: frontend
-            ports:
-              - "5731:5731"
-            networks:
-              - app-network
-            depends_on:
-              - backend
-            environment:
-              - REACT_APP_BACKEND_URL=http://backend:3001
 
-        backend:
-            image: thuanlp/studentmanagerment_be:latest
-            container_name: backend
-            ports:
-              - "3001:3001"
-            networks:
-              - app-network
-            environment:
-              - DB_HOST=mongodb
-              - DB_PORT=27017
-              - DB_USER=user
-              - DB_PASSWORD=pass
-              - DB_NAME=studentmanagerment
+#####  Sau khi chạy migration xong, bạn có thể cấu hình các dịch vụ (frontend và backend):
+- Backend 
+```
+cd backend 
+npm install
+npm run dev
+```
+- Frontend 
+```
+cd frontend
+npm install
+npm run dev
+``` 
+###### Hoặc chạy bằng docker, cấu hình trong docker-compose.yml như sau:
 
-        volumes:
-          mongodb_data:
+```
+service:
+  frontend:
+    image: thuanlp/studentmanagerment_fe:latest
+    container_name: frontend
+    ports:
+      - "5731:5731"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      - VITE_BACKEND_URL=http://localhost:3001
 
-        networks:
-          app-network:
-            driver: bridge
+  backend:
+    image: thuanlp/studentmanagerment_be:latest
+    container_name: backend
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+    environment:
+      - PORT=3001
+      - DB_CONNECTION_STRING="mongodb://user:pass@mongodb:27017/studentmanagement?authSource=admin"
+      - DB_NAME="studentmanagerment"
 
-    ```
+  networks:
+    app-network:
+      driver: bridge
+
+```
 Ứng dụng sẽ chạy tại `http://localhost:5173` 

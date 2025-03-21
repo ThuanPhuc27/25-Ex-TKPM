@@ -56,18 +56,18 @@ const studentSchema = new Schema<IStudent>(
       country: { type: String, required: true },
     },
     temporaryAddress: {
-      street: { type: String },
-      ward: { type: String },
-      district: { type: String },
-      city: { type: String },
-      country: { type: String },
+      street: { type: String, required: true },
+      ward: { type: String, required: true },
+      district: { type: String, required: true },
+      city: { type: String, required: true },
+      country: { type: String, required: true },
     },
     mailingAddress: {
-      street: { type: String },
-      ward: { type: String },
-      district: { type: String },
-      city: { type: String },
-      country: { type: String },
+      street: { type: String, required: true },
+      ward: { type: String, required: true },
+      district: { type: String, required: true },
+      city: { type: String, required: true },
+      country: { type: String, required: true },
     },
     identityDocuments: [
       {
