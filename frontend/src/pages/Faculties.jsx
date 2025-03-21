@@ -1,0 +1,203 @@
+import React, { useState, useEffect } from "react";
+import config from "../config";
+
+const Faculties = () => {
+  const [faculties, setFaculties] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // State cho form thêm mới
+  const [newFaculty, setNewFaculty] = useState({ code: "", name: "" });
+  // State cho việc chỉnh sửa
+  const [editingFaculty, setEditingFaculty] = useState(null);
+
+  // Lấy danh sách faculties từ API
+  const fetchFaculties = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.faculty}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch faculties");
+      const data = await response.json();
+      setFaculties(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFaculties();
+  }, []);
+
+  // Xử lý thay đổi trong form thêm mới
+  const handleNewFacultyChange = (e) => {
+    const { name, value } = e.target;
+    setNewFaculty((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Thêm mới faculty
+  const handleAddFaculty = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.faculty}/add`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newFaculty),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to add faculty");
+      await fetchFaculties();
+      setNewFaculty({ code: "", name: "" });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Xóa faculty
+  const handleDeleteFaculty = async (id) => {
+    try {
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.faculty}/${id}/delete}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!response.ok) throw new Error("Failed to delete faculty");
+      await fetchFaculties();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Bắt đầu chỉnh sửa một faculty
+  const handleEditFaculty = (faculty) => {
+    setEditingFaculty({ ...faculty });
+  };
+
+  // Xử lý thay đổi trong form chỉnh sửa
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditingFaculty((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Lưu thay đổi sau chỉnh sửa
+  const handleUpdateFaculty = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.faculty}/${editingFaculty._id}/edit`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editingFaculty),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to update faculty");
+      setEditingFaculty(null);
+      await fetchFaculties();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="mb-6 text-3xl font-bold">Faculties</h1>
+      {loading && <div className="text-center">Loading...</div>}
+      {error && (
+        <div className="mb-4 text-center text-red-500">Error: {error}</div>
+      )}
+
+      <ul className="space-y-4">
+        {faculties.map((fac) => (
+          <li
+            key={fac._id}
+            className="flex items-center justify-between rounded bg-white p-4 shadow"
+          >
+            {editingFaculty && editingFaculty._id === fac._id ? (
+              <div className="flex w-full flex-col items-center gap-2 md:flex-row">
+                <input
+                  name="code"
+                  value={editingFaculty.code}
+                  onChange={handleEditChange}
+                  placeholder="Code"
+                  className="w-full rounded border px-3 py-2 md:w-1/4"
+                />
+                <input
+                  name="name"
+                  value={editingFaculty.name}
+                  onChange={handleEditChange}
+                  placeholder="Name"
+                  className="w-full rounded border px-3 py-2 md:w-1/2"
+                />
+                <button
+                  onClick={handleUpdateFaculty}
+                  className="rounded bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingFaculty(null)}
+                  className="rounded bg-gray-300 px-3 py-2 text-gray-700 hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex w-full items-center justify-between">
+                <span className="text-lg font-medium">
+                  {fac.code} - {fac.name}
+                </span>
+                <div className="space-x-2">
+                  <button
+                    onClick={() => handleEditFaculty(fac)}
+                    className="rounded bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteFaculty(fac._id)}
+                    className="rounded bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-8 rounded bg-white p-6 shadow">
+        <h2 className="mb-4 text-2xl font-semibold">Add New Faculty</h2>
+        <div className="flex flex-col gap-4 md:flex-row">
+          <input
+            name="code"
+            placeholder="Code"
+            value={newFaculty.code}
+            onChange={handleNewFacultyChange}
+            className="w-full rounded border px-3 py-2 md:w-1/4"
+          />
+          <input
+            name="name"
+            placeholder="Name"
+            value={newFaculty.name}
+            onChange={handleNewFacultyChange}
+            className="w-full rounded border px-3 py-2 md:w-1/2"
+          />
+          <button
+            onClick={handleAddFaculty}
+            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Faculties;
