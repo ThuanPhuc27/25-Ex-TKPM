@@ -277,13 +277,13 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           <select
             id="faculty"
             name="faculty"
-            value={formData.faculty}
+            value={formData.code}
             onChange={handleChange}
             className="w-full border p-2"
           >
             <option value="">Select Faculty</option>
             {faculties.map((fac) => (
-              <option key={fac._id} value={fac.name}>
+              <option key={fac._id} value={fac.code}>
                 {fac.name}
               </option>
             ))}
@@ -315,13 +315,13 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           <select
             id="program"
             name="program"
-            value={formData.program}
+            value={formData.code}
             onChange={handleChange}
             className="w-full border p-2"
           >
             <option value="">Select Program</option>
             {programs.map((pro) => (
-              <option key={pro._id} value={pro.name}>
+              <option key={pro._id} value={pro.code}>
                 {pro.name}
               </option>
             ))}

@@ -18,5 +18,4 @@ export const deleteFaculty = async (id: string): Promise<IFaculty | null> => {
 
 export const getFacultyByCode = async (code: string) => {
     return await Faculty.findOne({ code }); // Find faculty by code
-
   };
