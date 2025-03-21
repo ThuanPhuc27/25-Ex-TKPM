@@ -10,6 +10,48 @@ const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
+  // State để lưu danh sách faculties, statuses, programs
+  const [faculties, setFaculties] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fac = await getFaculties();
+        const sts = await getStudentStatuses();
+        const pros = await getPrograms();
+        setFaculties(fac);
+        setStatuses(sts);
+        setPrograms(pros);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const getFacultyCodeByName = (name) => {
+    let i = 0;
+    while (i < faculties.length) {
+      if (faculties[i].name === name) {
+        return faculties[i].code;
+      }
+      i++;
+    }
+    return "";
+  };
+
+  const getProgramCodeByName = (name) => {
+    let i = 0;
+    while (i < programs.length) {
+      if (programs[i].name === name) {
+        return programs[i].code;
+      }
+      i++;
+    }
+    return "";
+  };
+
   const id = selectedStudent.studentId;
   // Chuyển đổi chuỗi ngày thành đối tượng Date khi khởi tạo state
   const [fullName, setFullName] = useState(selectedStudent.fullName);
@@ -18,9 +60,14 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   );
   const [sex, setSex] = useState(selectedStudent.sex);
   const [nationality, setNationality] = useState(selectedStudent.nationality);
-  const [faculty, setFaculty] = useState(selectedStudent.faculty);
+
+  const [faculty, setFaculty] = useState(
+    getFacultyCodeByName(selectedStudent.faculty)
+  );
   const [schoolYear, setSchoolYear] = useState(selectedStudent.schoolYear);
-  const [program, setProgram] = useState(selectedStudent.program);
+  const [program, setProgram] = useState(
+    getProgramCodeByName(selectedStudent.program)
+  );
   const [status, setStatus] = useState(selectedStudent.status);
   const [permanentAddress, setPermanentAddress] = useState(
     selectedStudent.permanentAddress
@@ -43,26 +90,6 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       country: "",
     }
   );
-
-  // State để lưu danh sách faculties, statuses, programs
-  const [faculties, setFaculties] = useState([]);
-  const [statuses, setStatuses] = useState([]);
-  const [programs, setPrograms] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fac = await getFaculties();
-        const sts = await getStudentStatuses();
-        const pros = await getPrograms();
-        setFaculties(fac);
-        setStatuses(sts);
-        setPrograms(pros);
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
-    };
-    fetchData();
-  }, []);
 
   // Xử lý identityDocuments: chuyển đổi các trường ngày về Date nếu có dữ liệu
   const [identityDocument, setIdentityDocument] = useState(() => {
@@ -283,7 +310,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           >
             <option value="">Select Faculty</option>
             {faculties.map((fac) => (
-              <option key={fac._id} value={fac.name}>
+              <option key={fac._id} value={fac.code}>
                 {fac.name}
               </option>
             ))}
@@ -303,7 +330,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           >
             <option value="">Select Program</option>
             {programs.map((pro) => (
-              <option key={pro._id} value={pro.name}>
+              <option key={pro._id} value={pro.code}>
                 {pro.name}
               </option>
             ))}
