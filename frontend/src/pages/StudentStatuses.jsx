@@ -34,6 +34,16 @@ const StudentStatuses = () => {
   };
 
   const handleAddStatus = async () => {
+    if (!newStatus.name.trim()) {
+      setError("Name cannot be empty!");
+      alert("Name cannot be empty!");
+      return;
+    }
+    if (statuses.some((st) => st.code === newStatus.name)) {
+      setError("Name already exists!");
+      alert("Name already exists!");
+      return;
+    }
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.studentStatus}/add`,
@@ -76,11 +86,25 @@ const StudentStatuses = () => {
   };
 
   const handleUpdateStatus = async () => {
+    if (!newStatus.name.trim()) {
+      setError("Name cannot be empty!");
+      alert("Name cannot be empty!");
+      return;
+    }
+    if (
+      statuses.some(
+        (st) => st._id !== editingStatus._id && st.name === editingStatus.name
+      )
+    ) {
+      setError("Name already exists!");
+      alert("Name already exists!");
+      return;
+    }
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.studentStatus}/${editingStatus._id}/edit`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editingStatus),
         }
