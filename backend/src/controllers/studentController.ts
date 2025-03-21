@@ -8,6 +8,9 @@ import {
   deleteStudentById,
 
 } from "../repositories/studentRepository";
+import {getFacultyByCode} from "../repositories/facultyRepository"
+import {getProgramByCode} from "../repositories/programRepository"
+
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
 import { IStudent } from "@models/student";
@@ -84,6 +87,15 @@ export const addStudentsController = async (req: Request, res: Response) => {
 export const getStudentsController = async (req: Request, res: Response) => {
   try {
     const students = await getAllStudents();
+
+    // Use for...of instead of forEach to handle async await properly
+    for (const student of students) {
+      const faculty = await getFacultyByCode(student.faculty);
+      student.faculty = faculty ? faculty.name : "Unknown Faculty";
+      const program = await getProgramByCode(student.program);
+      student.program = program ? program.name : "Unknown Program"; 
+    }
+
     res.status(http.OK).json({ students });
   } catch (error) {
     logger.error(`[database]: Cannot get students - ${error}`);
@@ -93,19 +105,29 @@ export const getStudentsController = async (req: Request, res: Response) => {
   }
 };
 
+
 // Lấy sinh viên theo studentId
 export const getOneStudentController = async (req: Request, res: Response) => {
   try {
     const { studentId } = req.params;
 
-    const student = await getStudentById(studentId);
+    // Fetch student first
+    let student = await getStudentById(studentId);
 
+    // If student is not found, return 404
     if (!student) {
       res
         .status(http.NOT_FOUND)
         .send({ reason: `Student with id "${studentId}" not found` });
       return;
     }
+
+    // Fetch faculty only if student exists
+    const faculty = await getFacultyByCode(student.faculty);
+    student.faculty = faculty ? faculty.name : "Unknown Faculty";
+
+    const program = await getProgramByCode(student.program);
+    student.program = program ? program.name : "Unknown Program"; 
 
     res.status(http.OK).json({ student });
   } catch (error) {
@@ -115,6 +137,7 @@ export const getOneStudentController = async (req: Request, res: Response) => {
       .send({ reason: "Cannot get student" });
   }
 };
+
 
 // Xóa sinh viên theo studentId
 export const deleteStudentController = async (req: Request, res: Response) => {

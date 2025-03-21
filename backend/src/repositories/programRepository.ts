@@ -15,3 +15,7 @@ export const updateProgram = async (id: string, name: string, code: string): Pro
 export const deleteProgram = async (id: string): Promise<IProgram | null> => {
     return await Program.findByIdAndDelete(id);
 };
+
+export const getProgramByCode = async (code: string) => {
+    return await Program.findOne({ code }); 
+};

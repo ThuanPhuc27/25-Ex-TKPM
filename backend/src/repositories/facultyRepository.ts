@@ -15,3 +15,8 @@ export const updateFaculty = async (id: string, name: string, code: string): Pro
 export const deleteFaculty = async (id: string): Promise<IFaculty | null> => {
     return await Faculty.findByIdAndDelete(id);
 };
+
+export const getFacultyByCode = async (code: string) => {
+    return await Faculty.findOne({ code }); // Find faculty by code
+
+  };
