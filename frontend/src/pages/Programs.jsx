@@ -34,6 +34,21 @@ const Programs = () => {
   };
 
   const handleAddProgram = async () => {
+    if (!newProgram.code.trim() || !newProgram.name.trim()) {
+      setError("Code and Name cannot be empty!");
+      alert("Code and Name cannot be empty!");
+      return;
+    }
+    if (programs.some((pro) => pro.code === newProgram.code)) {
+      setError("Code already exists!");
+      alert("Code already exists!");
+      return;
+    }
+    if (programs.some((pro) => pro.name === newProgram.name)) {
+      setError("Name already exists!");
+      alert("Name already exists!");
+      return;
+    }
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.program}/add`,
@@ -76,11 +91,27 @@ const Programs = () => {
   };
 
   const handleUpdateProgram = async () => {
+    if (!editingProgram.code.trim() || !editingProgram.name.trim()) {
+      setError("Code and Name cannot be empty!");
+      alert("Code and Name cannot be empty!");
+      return;
+    }
+    if (
+      programs.some(
+        (pro) =>
+          pro._id !== editingProgram._id &&
+          (pro.code === editingProgram.code || pro.name === editingProgram.name)
+      )
+    ) {
+      setError("Code or Name already exists!");
+      alert("Code or Name already exists!");
+      return;
+    }
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.program}/${editingProgram._id}/edit`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editingProgram),
         }

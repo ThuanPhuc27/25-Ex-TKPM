@@ -40,6 +40,21 @@ const Faculties = () => {
 
   // Thêm mới faculty
   const handleAddFaculty = async () => {
+    if (!newFaculty.code.trim() || !newFaculty.name.trim()) {
+      setError("Code and Name cannot be empty!");
+      alert("Code and Name cannot be empty!");
+      return;
+    }
+    if (faculties.some((fac) => fac.code === newFaculty.code)) {
+      setError("Code already exists!");
+      alert("Code already exists!");
+      return;
+    }
+    if (faculties.some((fac) => fac.name === newFaculty.name)) {
+      setError("Name already exists!");
+      alert("Name already exists!");
+      return;
+    }
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.faculty}/add`,
@@ -61,7 +76,7 @@ const Faculties = () => {
   const handleDeleteFaculty = async (id) => {
     try {
       const response = await fetch(
-        `${config.backendApiRoot}${config.apiPaths.faculty}/${id}/delete}`,
+        `${config.backendApiRoot}${config.apiPaths.faculty}/${id}/delete`,
         {
           method: "DELETE",
         }
@@ -86,11 +101,27 @@ const Faculties = () => {
 
   // Lưu thay đổi sau chỉnh sửa
   const handleUpdateFaculty = async () => {
+    if (!editingFaculty.code.trim() || !editingFaculty.name.trim()) {
+      setError("Code and Name cannot be empty!");
+      alert("Code and Name cannot be empty!");
+      return;
+    }
+    if (
+      faculties.some(
+        (fac) =>
+          fac._id !== editingFaculty._id &&
+          (fac.code === editingFaculty.code || fac.name === editingFaculty.name)
+      )
+    ) {
+      setError("Code or Name already exists!");
+      alert("Code or Name already exists!");
+      return;
+    }
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.faculty}/${editingFaculty._id}/edit`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editingFaculty),
         }
