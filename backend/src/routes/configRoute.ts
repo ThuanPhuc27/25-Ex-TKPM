@@ -1,9 +1,9 @@
-import { raw, Router } from "express";
+import { Router } from "express";
 
-import { getAllConfigs } from "../controllers/configController"
+import { getAllConfigsController } from "../controllers/configController";
 
 const router = Router();
 
-router.get("/", getAllConfigs);
+router.get("/", getAllConfigsController);
 
 export default router;

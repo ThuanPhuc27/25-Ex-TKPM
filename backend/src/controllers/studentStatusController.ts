@@ -5,58 +5,79 @@ import {
   updateStudentStatus,
   deleteStudentStatus,
 } from "../repositories/studentStatusRepository";
+import { http } from "../constants/httpStatusCodes";
 
-export const create = async (req: Request, res: Response) => {
+export const addStudentStatusController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { name } = req.body;
     if (!name) {
-      res.status(400).json({ message: "Name is required" });
+      res.status(http.BAD_REQUEST).json({ message: "Name is required" });
     }
 
     const newStudentStatus = await createStudentStatus(name);
-    res.status(201).json(newStudentStatus);
+    res.status(http.CREATED).json(newStudentStatus);
   } catch (error) {
-    res.status(500).json({ message: "Error creating student status" });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error creating student status" });
   }
 };
 
-export const getAll = async (req: Request, res: Response) => {
+export const getAllStudentStatusController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const studentStatuses = await getAllStudentStatuses();
-    res.status(200).json(studentStatuses);
+    res.status(http.OK).json(studentStatuses);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching student statuses" });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error fetching student statuses" });
   }
 };
 
-export const update = async (req: Request, res: Response) => {
+export const editStudentStatusController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { statusId } = req.params;
     const { name } = req.body;
     if (!name) {
-      res.status(400).json({ message: "Name is required" });
+      res.status(http.BAD_REQUEST).json({ message: "Name is required" });
     }
 
     const updatedStudentStatus = await updateStudentStatus(statusId, name);
     if (!updatedStudentStatus) {
-      res.status(404).json({ message: "Student status not found" });
+      res.status(http.NOT_FOUND).json({ message: "Student status not found" });
     }
-    res.status(200).json(updatedStudentStatus);
+    res.status(http.OK).json(updatedStudentStatus);
   } catch (error) {
-    res.status(500).json({ message: "Error updating student status" });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error updating student status" });
   }
 };
 
-export const remove = async (req: Request, res: Response) => {
+export const deleteStudentStatusController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { statusId } = req.params;
 
     const deletedStudentStatus = await deleteStudentStatus(statusId);
     if (!deletedStudentStatus) {
-      res.status(404).json({ message: "Student status not found" });
+      res.status(http.NOT_FOUND).json({ message: "Student status not found" });
     }
-    res.status(200).json({ message: "Student status deleted" });
+    res.status(http.OK).json({ message: "Student status deleted" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting student status" });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error deleting student status" });
   }
 };

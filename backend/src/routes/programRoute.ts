@@ -1,19 +1,20 @@
-import { raw, Router } from "express";
+import { Router } from "express";
 
 import {
-  createProgram,
-  getAllPrograms,
-  updateProgram,
-  deleteProgram,
+  addProgramController,
+  getAllProgramsController,
+  updateProgramController,
+  deleteProgramController,
 } from "../controllers/programController";
 
 const router = Router();
 
-router.get("/", getAllPrograms);
+router.get("/", getAllProgramsController);
 
-router.post("/add", createProgram);
+router.post("/add", addProgramController);
 
-router.patch("/:programId/edit", updateProgram);
+router.patch("/:programId/edit", updateProgramController);
 
-router.delete("/:programId/delete", deleteProgram);
+router.delete("/:programId/delete", deleteProgramController);
+
 export default router;

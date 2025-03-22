@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import { getAllStudentStatuses } from '../repositories/studentStatusRepository';
-import { getAllFaculties } from '../repositories/facultyRepository';
-import { getAllPrograms } from '../repositories/programRepository';
+import { Request, Response } from "express";
+import { getAllStudentStatuses } from "../repositories/studentStatusRepository";
+import { getAllFaculties } from "../repositories/facultyRepository";
+import { getAllPrograms } from "../repositories/programRepository";
+import { http } from "../constants/httpStatusCodes";
 
-export const getAllConfigs = async (req: Request, res: Response) => {
+export const getAllConfigsController = async (req: Request, res: Response) => {
   try {
     const [studentStatuses, faculties, programs] = await Promise.all([
       getAllStudentStatuses(),
@@ -11,12 +12,14 @@ export const getAllConfigs = async (req: Request, res: Response) => {
       getAllPrograms(),
     ]);
 
-    res.status(200).json({
+    res.status(http.OK).json({
       studentStatuses,
       faculties,
       programs,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching configurations' });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error fetching configurations" });
   }
 };

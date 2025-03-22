@@ -1,29 +1,31 @@
 import { Request, Response } from "express";
 import * as programRepository from "../repositories/programRepository";
+import { http } from "../constants/httpStatusCodes";
 
-// Tạo mới chương trình
-export const createProgram = async (req: Request, res: Response) => {
+export const addProgramController = async (req: Request, res: Response) => {
   try {
     const { name, code } = req.body;
     const program = await programRepository.createProgram(name, code);
-    res.status(201).json(program);
+    res.status(http.CREATED).json(program);
   } catch (error) {
-    res.status(500).json({ message: "Error creating program", error });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error creating program", error });
   }
 };
 
-// Lấy tất cả các chương trình
-export const getAllPrograms = async (req: Request, res: Response) => {
+export const getAllProgramsController = async (req: Request, res: Response) => {
   try {
     const programs = await programRepository.getAllPrograms();
-    res.status(200).json(programs);
+    res.status(http.OK).json(programs);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching programs", error });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error fetching programs", error });
   }
 };
 
-// Cập nhật thông tin chương trình
-export const updateProgram = async (req: Request, res: Response) => {
+export const updateProgramController = async (req: Request, res: Response) => {
   try {
     const { programId } = req.params;
     const { name, code } = req.body;
@@ -34,27 +36,30 @@ export const updateProgram = async (req: Request, res: Response) => {
     );
 
     if (!updatedProgram) {
-      res.status(404).json({ message: "Program not found" });
+      res.status(http.NOT_FOUND).json({ message: "Program not found" });
     }
 
-    res.status(200).json(updatedProgram);
+    res.status(http.OK).json(updatedProgram);
   } catch (error) {
-    res.status(500).json({ message: "Error updating program", error });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error updating program", error });
   }
 };
 
-// Xóa chương trình
-export const deleteProgram = async (req: Request, res: Response) => {
+export const deleteProgramController = async (req: Request, res: Response) => {
   try {
     const { programId } = req.params;
     const deletedProgram = await programRepository.deleteProgram(programId);
 
     if (!deletedProgram) {
-      res.status(404).json({ message: "Program not found" });
+      res.status(http.NOT_FOUND).json({ message: "Program not found" });
     }
 
-    res.status(200).json({ message: "Program deleted successfully" });
+    res.status(http.OK).json({ message: "Program deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting program", error });
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error deleting program", error });
   }
 };

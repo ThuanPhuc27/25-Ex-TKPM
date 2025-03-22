@@ -1,19 +1,20 @@
-import { raw, Router } from "express";
+import { Router } from "express";
 
 import {
-  createFaculty,
-  getAllFaculties,
-  updateFaculty,
-  deleteFaculty,
+  addFacultyController,
+  getAllFacultiesController,
+  updateFacultyController,
+  deleteFacultyController,
 } from "../controllers/facultyController";
 
 const router = Router();
 
-router.get("/", getAllFaculties);
+router.get("/", getAllFacultiesController);
 
-router.post("/add", createFaculty);
+router.post("/add", addFacultyController);
 
-router.patch("/:facultyId/edit", updateFaculty);
+router.patch("/:facultyId/edit", updateFacultyController);
 
-router.delete("/:facultyId/delete", deleteFaculty);
+router.delete("/:facultyId/delete", deleteFacultyController);
+
 export default router;
