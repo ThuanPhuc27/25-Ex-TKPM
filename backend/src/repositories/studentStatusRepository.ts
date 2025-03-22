@@ -1,17 +1,30 @@
-import StudentStatus, { IStudentStatus } from '../models/studentStatus';
+import StudentStatus, { IStudentStatusDocument } from "../models/studentStatus";
 
-export const createStudentStatus = async (name: string): Promise<IStudentStatus> => {
-    return await StudentStatus.create({ name });
+export const createStudentStatus = async (
+  name: string
+): Promise<IStudentStatusDocument> => {
+  return await StudentStatus.create({ name });
 };
 
-export const getAllStudentStatuses = async (): Promise<IStudentStatus[]> => {
-    return await StudentStatus.find();
+export const getAllStudentStatuses = async (): Promise<
+  IStudentStatusDocument[]
+> => {
+  return await StudentStatus.find().exec();
 };
 
-export const updateStudentStatus = async (id: string, name: string): Promise<IStudentStatus | null> => {
-    return await StudentStatus.findByIdAndUpdate(id, { name }, { new: true });
+export const updateStudentStatus = async (
+  id: string,
+  name: string
+): Promise<IStudentStatusDocument | null> => {
+  return await StudentStatus.findByIdAndUpdate(
+    id,
+    { name },
+    { new: true }
+  ).exec();
 };
 
-export const deleteStudentStatus = async (id: string): Promise<IStudentStatus | null> => {
-    return await StudentStatus.findByIdAndDelete(id);
+export const deleteStudentStatus = async (
+  id: string
+): Promise<IStudentStatusDocument | null> => {
+  return await StudentStatus.findByIdAndDelete(id).exec();
 };
