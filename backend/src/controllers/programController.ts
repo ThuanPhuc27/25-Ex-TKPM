@@ -4,8 +4,8 @@ import { http } from "../constants/httpStatusCodes";
 
 export const addProgramController = async (req: Request, res: Response) => {
   try {
-    const { name, code } = req.body;
-    const program = await programRepository.createProgram(name, code);
+    const { name } = req.body;
+    const program = await programRepository.createProgram(name);
     res.status(http.CREATED).json(program);
   } catch (error) {
     res
@@ -14,7 +14,7 @@ export const addProgramController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllProgramsController = async (req: Request, res: Response) => {
+export const getAllProgramsController = async (_: Request, res: Response) => {
   try {
     const programs = await programRepository.getAllPrograms();
     res.status(http.OK).json(programs);
@@ -28,11 +28,10 @@ export const getAllProgramsController = async (req: Request, res: Response) => {
 export const updateProgramController = async (req: Request, res: Response) => {
   try {
     const { programId } = req.params;
-    const { name, code } = req.body;
+    const { name } = req.body;
     const updatedProgram = await programRepository.updateProgram(
       programId,
-      name,
-      code
+      name
     );
 
     if (!updatedProgram) {

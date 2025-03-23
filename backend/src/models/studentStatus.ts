@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IStudentStatus {
-  name: string;
+  statusName: string;
 }
 
 export interface IStudentStatusDocument
@@ -12,7 +12,7 @@ export interface IStudentStatusDocument
 
 const StudentStatusSchema: Schema = new Schema<IStudentStatus>(
   {
-    name: { type: String, required: true, unique: true },
+    statusName: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );

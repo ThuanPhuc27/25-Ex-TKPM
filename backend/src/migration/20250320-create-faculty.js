@@ -4,19 +4,15 @@ module.exports = {
 
     const faculties = [
       {
-        code: "LAW", 
         name: "Faculty of Law",
       },
       {
-        code: "BUSINESS_ENGLISH",
         name: "Faculty of Business English",
       },
       {
-        code: "JAPANESE", 
         name: "Faculty of Japanese",
       },
       {
-        code: "FRENCH", 
         name: "Faculty of French",
       },
     ];

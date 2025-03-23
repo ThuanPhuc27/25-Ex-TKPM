@@ -5,19 +5,15 @@ module.exports = {
     const programs = [
       {
         name: "Bachelor of Computer Science",
-        code: "BCS",
       },
       {
         name: "Master of Business Administration",
-        code: "MBA",
       },
       {
         name: "Master of Science in Computer Science",
-        code: "MSC-CS",
       },
       {
         name: "Bachelor of Business Administration",
-        code: "BBA",
       },
     ];
 

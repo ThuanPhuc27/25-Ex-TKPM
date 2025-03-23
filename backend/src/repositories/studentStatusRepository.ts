@@ -3,7 +3,7 @@ import StudentStatus, { IStudentStatusDocument } from "../models/studentStatus";
 export const createStudentStatus = async (
   name: string
 ): Promise<IStudentStatusDocument> => {
-  return await StudentStatus.create({ name });
+  return await StudentStatus.create({ statusName: name });
 };
 
 export const getAllStudentStatuses = async (): Promise<
@@ -14,11 +14,11 @@ export const getAllStudentStatuses = async (): Promise<
 
 export const updateStudentStatus = async (
   id: string,
-  name: string
+  newName: string
 ): Promise<IStudentStatusDocument | null> => {
   return await StudentStatus.findByIdAndUpdate(
     id,
-    { name },
+    { statusName: newName },
     { new: true }
   ).exec();
 };

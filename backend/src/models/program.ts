@@ -1,8 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IProgram {
-  name: string;
-  code: string;
+  programName: string;
 }
 
 export interface IProgramDocument
@@ -13,8 +12,7 @@ export interface IProgramDocument
 
 const ProgramSchema: Schema = new Schema<IProgram>(
   {
-    name: { type: String, required: true, unique: true },
-    code: { type: String, required: true, unique: true },
+    programName: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );

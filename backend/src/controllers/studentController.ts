@@ -7,8 +7,6 @@ import {
   updateStudentById,
   deleteStudentById,
 } from "../repositories/studentRepository";
-import { getFacultyByCode } from "../repositories/facultyRepository";
-import { getProgramByCode } from "../repositories/programRepository";
 
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
@@ -90,13 +88,13 @@ export const getStudentsController = async (req: Request, res: Response) => {
   try {
     const students = await getAllStudents();
 
-    // Use for...of instead of forEach to handle async await properly
-    for (const student of students) {
-      const faculty = await getFacultyByCode(student.faculty);
-      student.faculty = faculty ? faculty.name : "Unknown Faculty";
-      const program = await getProgramByCode(student.program);
-      student.program = program ? program.name : "Unknown Program";
-    }
+    // // Use for...of instead of forEach to handle async await properly
+    // for (const student of students) {
+    //   const faculty = await getFacultyByCode(student.faculty);
+    //   student.faculty = faculty ? faculty.falcutyName : "Unknown Faculty";
+    //   const program = await getProgramByCode(student.program);
+    //   student.program = program ? program.programName : "Unknown Program";
+    // }
 
     res.status(http.OK).json({ students });
   } catch (error) {
@@ -123,12 +121,12 @@ export const getOneStudentController = async (req: Request, res: Response) => {
       return;
     }
 
-    // Fetch faculty only if student exists
-    const faculty = await getFacultyByCode(student.faculty);
-    student.faculty = faculty ? faculty.name : "Unknown Faculty";
+    // // Fetch faculty only if student exists
+    // const faculty = await getFacultyByCode(student.faculty);
+    // student.faculty = faculty ? faculty.falcutyName : "Unknown Faculty";
 
-    const program = await getProgramByCode(student.program);
-    student.program = program ? program.name : "Unknown Program";
+    // const program = await getProgramByCode(student.program);
+    // student.program = program ? program.programName : "Unknown Program";
 
     res.status(http.OK).json({ student });
   } catch (error) {

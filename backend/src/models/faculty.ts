@@ -1,8 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IFaculty {
-  name: string;
-  code: string;
+  facultyName: string;
 }
 
 export interface IFacultyDocument
@@ -13,8 +12,7 @@ export interface IFacultyDocument
 
 const FacultySchema: Schema = new Schema<IFaculty>(
   {
-    name: { type: String, required: true, unique: true },
-    code: { type: String, required: true, unique: true },
+    facultyName: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );

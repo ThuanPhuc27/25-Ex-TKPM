@@ -4,8 +4,8 @@ import { http } from "../constants/httpStatusCodes";
 
 export const addFacultyController = async (req: Request, res: Response) => {
   try {
-    const { name, code } = req.body;
-    const faculty = await facultyRepository.createFaculty(name, code);
+    const { name } = req.body;
+    const faculty = await facultyRepository.createFaculty(name);
     res.status(http.CREATED).json(faculty);
   } catch (error) {
     res
@@ -14,10 +14,7 @@ export const addFacultyController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllFacultiesController = async (
-  req: Request,
-  res: Response
-) => {
+export const getAllFacultiesController = async (_: Request, res: Response) => {
   try {
     const faculties = await facultyRepository.getAllFaculties();
     res.status(http.OK).json(faculties);
@@ -31,11 +28,10 @@ export const getAllFacultiesController = async (
 export const updateFacultyController = async (req: Request, res: Response) => {
   try {
     const { facultyId } = req.params;
-    const { name, code } = req.body;
+    const { name } = req.body;
     const updatedFaculty = await facultyRepository.updateFaculty(
       facultyId,
-      name,
-      code
+      name
     );
 
     if (!updatedFaculty) {

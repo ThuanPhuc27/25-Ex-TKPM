@@ -1,10 +1,9 @@
 import Program, { IProgramDocument } from "../models/program";
 
 export const createProgram = async (
-  name: string,
-  code: string
+  name: string
 ): Promise<IProgramDocument> => {
-  return await Program.create({ name, code });
+  return await Program.create({ programName: name });
 };
 
 export const getAllPrograms = async (): Promise<IProgramDocument[]> => {
@@ -13,12 +12,11 @@ export const getAllPrograms = async (): Promise<IProgramDocument[]> => {
 
 export const updateProgram = async (
   id: string,
-  name: string,
-  code: string
+  newName: string
 ): Promise<IProgramDocument | null> => {
   return await Program.findByIdAndUpdate(
     id,
-    { name, code },
+    { programName: newName },
     { new: true }
   ).exec();
 };
@@ -27,8 +25,4 @@ export const deleteProgram = async (
   id: string
 ): Promise<IProgramDocument | null> => {
   return await Program.findByIdAndDelete(id).exec();
-};
-
-export const getProgramByCode = async (code: string) => {
-  return await Program.findOne({ code }).exec();
 };

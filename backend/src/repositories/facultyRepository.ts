@@ -1,10 +1,9 @@
 import Faculty, { IFacultyDocument } from "../models/faculty";
 
 export const createFaculty = async (
-  name: string,
-  code: string
+  name: string
 ): Promise<IFacultyDocument> => {
-  return await Faculty.create({ name, code });
+  return await Faculty.create({ facultyName: name });
 };
 
 export const getAllFaculties = async (): Promise<IFacultyDocument[]> => {
@@ -13,12 +12,11 @@ export const getAllFaculties = async (): Promise<IFacultyDocument[]> => {
 
 export const updateFaculty = async (
   id: string,
-  name: string,
-  code: string
+  newName: string
 ): Promise<IFacultyDocument | null> => {
   return await Faculty.findByIdAndUpdate(
     id,
-    { name, code },
+    { facultyName: newName },
     { new: true }
   ).exec();
 };
@@ -27,8 +25,4 @@ export const deleteFaculty = async (
   id: string
 ): Promise<IFacultyDocument | null> => {
   return await Faculty.findByIdAndDelete(id).exec();
-};
-
-export const getFacultyByCode = async (code: string) => {
-  return await Faculty.findOne({ code }).exec(); // Find faculty by code
 };
