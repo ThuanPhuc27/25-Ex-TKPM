@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IProgram {
   programName: string;
@@ -24,4 +25,4 @@ const ProgramSchema: Schema = new Schema<IProgram>(
   { timestamps: true }
 );
 
-export default mongoose.model<IProgram>("Program", ProgramSchema);
+export default mongoose.model<IProgram>(MODEL_NAMES.PROGRAM, ProgramSchema);

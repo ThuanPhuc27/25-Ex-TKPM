@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IFaculty {
   facultyName: string;
@@ -24,4 +25,4 @@ const FacultySchema: Schema = new Schema<IFaculty>(
   { timestamps: true }
 );
 
-export default mongoose.model<IFaculty>("Faculty", FacultySchema);
+export default mongoose.model<IFaculty>(MODEL_NAMES.FACULTY, FacultySchema);

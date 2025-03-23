@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IStudentStatus {
   statusName: string;
@@ -25,6 +26,6 @@ const StudentStatusSchema: Schema = new Schema<IStudentStatus>(
 );
 
 export default mongoose.model<IStudentStatus>(
-  "StudentStatus",
+  MODEL_NAMES.STUDENT_STATUS,
   StudentStatusSchema
 );

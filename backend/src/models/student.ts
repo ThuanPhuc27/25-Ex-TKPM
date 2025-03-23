@@ -1,7 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
-import { IFaculty } from "./faculty";
-import { IProgram } from "./program";
-import { IStudentStatus } from "./studentStatus";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IIdentityDocument {
   type: "cmnd" | "cccd" | "passport";
@@ -123,13 +121,13 @@ const studentSchema = new Schema<IStudent>(
     faculty: {
       type: mongoose.Schema.ObjectId,
       required: true,
-      ref: "Faculty",
+      ref: MODEL_NAMES.FACULTY,
     },
     schoolYear: { type: Number, required: true },
     program: {
       type: mongoose.Schema.ObjectId,
       required: true,
-      ref: "Program",
+      ref: MODEL_NAMES.PROGRAM,
     },
     permanentAddress: { type: addressSchema, required: false },
     temporaryAddress: { type: addressSchema, required: false },
@@ -145,12 +143,12 @@ const studentSchema = new Schema<IStudent>(
     status: {
       type: mongoose.Schema.ObjectId,
       required: true,
-      ref: "StudentStatus",
+      ref: MODEL_NAMES.STUDENT_STATUS,
     },
   },
   { timestamps: true }
 );
 
-const Student = mongoose.model<IStudent>("Student", studentSchema);
+const Student = mongoose.model<IStudent>(MODEL_NAMES.STUDENT, studentSchema);
 
 export default Student;
