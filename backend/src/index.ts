@@ -9,6 +9,7 @@ import configRoutes from "@routes/configRoute";
 
 import { connectToDatabase } from "@services/database.service";
 import logger from "./logger";
+import { http } from "./constants/httpStatusCodes";
 
 // Guide link: https://blog.logrocket.com/how-to-set-up-node-typescript-express/
 
@@ -22,7 +23,17 @@ connectToDatabase().catch((onrejected) => {
 });
 
 // Allow the app to accept JSON
-app.use(express.json());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  express.json()(req, res, (error: any) => {
+    if (error) {
+      res
+        .status(http.BAD_REQUEST)
+        .json({ message: `Invalid JSON payload - ${error.message}` });
+      return;
+    }
+    next();
+  });
+});
 
 // Same-origin policy countermeasure
 app.use(
@@ -41,7 +52,9 @@ app.use("/program", programRoutes);
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error(`[server]: Something broke on the server!`);
   logger.error(err.stack);
-  res.status(500).send("The server is broken!");
+  res
+    .status(http.INTERNAL_SERVER_ERROR)
+    .send({ message: "The server is broken!" });
 });
 
 app.get("/", (_: Request, res: Response) => {

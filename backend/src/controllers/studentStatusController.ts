@@ -6,6 +6,7 @@ import {
   deleteStudentStatus,
 } from "../repositories/studentStatusRepository";
 import { http } from "../constants/httpStatusCodes";
+import logger from "../logger";
 
 export const addStudentStatusController = async (
   req: Request,
@@ -15,14 +16,20 @@ export const addStudentStatusController = async (
     const { name } = req.body;
     if (!name) {
       res.status(http.BAD_REQUEST).json({ message: "Name is required" });
+      return;
     }
 
     const newStudentStatus = await createStudentStatus(name);
     res.status(http.CREATED).json(newStudentStatus);
-  } catch (error) {
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error creating student status - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: "Error creating student status" });
+      .json({
+        message: `Error creating student status - ${error.message ?? error}`,
+      });
   }
 };
 
@@ -33,10 +40,15 @@ export const getAllStudentStatusController = async (
   try {
     const studentStatuses = await getAllStudentStatuses();
     res.status(http.OK).json(studentStatuses);
-  } catch (error) {
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error fetching student statuses - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: "Error fetching student statuses" });
+      .json({
+        message: `Error fetching student statuses - ${error.message ?? error}`,
+      });
   }
 };
 
@@ -49,17 +61,24 @@ export const editStudentStatusController = async (
     const { name } = req.body;
     if (!name) {
       res.status(http.BAD_REQUEST).json({ message: "Name is required" });
+      return;
     }
 
     const updatedStudentStatus = await updateStudentStatus(statusId, name);
     if (!updatedStudentStatus) {
       res.status(http.NOT_FOUND).json({ message: "Student status not found" });
+      return;
     }
     res.status(http.OK).json(updatedStudentStatus);
-  } catch (error) {
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error updating student status - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: "Error updating student status" });
+      .json({
+        message: `Error updating student status - ${error.message ?? error}`,
+      });
   }
 };
 
@@ -73,11 +92,17 @@ export const deleteStudentStatusController = async (
     const deletedStudentStatus = await deleteStudentStatus(statusId);
     if (!deletedStudentStatus) {
       res.status(http.NOT_FOUND).json({ message: "Student status not found" });
+      return;
     }
     res.status(http.OK).json({ message: "Student status deleted" });
-  } catch (error) {
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error deleting student status - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: "Error deleting student status" });
+      .json({
+        message: `Error deleting student status - ${error.message ?? error}`,
+      });
   }
 };

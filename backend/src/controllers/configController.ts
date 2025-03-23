@@ -3,6 +3,7 @@ import { getAllStudentStatuses } from "../repositories/studentStatusRepository";
 import { getAllFaculties } from "../repositories/facultyRepository";
 import { getAllPrograms } from "../repositories/programRepository";
 import { http } from "../constants/httpStatusCodes";
+import logger from "../logger";
 
 export const getAllConfigsController = async (req: Request, res: Response) => {
   try {
@@ -17,9 +18,14 @@ export const getAllConfigsController = async (req: Request, res: Response) => {
       faculties,
       programs,
     });
-  } catch (error) {
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error fetching configurations - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: "Error fetching configurations" });
+      .json({
+        message: `Error fetching configurations - ${error.message ?? error}`,
+      });
   }
 };

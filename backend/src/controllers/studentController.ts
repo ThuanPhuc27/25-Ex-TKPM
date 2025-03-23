@@ -56,11 +56,11 @@ export const addStudentController = async (req: Request, res: Response) => {
     const result = await createStudent(newStudent);
 
     res.status(http.CREATED).json({ newStudent: result });
-  } catch (error) {
-    logger.error(`[database]: Cannot add student - ${error}`);
+  } catch (error: any) {
+    logger.error(`[database]: Cannot add student - ${error.message ?? error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot add student - ${error}` });
+      .send({ message: `Cannot add student - ${error.message ?? error}` });
   }
 };
 
@@ -73,16 +73,23 @@ export const addStudentsController = async (req: Request, res: Response) => {
       res
         .status(http.NOT_FOUND)
         .json({ message: "Invalid or empty student data" });
+      return;
     }
 
     const addedStudents = await createStudents(studentsData);
 
     res.status(http.CREATED).json({ newStudents: addedStudents });
-  } catch (error) {
-    logger.error(`Error adding multiple students:  ${error}`);
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error adding multiple students - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `An error occurred while adding students:  ${error}` });
+      .json({
+        message: `An error occurred while adding students - ${
+          error.message ?? error
+        }`,
+      });
   }
 };
 
@@ -97,11 +104,11 @@ export const getStudentsController = async (req: Request, res: Response) => {
       const students = await getAllStudents();
       res.status(http.OK).json({ students });
     }
-  } catch (error) {
-    logger.error(`[database]: Cannot get students - ${error}`);
+  } catch (error: any) {
+    logger.error(`[database]: Cannot get students - ${error.message ?? error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: "Cannot get students" });
+      .send({ message: `Cannot get students - ${error.message ?? error}` });
   }
 };
 
@@ -128,11 +135,11 @@ export const getOneStudentController = async (req: Request, res: Response) => {
     }
 
     res.status(http.OK).json({ student });
-  } catch (error) {
-    logger.error(`[database]: Cannot get student - ${error}`);
+  } catch (error: any) {
+    logger.error(`[database]: Cannot get student - ${error.message ?? error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: "Cannot get student" });
+      .send({ message: `Cannot get student - ${error.message ?? error}` });
   }
 };
 
@@ -149,11 +156,13 @@ export const deleteStudentController = async (req: Request, res: Response) => {
     }
 
     res.status(http.OK).json({ acknowledged: true });
-  } catch (error) {
-    logger.error(`[database]: Cannot delete student - ${error}`);
+  } catch (error: any) {
+    logger.error(
+      `[database]: Cannot delete student - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: "Cannot delete student" });
+      .send({ message: `Cannot delete student - ${error.message ?? error}` });
   }
 };
 
@@ -207,10 +216,12 @@ export const updateStudentController = async (req: Request, res: Response) => {
       acknowledged: true,
       newStudent: result,
     });
-  } catch (error) {
-    logger.error(`[database]: Cannot update student - ${error}`);
+  } catch (error: any) {
+    logger.error(
+      `[database]: Cannot update student - ${error.message ?? error}`
+    );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: "Cannot update student" });
+      .send({ message: `Cannot update student - ${error.message ?? error}` });
   }
 };
