@@ -18,7 +18,7 @@ export const exportAllStudentsController = async (
       format = format.toString().trim().toLowerCase();
       if (format !== "xml" && format !== "json") {
         res.status(http.BAD_REQUEST).send({
-          reason: "Invalid format. Please use 'json' or 'xml'",
+          message: "Invalid format. Please use 'json' or 'xml'",
         });
         return;
       }
@@ -60,7 +60,7 @@ export const exportAllStudentsController = async (
     logger.error(`[database]: Cannot export all students - ${error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ reason: `Cannot export all students - ${error}` });
+      .send({ message: `Cannot export all students - ${error}` });
   }
 };
 
@@ -102,7 +102,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
           `[database]: Imported JSON data is not in the correct form (should be an array of student objects)`
         );
         res.status(http.BAD_REQUEST).send({
-          reason:
+          message:
             "Imported JSON data is not in the correct form (should be an array of student objects)",
         });
         return;
@@ -127,7 +127,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
           }`
         );
         res.status(http.BAD_REQUEST).send({
-          reason: "Can't parse XML data to JSON - " + error,
+          message: "Can't parse XML data to JSON - " + error,
         });
         return;
       }
@@ -158,7 +158,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
           `[database]: Cannot parse JSON data - ${error?.message || error}`
         );
         res.status(http.BAD_REQUEST).send({
-          reason: "Can't parse JSON data - " + error,
+          message: "Can't parse JSON data - " + error,
         });
         return;
       }
@@ -166,7 +166,7 @@ export const importStudentsController = async (req: Request, res: Response) => {
       break;
     default:
       res.status(http.BAD_REQUEST).send({
-        reason:
+        message:
           "Invalid content type. Please use 'application/json' or 'application/xml'",
       });
       return;

@@ -6,10 +6,9 @@ import {
   getStudentById,
   updateStudentById,
   deleteStudentById,
-
 } from "../repositories/studentRepository";
-import {getFacultyByCode} from "../repositories/facultyRepository"
-import {getProgramByCode} from "../repositories/programRepository"
+import { getFacultyByCode } from "../repositories/facultyRepository";
+import { getProgramByCode } from "../repositories/programRepository";
 
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
@@ -26,11 +25,11 @@ export const addStudentController = async (req: Request, res: Response) => {
       faculty,
       schoolYear,
       program,
-      permanentAddress, 
-      temporaryAddress, 
-      mailingAddress, 
-      identityDocuments, 
-      nationality, 
+      permanentAddress,
+      temporaryAddress,
+      mailingAddress,
+      identityDocuments,
+      nationality,
       email,
       phone,
       status,
@@ -46,8 +45,8 @@ export const addStudentController = async (req: Request, res: Response) => {
       program,
       permanentAddress,
       temporaryAddress,
-      mailingAddress, 
-      identityDocuments, 
+      mailingAddress,
+      identityDocuments,
       nationality,
       email,
       phone,
@@ -61,7 +60,7 @@ export const addStudentController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot add student - ${error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ reason: `Cannot add student - ${error}` });
+      .send({ message: `Cannot add student - ${error}` });
   }
 };
 
@@ -70,18 +69,21 @@ export const addStudentsController = async (req: Request, res: Response) => {
     const studentsData = req.body;
 
     if (!Array.isArray(studentsData) || studentsData.length === 0) {
-      res.status(http.NOT_FOUND).json({ message: "Invalid or empty student data" });
+      res
+        .status(http.NOT_FOUND)
+        .json({ message: "Invalid or empty student data" });
     }
 
     const addedStudents = await createStudents(studentsData);
 
-    res.status(http.CREATED).json({newStudents: addedStudents });
+    res.status(http.CREATED).json({ newStudents: addedStudents });
   } catch (error) {
     logger.error(`Error adding multiple students:  ${error}`);
-    res.status(http.INTERNAL_SERVER_ERROR).json({ message: `An error occurred while adding students:  ${error}`});
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: `An error occurred while adding students:  ${error}` });
   }
 };
-
 
 // Lấy tất cả sinh viên
 export const getStudentsController = async (req: Request, res: Response) => {
@@ -93,7 +95,7 @@ export const getStudentsController = async (req: Request, res: Response) => {
       const faculty = await getFacultyByCode(student.faculty);
       student.faculty = faculty ? faculty.name : "Unknown Faculty";
       const program = await getProgramByCode(student.program);
-      student.program = program ? program.name : "Unknown Program"; 
+      student.program = program ? program.name : "Unknown Program";
     }
 
     res.status(http.OK).json({ students });
@@ -101,10 +103,9 @@ export const getStudentsController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot get students - ${error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ reason: "Cannot get students" });
+      .send({ message: "Cannot get students" });
   }
 };
-
 
 // Lấy sinh viên theo studentId
 export const getOneStudentController = async (req: Request, res: Response) => {
@@ -118,7 +119,7 @@ export const getOneStudentController = async (req: Request, res: Response) => {
     if (!student) {
       res
         .status(http.NOT_FOUND)
-        .send({ reason: `Student with id "${studentId}" not found` });
+        .send({ message: `Student with id "${studentId}" not found` });
       return;
     }
 
@@ -127,17 +128,16 @@ export const getOneStudentController = async (req: Request, res: Response) => {
     student.faculty = faculty ? faculty.name : "Unknown Faculty";
 
     const program = await getProgramByCode(student.program);
-    student.program = program ? program.name : "Unknown Program"; 
+    student.program = program ? program.name : "Unknown Program";
 
     res.status(http.OK).json({ student });
   } catch (error) {
     logger.error(`[database]: Cannot get student - ${error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ reason: "Cannot get student" });
+      .send({ message: "Cannot get student" });
   }
 };
-
 
 // Xóa sinh viên theo studentId
 export const deleteStudentController = async (req: Request, res: Response) => {
@@ -148,7 +148,7 @@ export const deleteStudentController = async (req: Request, res: Response) => {
     if (!deletedStudent) {
       res
         .status(http.NOT_FOUND)
-        .send({ reason: `Student with id "${studentId}" not found` });
+        .send({ message: `Student with id "${studentId}" not found` });
       return;
     }
 
@@ -157,7 +157,7 @@ export const deleteStudentController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot delete student - ${error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ reason: "Cannot delete student" });
+      .send({ message: "Cannot delete student" });
   }
 };
 
@@ -173,10 +173,10 @@ export const updateStudentController = async (req: Request, res: Response) => {
       schoolYear,
       program,
       permanentAddress,
-      temporaryAddress, 
-      mailingAddress, 
-      identityDocuments, 
-      nationality,      
+      temporaryAddress,
+      mailingAddress,
+      identityDocuments,
+      nationality,
       email,
       phone,
       status,
@@ -185,7 +185,7 @@ export const updateStudentController = async (req: Request, res: Response) => {
     const student = await getStudentById(studentId);
 
     if (!student) {
-      res.status(http.NOT_FOUND).send({ reason: "Student not found" });
+      res.status(http.NOT_FOUND).send({ message: "Student not found" });
       return;
     }
 
@@ -197,10 +197,10 @@ export const updateStudentController = async (req: Request, res: Response) => {
       schoolYear,
       program,
       permanentAddress,
-      temporaryAddress, 
-      mailingAddress, 
-      identityDocuments, 
-      nationality, 
+      temporaryAddress,
+      mailingAddress,
+      identityDocuments,
+      nationality,
       email,
       phone,
       status,
@@ -216,6 +216,6 @@ export const updateStudentController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot update student - ${error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ reason: "Cannot update student" });
+      .send({ message: "Cannot update student" });
   }
 };
