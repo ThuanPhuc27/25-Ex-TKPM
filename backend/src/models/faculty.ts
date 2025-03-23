@@ -5,10 +5,10 @@ export interface IFaculty {
   code: string;
 }
 
-export interface IFacultyDocument extends Document<unknown, {}, IFaculty> {
+export interface IFacultyDocument
+  extends Document<unknown, {}, IFaculty>,
+    IFaculty {
   _id: Types.ObjectId;
-  name: string;
-  code: string;
 }
 
 const FacultySchema: Schema = new Schema<IFaculty>(

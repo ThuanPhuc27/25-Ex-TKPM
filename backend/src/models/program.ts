@@ -5,10 +5,10 @@ export interface IProgram {
   code: string;
 }
 
-export interface IProgramDocument extends Document<unknown, {}, IProgram> {
+export interface IProgramDocument
+  extends Document<unknown, {}, IProgram>,
+    IProgram {
   _id: Types.ObjectId;
-  name: string;
-  code: string;
 }
 
 const ProgramSchema: Schema = new Schema<IProgram>(

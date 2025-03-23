@@ -5,9 +5,9 @@ export interface IStudentStatus {
 }
 
 export interface IStudentStatusDocument
-  extends Document<unknown, {}, IStudentStatus> {
+  extends Document<unknown, {}, IStudentStatus>,
+    IStudentStatus {
   _id: Types.ObjectId;
-  name: string;
 }
 
 const StudentStatusSchema: Schema = new Schema<IStudentStatus>(

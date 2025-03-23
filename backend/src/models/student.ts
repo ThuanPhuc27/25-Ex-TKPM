@@ -1,22 +1,22 @@
 import mongoose, { Schema } from "mongoose";
 
 export interface IIdentityDocument {
-  type: "CMND" | "CCCD" | "passport"; // Loại giấy tờ
-  number: string; // Số giấy tờ
-  issueDate: Date; // Ngày cấp
-  issuePlace: string; // Nơi cấp
-  expirationDate: Date; // Ngày hết hạn
-  hasChip?: boolean; // Chỉ áp dụng cho CCCD, có gắn chip hay không
-  countryIssued?: string; // Quốc gia cấp, chỉ áp dụng cho passport
-  notes?: string; // Ghi chú, nếu có
+  type: "CMND" | "CCCD" | "passport";
+  number: string;
+  issueDate: Date;
+  issuePlace: string;
+  expirationDate: Date;
+  hasChip?: boolean; // only for "CCCD" type
+  issueCountry?: string; // only for "passport" type
+  notes?: string; // only for "passport" type
 }
 
 export interface IAddress {
-  street: string; // Số nhà, tên đường
-  ward: string; // Phường/Xã
-  district: string; // Quận/Huyện
-  city: string; // Tỉnh/Thành phố
-  country: string; // Quốc gia
+  street: string; // house number and street name
+  ward: string; // ward or commune name
+  district: string; // district or town name
+  city: string; // city or province
+  country: string;
 }
 
 export interface IStudent {
@@ -27,11 +27,11 @@ export interface IStudent {
   faculty: string;
   schoolYear: number;
   program: string;
-  permanentAddress?: IAddress; // Địa chỉ thường trú
-  temporaryAddress?: IAddress; // Địa chỉ tạm trú
-  mailingAddress?: IAddress; // Địa chỉ nhận thư
-  identityDocuments: IIdentityDocument[]; // Giấy tờ chứng minh nhân thân
-  nationality: string; // Quốc tịch
+  permanentAddress?: IAddress;
+  temporaryAddress?: IAddress;
+  mailingAddress?: IAddress;
+  identityDocuments: IIdentityDocument[];
+  nationality: string;
   email: string;
   phone: string;
   status: string;
@@ -39,58 +39,72 @@ export interface IStudent {
 
 export type IStudentWithId = IStudent & { _id?: mongoose.Types.ObjectId };
 
+const addressSchema = new Schema<IAddress>(
+  {
+    street: { type: String, required: true },
+    ward: { type: String, required: true },
+    district: { type: String, required: true },
+    city: { type: String, required: true },
+    country: { type: String, required: true },
+  },
+  {
+    _id: false,
+  }
+);
+
+const identityDocumentSchema = new Schema<IIdentityDocument>(
+  {
+    type: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      enum: ["cmnd", "cccd", "passport"],
+      required: true,
+    },
+    number: { type: String, required: true },
+    issueDate: { type: Date, required: true },
+    issuePlace: { type: String, required: true },
+    expirationDate: { type: Date, required: true },
+    hasChip: { type: Boolean, required: false },
+    issueCountry: { type: String, required: false },
+    notes: { type: String, required: false },
+  },
+  {
+    _id: false,
+  }
+);
+
 const studentSchema = new Schema<IStudent>(
   {
     studentId: { type: String, required: true, unique: true },
     fullName: { type: String, required: true },
     birthDate: { type: Date, required: true },
-    sex: { type: String, enum: ["Male", "Female", "Other"], default: "Other" },
+    sex: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      enum: ["male", "female", "other"],
+      default: "other",
+    },
     faculty: { type: String, required: true },
     schoolYear: { type: Number, required: true },
     program: { type: String, required: true },
-    permanentAddress: {
-      street: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-      country: { type: String, required: true },
+    permanentAddress: { type: addressSchema, required: false },
+    temporaryAddress: { type: addressSchema, required: false },
+    mailingAddress: { type: addressSchema, required: false },
+    identityDocuments: {
+      type: [identityDocumentSchema],
+      required: true,
+      minlength: 1,
     },
-    temporaryAddress: {
-      street: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-      country: { type: String, required: true },
-    },
-    mailingAddress: {
-      street: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-      country: { type: String, required: true },
-    },
-    identityDocuments: [
-      {
-        type: {
-          type: String,
-          enum: ["CMND", "CCCD", "passport"],
-          required: true,
-        },
-        number: { type: String, required: true },
-        issueDate: { type: Date, required: true },
-        issuePlace: { type: String, required: true },
-        expirationDate: { type: Date, required: true },
-        hasChip: { type: Boolean },
-        countryIssued: { type: String },
-        notes: { type: String },
-      },
-    ],
     nationality: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
     status: {
       type: String,
-      default: "Active",
+      trim: true,
+      lowercase: true,
+      default: "active",
     },
   },
   { timestamps: true }
