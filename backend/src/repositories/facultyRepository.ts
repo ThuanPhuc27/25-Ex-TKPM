@@ -1,3 +1,4 @@
+import Student from "@models/student";
 import Faculty, { IFacultyDocument } from "../models/faculty";
 
 export const createFaculty = async (
@@ -24,5 +25,13 @@ export const updateFaculty = async (
 export const deleteFaculty = async (
   id: string
 ): Promise<IFacultyDocument | null> => {
+  // Check if there are any students associated with this faculty
+  const studentCount = await Student.countDocuments({ faculty: id }).exec();
+  if (studentCount > 0) {
+    throw new Error(
+      `Cannot delete faculty with id "${id}" because it is referenced by ${studentCount} student(s).`
+    );
+  }
+
   return await Faculty.findByIdAndDelete(id).exec();
 };

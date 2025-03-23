@@ -1,3 +1,4 @@
+import Student from "@models/student";
 import Program, { IProgramDocument } from "../models/program";
 
 export const createProgram = async (
@@ -24,5 +25,13 @@ export const updateProgram = async (
 export const deleteProgram = async (
   id: string
 ): Promise<IProgramDocument | null> => {
+  // Check if there are any students associated with this program
+  const studentCount = await Student.countDocuments({ program: id }).exec();
+  if (studentCount > 0) {
+    throw new Error(
+      `Cannot delete program with id "${id}" because it is referenced by ${studentCount} student(s).`
+    );
+  }
+
   return await Program.findByIdAndDelete(id).exec();
 };

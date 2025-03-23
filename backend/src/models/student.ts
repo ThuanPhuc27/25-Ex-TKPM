@@ -106,7 +106,7 @@ const studentSchema = new Schema<IStudent>(
       required: true,
       unique: [
         true,
-        'Student ID must be unique (student id "{VALUE}" already existed)',
+        'Student ID must be unique (student id "{VALUE}" already exists)',
       ],
     },
     fullName: { type: String, required: true },
@@ -122,12 +122,30 @@ const studentSchema = new Schema<IStudent>(
       type: mongoose.Schema.ObjectId,
       required: true,
       ref: MODEL_NAMES.FACULTY,
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+          const faculty = await mongoose.models[MODEL_NAMES.FACULTY].findById(
+            value
+          );
+          return !!faculty;
+        },
+        message: 'Faculty with id "{VALUE}" does not exist',
+      },
     },
     schoolYear: { type: Number, required: true },
     program: {
       type: mongoose.Schema.ObjectId,
       required: true,
       ref: MODEL_NAMES.PROGRAM,
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+          const program = await mongoose.models[MODEL_NAMES.PROGRAM].findById(
+            value
+          );
+          return !!program;
+        },
+        message: 'Program with id "{VALUE}" does not exist',
+      },
     },
     permanentAddress: { type: addressSchema, required: false },
     temporaryAddress: { type: addressSchema, required: false },
@@ -144,6 +162,15 @@ const studentSchema = new Schema<IStudent>(
       type: mongoose.Schema.ObjectId,
       required: true,
       ref: MODEL_NAMES.STUDENT_STATUS,
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+          const status = await mongoose.models[
+            MODEL_NAMES.STUDENT_STATUS
+          ].findById(value);
+          return !!status;
+        },
+        message: 'Status with id "{VALUE}" does not exist',
+      },
     },
   },
   { timestamps: true }
