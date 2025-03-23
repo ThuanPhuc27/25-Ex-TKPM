@@ -61,7 +61,7 @@ export const exportAllStudentsController = async (
       `[database]: Cannot export all students - ${error.message ?? error}`
     );
     res.status(http.INTERNAL_SERVER_ERROR).send({
-      message: `Cannot export all students - ${error.message ?? error}`,
+      message: `${error.message ?? error}`,
     });
   }
 };

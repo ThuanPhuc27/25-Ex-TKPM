@@ -14,7 +14,7 @@ export const addFacultyController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error creating faculty - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };
 
@@ -27,7 +27,7 @@ export const getAllFacultiesController = async (_: Request, res: Response) => {
       `[database]: Error fetching faculties - ${error.message ?? error}`
     );
     res.status(http.INTERNAL_SERVER_ERROR).json({
-      message: `Error fetching faculties - ${error.message ?? error}`,
+      message: `${error.message ?? error}`,
     });
   }
 };
@@ -53,7 +53,7 @@ export const updateFacultyController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error updating faculty - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };
 
@@ -74,6 +74,6 @@ export const deleteFacultyController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error deleting faculty - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };

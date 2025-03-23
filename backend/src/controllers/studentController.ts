@@ -60,7 +60,7 @@ export const addStudentController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot add student - ${error.message ?? error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot add student - ${error.message ?? error}` });
+      .send({ message: `${error.message ?? error}` });
   }
 };
 
@@ -83,13 +83,9 @@ export const addStudentsController = async (req: Request, res: Response) => {
     logger.error(
       `[database]: Error adding multiple students - ${error.message ?? error}`
     );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({
-        message: `An error occurred while adding students - ${
-          error.message ?? error
-        }`,
-      });
+    res.status(http.INTERNAL_SERVER_ERROR).json({
+      message: `${error.message ?? error}`,
+    });
   }
 };
 
@@ -108,7 +104,7 @@ export const getStudentsController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot get students - ${error.message ?? error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot get students - ${error.message ?? error}` });
+      .send({ message: `${error.message ?? error}` });
   }
 };
 
@@ -139,7 +135,7 @@ export const getOneStudentController = async (req: Request, res: Response) => {
     logger.error(`[database]: Cannot get student - ${error.message ?? error}`);
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot get student - ${error.message ?? error}` });
+      .send({ message: `${error.message ?? error}` });
   }
 };
 
@@ -162,7 +158,7 @@ export const deleteStudentController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot delete student - ${error.message ?? error}` });
+      .send({ message: `${error.message ?? error}` });
   }
 };
 
@@ -222,6 +218,6 @@ export const updateStudentController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot update student - ${error.message ?? error}` });
+      .send({ message: `${error.message ?? error}` });
   }
 };

@@ -25,11 +25,9 @@ export const addStudentStatusController = async (
     logger.error(
       `[database]: Error creating student status - ${error.message ?? error}`
     );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({
-        message: `Error creating student status - ${error.message ?? error}`,
-      });
+    res.status(http.INTERNAL_SERVER_ERROR).json({
+      message: `${error.message ?? error}`,
+    });
   }
 };
 
@@ -44,11 +42,9 @@ export const getAllStudentStatusController = async (
     logger.error(
       `[database]: Error fetching student statuses - ${error.message ?? error}`
     );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({
-        message: `Error fetching student statuses - ${error.message ?? error}`,
-      });
+    res.status(http.INTERNAL_SERVER_ERROR).json({
+      message: `${error.message ?? error}`,
+    });
   }
 };
 
@@ -74,11 +70,9 @@ export const editStudentStatusController = async (
     logger.error(
       `[database]: Error updating student status - ${error.message ?? error}`
     );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({
-        message: `Error updating student status - ${error.message ?? error}`,
-      });
+    res.status(http.INTERNAL_SERVER_ERROR).json({
+      message: `${error.message ?? error}`,
+    });
   }
 };
 
@@ -99,10 +93,8 @@ export const deleteStudentStatusController = async (
     logger.error(
       `[database]: Error deleting student status - ${error.message ?? error}`
     );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({
-        message: `Error deleting student status - ${error.message ?? error}`,
-      });
+    res.status(http.INTERNAL_SERVER_ERROR).json({
+      message: `${error.message ?? error}`,
+    });
   }
 };

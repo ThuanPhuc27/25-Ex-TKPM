@@ -14,7 +14,7 @@ export const addProgramController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error creating program - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };
 
@@ -28,7 +28,7 @@ export const getAllProgramsController = async (_: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error fetching programs - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };
 
@@ -53,7 +53,7 @@ export const updateProgramController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error updating program - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };
 
@@ -74,6 +74,6 @@ export const deleteProgramController = async (req: Request, res: Response) => {
     );
     res
       .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `Error deleting program - ${error.message ?? error}` });
+      .json({ message: `${error.message ?? error}` });
   }
 };

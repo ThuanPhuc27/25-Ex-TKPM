@@ -22,10 +22,8 @@ export const getAllConfigsController = async (req: Request, res: Response) => {
     logger.error(
       `[database]: Error fetching configurations - ${error.message ?? error}`
     );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({
-        message: `Error fetching configurations - ${error.message ?? error}`,
-      });
+    res.status(http.INTERNAL_SERVER_ERROR).json({
+      message: `${error.message ?? error}`,
+    });
   }
 };
