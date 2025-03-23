@@ -12,7 +12,14 @@ export interface IFacultyDocument
 
 const FacultySchema: Schema = new Schema<IFaculty>(
   {
-    facultyName: { type: String, required: true, unique: true },
+    facultyName: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Faculty name must be unique (faculty with name "{VALUE}" already exists)',
+      ],
+    },
   },
   { timestamps: true }
 );

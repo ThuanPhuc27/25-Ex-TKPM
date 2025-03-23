@@ -12,7 +12,14 @@ export interface IStudentStatusDocument
 
 const StudentStatusSchema: Schema = new Schema<IStudentStatus>(
   {
-    statusName: { type: String, required: true, unique: true },
+    statusName: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Status name must be unique (status with name "{VALUE}" already exists)',
+      ],
+    },
   },
   { timestamps: true }
 );

@@ -6,13 +6,15 @@ import {
   getStudentById,
   updateStudentById,
   deleteStudentById,
+  getAllStudentsWithPopulation,
+  getStudentByIdWithPopulation,
 } from "../repositories/studentRepository";
 
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
 import { IStudent } from "@models/student";
+import { Types } from "mongoose";
 
-// Thêm sinh viên mới
 export const addStudentController = async (req: Request, res: Response) => {
   try {
     const {
@@ -38,9 +40,9 @@ export const addStudentController = async (req: Request, res: Response) => {
       fullName,
       birthDate: birthDate ? new Date(birthDate) : new Date(),
       sex,
-      faculty,
+      faculty: Types.ObjectId.createFromHexString(faculty),
       schoolYear,
-      program,
+      program: Types.ObjectId.createFromHexString(program),
       permanentAddress,
       temporaryAddress,
       mailingAddress,
@@ -48,7 +50,7 @@ export const addStudentController = async (req: Request, res: Response) => {
       nationality,
       email,
       phone,
-      status,
+      status: Types.ObjectId.createFromHexString(status),
     };
 
     const result = await createStudent(newStudent);
@@ -62,6 +64,7 @@ export const addStudentController = async (req: Request, res: Response) => {
   }
 };
 
+// Currently not sure if "raw json" data can be put directly into mongoose's class
 export const addStudentsController = async (req: Request, res: Response) => {
   try {
     const studentsData = req.body;
@@ -83,20 +86,17 @@ export const addStudentsController = async (req: Request, res: Response) => {
   }
 };
 
-// Lấy tất cả sinh viên
 export const getStudentsController = async (req: Request, res: Response) => {
   try {
-    const students = await getAllStudents();
+    const populated = req.query.populated === "true";
 
-    // // Use for...of instead of forEach to handle async await properly
-    // for (const student of students) {
-    //   const faculty = await getFacultyByCode(student.faculty);
-    //   student.faculty = faculty ? faculty.falcutyName : "Unknown Faculty";
-    //   const program = await getProgramByCode(student.program);
-    //   student.program = program ? program.programName : "Unknown Program";
-    // }
-
-    res.status(http.OK).json({ students });
+    if (populated) {
+      const students = await getAllStudentsWithPopulation();
+      res.status(http.OK).json({ students });
+    } else {
+      const students = await getAllStudents();
+      res.status(http.OK).json({ students });
+    }
   } catch (error) {
     logger.error(`[database]: Cannot get students - ${error}`);
     res
@@ -105,13 +105,19 @@ export const getStudentsController = async (req: Request, res: Response) => {
   }
 };
 
-// Lấy sinh viên theo studentId
 export const getOneStudentController = async (req: Request, res: Response) => {
   try {
     const { studentId } = req.params;
+    const populated = req.query.populated === "true";
 
     // Fetch student first
-    let student = await getStudentById(studentId);
+    let student: IStudent | null;
+
+    if (populated) {
+      student = await getStudentByIdWithPopulation(studentId);
+    } else {
+      student = await getStudentById(studentId);
+    }
 
     // If student is not found, return 404
     if (!student) {
@@ -120,13 +126,6 @@ export const getOneStudentController = async (req: Request, res: Response) => {
         .send({ message: `Student with id "${studentId}" not found` });
       return;
     }
-
-    // // Fetch faculty only if student exists
-    // const faculty = await getFacultyByCode(student.faculty);
-    // student.faculty = faculty ? faculty.falcutyName : "Unknown Faculty";
-
-    // const program = await getProgramByCode(student.program);
-    // student.program = program ? program.programName : "Unknown Program";
 
     res.status(http.OK).json({ student });
   } catch (error) {
@@ -137,7 +136,6 @@ export const getOneStudentController = async (req: Request, res: Response) => {
   }
 };
 
-// Xóa sinh viên theo studentId
 export const deleteStudentController = async (req: Request, res: Response) => {
   try {
     const { studentId } = req.params;
@@ -159,7 +157,6 @@ export const deleteStudentController = async (req: Request, res: Response) => {
   }
 };
 
-// Cập nhật thông tin sinh viên
 export const updateStudentController = async (req: Request, res: Response) => {
   try {
     const { studentId } = req.params;
@@ -191,9 +188,9 @@ export const updateStudentController = async (req: Request, res: Response) => {
       fullName,
       birthDate: birthDate ? new Date(birthDate) : student.birthDate,
       sex,
-      faculty,
+      faculty: Types.ObjectId.createFromHexString(faculty),
       schoolYear,
-      program,
+      program: Types.ObjectId.createFromHexString(program),
       permanentAddress,
       temporaryAddress,
       mailingAddress,
@@ -201,7 +198,7 @@ export const updateStudentController = async (req: Request, res: Response) => {
       nationality,
       email,
       phone,
-      status,
+      status: Types.ObjectId.createFromHexString(status),
     };
 
     const result = await updateStudentById(studentId, updatedStudent);

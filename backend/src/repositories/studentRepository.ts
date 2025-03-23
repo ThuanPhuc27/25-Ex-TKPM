@@ -20,8 +20,28 @@ export const getStudentById = async (
   return await Student.findOne({ studentId }).exec();
 };
 
+export const getStudentByIdWithPopulation = async (
+  studentId: string
+): Promise<IStudent | null> => {
+  return await Student.findOne({
+    studentId,
+  })
+    .populate("faculty")
+    .populate("program")
+    .populate("status")
+    .exec();
+};
+
 export const getAllStudents = async (): Promise<IStudent[]> => {
   return await Student.find().exec();
+};
+
+export const getAllStudentsWithPopulation = async (): Promise<IStudent[]> => {
+  return await Student.find()
+    .populate("faculty")
+    .populate("program")
+    .populate("status")
+    .exec();
 };
 
 export const updateStudentById = async (

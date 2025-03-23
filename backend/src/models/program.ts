@@ -12,7 +12,14 @@ export interface IProgramDocument
 
 const ProgramSchema: Schema = new Schema<IProgram>(
   {
-    programName: { type: String, required: true, unique: true },
+    programName: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Program name must be unique (program with name "{VALUE}" already exists)',
+      ],
+    },
   },
   { timestamps: true }
 );

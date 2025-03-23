@@ -1,7 +1,10 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
+import { IFaculty } from "./faculty";
+import { IProgram } from "./program";
+import { IStudentStatus } from "./studentStatus";
 
 export interface IIdentityDocument {
-  type: "CMND" | "CCCD" | "passport";
+  type: "cmnd" | "cccd" | "passport";
   number: string;
   issueDate: Date;
   issuePlace: string;
@@ -24,9 +27,9 @@ export interface IStudent {
   fullName: string;
   birthDate: Date;
   sex: string;
-  faculty: string;
+  faculty: Types.ObjectId;
   schoolYear: number;
-  program: string;
+  program: Types.ObjectId;
   permanentAddress?: IAddress;
   temporaryAddress?: IAddress;
   mailingAddress?: IAddress;
@@ -34,10 +37,10 @@ export interface IStudent {
   nationality: string;
   email: string;
   phone: string;
-  status: string;
+  status: Types.ObjectId;
 }
 
-export type IStudentWithId = IStudent & { _id?: mongoose.Types.ObjectId };
+export type IStudentWithId = IStudent & { _id?: Types.ObjectId };
 
 const addressSchema = new Schema<IAddress>(
   {
@@ -65,9 +68,33 @@ const identityDocumentSchema = new Schema<IIdentityDocument>(
     issueDate: { type: Date, required: true },
     issuePlace: { type: String, required: true },
     expirationDate: { type: Date, required: true },
-    hasChip: { type: Boolean, required: false },
-    issueCountry: { type: String, required: false },
-    notes: { type: String, required: false },
+    hasChip: {
+      type: Boolean,
+      required: [
+        function () {
+          return (this as IIdentityDocument).type === "cccd" ? true : false;
+        },
+        "Chip is required for CCCD type",
+      ],
+    },
+    issueCountry: {
+      type: String,
+      required: [
+        function () {
+          return (this as IIdentityDocument).type === "passport" ? true : false;
+        },
+        "Issue country is required for passport type",
+      ],
+    },
+    notes: {
+      type: String,
+      required: [
+        function () {
+          return (this as IIdentityDocument).type === "passport" ? true : false;
+        },
+        "Notes is required for passport type",
+      ],
+    },
   },
   {
     _id: false,
@@ -76,7 +103,14 @@ const identityDocumentSchema = new Schema<IIdentityDocument>(
 
 const studentSchema = new Schema<IStudent>(
   {
-    studentId: { type: String, required: true, unique: true },
+    studentId: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Student ID must be unique (student id "{VALUE}" already existed)',
+      ],
+    },
     fullName: { type: String, required: true },
     birthDate: { type: Date, required: true },
     sex: {
@@ -86,9 +120,17 @@ const studentSchema = new Schema<IStudent>(
       enum: ["male", "female", "other"],
       default: "other",
     },
-    faculty: { type: String, required: true },
+    faculty: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      ref: "Faculty",
+    },
     schoolYear: { type: Number, required: true },
-    program: { type: String, required: true },
+    program: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      ref: "Program",
+    },
     permanentAddress: { type: addressSchema, required: false },
     temporaryAddress: { type: addressSchema, required: false },
     mailingAddress: { type: addressSchema, required: false },
@@ -101,10 +143,9 @@ const studentSchema = new Schema<IStudent>(
     email: { type: String, required: true },
     phone: { type: String, required: true },
     status: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      default: "active",
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      ref: "StudentStatus",
     },
   },
   { timestamps: true }
