@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "./Table";
 import Add from "./Add";
 import Edit from "./Edit";
@@ -6,7 +6,7 @@ import Search from "./Search";
 import Pagination from "./Pagination.jsx";
 import config from "../config.js";
 import ImportExport from "./ImportExport.jsx";
-import { ConfigContext } from "../contexts/ConfigContext.jsx";
+import { getFaculties } from "../utils/getFaculties.js";
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
@@ -14,8 +14,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // để lấy faculties, programs and status
-  const { configs, loading, error } = useContext(ConfigContext);
+  const [faculties, setFaculties] = useState([]);
 
   // State cho search và pagination
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,9 +42,22 @@ const Dashboard = ({ setIsAuthenticated }) => {
       });
   };
 
+  const getAllFaculties = async () => {
+    try {
+      const fac = await getFaculties();
+      setFaculties(fac);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    }
+  };
+
   useEffect(() => {
     refreshStudents();
   }, [isAdding, isEditing]);
+
+  useEffect(() => {
+    getAllFaculties();
+  });
 
   // Lọc sinh viên theo tên (searchQuery) và khoa (facultyFilter)
   const filteredStudents = students.filter((student) => {
@@ -94,7 +106,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             setSearchQuery={setSearchQuery}
             facultyFilter={facultyFilter}
             setFacultyFilter={setFacultyFilter}
-            faculties={configs.faculties}
+            faculties={faculties}
           />
           <div className="mt-6">
             <Table

@@ -1,7 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
-import { ConfigContext } from "../contexts/ConfigContext";
+import { getFaculties } from "../utils/getFaculties";
+import { getStudentStatuses } from "../utils/getStudentStatuses";
+import { getPrograms } from "../utils/getPrograms";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
@@ -56,13 +58,30 @@ const Add = ({ students, setStudents, setIsAdding }) => {
     ],
   });
 
-  // để lấy faculties, programs and status
-  const { configs, loading, error } = useContext(ConfigContext);
+  const [faculties, setFaculties] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [programs, setPrograms] = useState([]);
 
   // State để kiểm soát hiển thị các phần Address
   const [showPermanent, setShowPermanent] = useState(false);
   const [showTemporary, setShowTemporary] = useState(false);
   const [showMailing, setShowMailing] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fac = await getFaculties();
+        const sts = await getStudentStatuses();
+        const pros = await getPrograms();
+        setFaculties(fac);
+        setStatuses(sts);
+        setPrograms(pros);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Xử lý thay đổi cho các trường cơ bản
   const handleChange = (e) => {
@@ -366,7 +385,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
               className="w-full border p-2"
             >
               <option value="">Select Faculty</option>
-              {configs.faculties.map((fac) => (
+              {faculties.map((fac) => (
                 <option key={fac._id} value={fac._id}>
                   {fac.facultyName}
                 </option>
@@ -385,7 +404,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
               className="w-full border p-2"
             >
               <option value="">Select Status</option>
-              {configs.studentStatuses.map((st) => (
+              {statuses.map((st) => (
                 <option key={st._id} value={st._id}>
                   {st.statusName}
                 </option>
@@ -404,7 +423,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
               className="w-full border p-2"
             >
               <option value="">Select Program</option>
-              {configs.programs.map((pro) => (
+              {programs.map((pro) => (
                 <option key={pro._id} value={pro._id}>
                   {pro.programName}
                 </option>
