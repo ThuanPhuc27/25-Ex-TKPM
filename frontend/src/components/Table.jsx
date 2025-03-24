@@ -78,10 +78,10 @@ const Table = ({ students, handleEdit, handleDelete }) => {
                   {student.fullName}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {student.faculty}
+                  {student.faculty.name}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {student.status}
+                  {student.status.name}
                 </td>
                 <td className="border border-gray-300 py-2 text-center">
                   <button

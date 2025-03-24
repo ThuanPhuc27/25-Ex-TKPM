@@ -25,7 +25,9 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   // Hàm refresh lấy danh sách sinh viên từ API
   const refreshStudents = () => {
-    fetch(`${config.backendApiRoot}${config.apiPaths.students}`)
+    fetch(
+      `${config.backendApiRoot}${config.apiPaths.students}?populated=${true}`
+    )
       .then((res) => res.json())
       .then((data) => {
         setStudents(data.students);

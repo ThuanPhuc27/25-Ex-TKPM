@@ -50,13 +50,13 @@ const StudentDetails = () => {
           <strong>Nationality:</strong> {student.nationality}
         </p>
         <p>
-          <strong>Faculty:</strong> {student.faculty}
+          <strong>Faculty:</strong> {student.faculty.name}
         </p>
         <p>
           <strong>School Year:</strong> {student.schoolYear}
         </p>
         <p>
-          <strong>Program:</strong> {student.program}
+          <strong>Program:</strong> {student.program.name}
         </p>
         {/* Hiển thị Permanent Address nếu có và không trống */}
         {student.permanentAddress &&
@@ -110,7 +110,7 @@ const StudentDetails = () => {
           <strong>Phone:</strong> {student.phone}
         </p>
         <p>
-          <strong>Status:</strong> {student.status}
+          <strong>Status:</strong> {student.status.name}
         </p>
       </div>
       <button
