@@ -219,6 +219,51 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       }
     }
 
+    // Validate các trường Identity Document không được để trống
+    const identityDoc = formData.identityDocuments[0];
+    if (
+      !identityDoc.type.trim() ||
+      !identityDoc.number.trim() ||
+      !identityDoc.issueDate ||
+      !identityDoc.issuePlace.trim() ||
+      !identityDoc.expirationDate
+    ) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "All fields in Identity Document are required.",
+        showConfirmButton: true,
+      });
+    }
+
+    // Validate các trường bổ sung dựa theo type
+    if (identityDoc.type === "CCCD") {
+      // Kiểm tra hasChip: nếu giá trị là chuỗi rỗng thì coi như chưa chọn
+      if (
+        identityDoc.hasChip === "" ||
+        identityDoc.hasChip === null ||
+        identityDoc.hasChip === undefined
+      ) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "The 'Has Chip' field is required for CCCD.",
+          showConfirmButton: true,
+        });
+      }
+    }
+
+    if (identityDoc.type === "passport") {
+      if (!identityDoc.issueCountry.trim() || !identityDoc.notes.trim()) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Issue Country and Notes are required for passport.",
+          showConfirmButton: true,
+        });
+      }
+    }
+
     try {
       const dataToSend = {
         ...formData,

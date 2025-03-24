@@ -237,9 +237,70 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       identityDocuments: [identityDocument],
     };
 
-    if (showPermanent) updatedStudent.permanentAddress = permanentAddress;
-    if (showTemporary) updatedStudent.temporaryAddress = temporaryAddress;
-    if (showMailing) updatedStudent.mailingAddress = mailingAddress;
+    if (showPermanent) {
+      updatedStudent.permanentAddress = permanentAddress;
+    } else {
+      // xóa trường pernementAddress của selectedStudent
+      updatedStudent.permanentAddress = null;
+    }
+
+    if (showTemporary) {
+      updatedStudent.temporaryAddress = temporaryAddress;
+    } else {
+      updatedStudent.temporaryAddress = null;
+    }
+    if (showMailing) {
+      updatedStudent.mailingAddress = mailingAddress;
+    } else {
+      updatedStudent.mailingAddress = null;
+    }
+
+    // Validate các trường bắt buộc của Identity Document
+    if (
+      !identityDocument.type.trim() ||
+      !identityDocument.number.trim() ||
+      !identityDocument.issueDate ||
+      !identityDocument.issuePlace.trim() ||
+      !identityDocument.expirationDate
+    ) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "All common fields in Identity Document are required.",
+        showConfirmButton: true,
+      });
+    }
+
+    // Validate các trường bổ sung dựa trên type
+    if (identityDocument.type === "CCCD") {
+      // Với CCCD, trường hasChip cần có giá trị (chú ý: false là hợp lệ nên không dùng !)
+      if (
+        identityDocument.hasChip === "" ||
+        identityDocument.hasChip === null ||
+        identityDocument.hasChip === undefined
+      ) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "The 'Has Chip' field is required for CCCD.",
+          showConfirmButton: true,
+        });
+      }
+    }
+
+    if (identityDocument.type === "passport") {
+      if (
+        !identityDocument.issueCountry.trim() ||
+        !identityDocument.notes.trim()
+      ) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Issue Country and Notes are required for passport.",
+          showConfirmButton: true,
+        });
+      }
+    }
 
     try {
       const response = await fetch(
