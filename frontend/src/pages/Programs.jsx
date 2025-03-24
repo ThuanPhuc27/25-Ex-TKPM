@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import config from "../config";
 import Pagination from "../components/Pagination";
 
@@ -8,6 +9,10 @@ const Programs = () => {
   const [error, setError] = useState(null);
   const [newProgram, setNewProgram] = useState({ name: "" });
   const [editingProgram, setEditingProgram] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const fetchPrograms = async () => {
     setLoading(true);
@@ -26,6 +31,12 @@ const Programs = () => {
       }
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -42,12 +53,20 @@ const Programs = () => {
 
   const handleAddProgram = async () => {
     if (!newProgram.name.trim()) {
-      alert("Name cannot be empty!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name cannot be empty!",
+        showConfirmButton: true,
+      });
     }
     if (programs.some((pro) => pro.programName === newProgram.name)) {
-      alert("Name already exists!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name already exists!",
+        showConfirmButton: true,
+      });
     }
     try {
       const response = await fetch(
@@ -61,8 +80,21 @@ const Programs = () => {
       if (!response.ok) throw new Error("Failed to add program");
       await fetchPrograms();
       setNewProgram({ name: "" });
+      Swal.fire({
+        icon: "success",
+        title: "Added!",
+        text: "Program added successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
@@ -76,8 +108,21 @@ const Programs = () => {
       );
       if (!response.ok) throw new Error("Failed to delete program");
       await fetchPrograms();
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Program deleted successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
@@ -92,8 +137,12 @@ const Programs = () => {
 
   const handleUpdateProgram = async () => {
     if (!editingProgram.programName.trim()) {
-      alert("Name cannot be empty!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name cannot be empty!",
+        showConfirmButton: true,
+      });
     }
     if (
       programs.some(
@@ -102,8 +151,12 @@ const Programs = () => {
           pro.programName === editingProgram.programName
       )
     ) {
-      alert("Name already exists!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name already exists!",
+        showConfirmButton: true,
+      });
     }
     try {
       const response = await fetch(
@@ -117,14 +170,25 @@ const Programs = () => {
       if (!response.ok) throw new Error("Failed to update program");
       setEditingProgram(null);
       await fetchPrograms();
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Program updated successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
   // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentPrograms = programs.slice(indexOfFirstItem, indexOfLastItem);

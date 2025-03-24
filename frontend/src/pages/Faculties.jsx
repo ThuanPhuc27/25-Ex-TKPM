@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import config from "../config";
+import Swal from "sweetalert2";
 import Pagination from "../components/Pagination";
 
 const Faculties = () => {
@@ -52,12 +53,20 @@ const Faculties = () => {
   // Add a new faculty (only validating "name")
   const handleAddFaculty = async () => {
     if (!newFaculty.name.trim()) {
-      alert("Name cannot be empty!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name cannot be empty!",
+        showConfirmButton: true,
+      });
     }
     if (faculties.some((fac) => fac.name === newFaculty.name)) {
-      alert("Name already exists!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name already exists!",
+        showConfirmButton: true,
+      });
     }
     try {
       const response = await fetch(
@@ -69,8 +78,17 @@ const Faculties = () => {
         }
       );
       if (!response.ok) throw new Error("Failed to add faculty");
+
       await fetchFaculties();
       setNewFaculty({ name: "" });
+
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: `faculty has been added successfully.`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
     }
@@ -87,6 +105,13 @@ const Faculties = () => {
       );
       if (!response.ok) throw new Error("Failed to delete faculty");
       await fetchFaculties();
+
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "faculty has been deleted successfully",
+        showConfirmButton: true,
+      });
     } catch (err) {
       setError(err.message);
     }
@@ -106,8 +131,12 @@ const Faculties = () => {
   // Update a faculty (only "name" validation)
   const handleUpdateFaculty = async () => {
     if (!editingFaculty.facultyName.trim()) {
-      alert("Name cannot be empty!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name cannot be empty!",
+        showConfirmButton: true,
+      });
     }
     if (
       faculties.some(
@@ -116,8 +145,12 @@ const Faculties = () => {
           fac.facultyName === editingFaculty.facultyName
       )
     ) {
-      alert("Name already exists!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name already exists!",
+        showConfirmButton: true,
+      });
     }
     try {
       const response = await fetch(
@@ -129,8 +162,17 @@ const Faculties = () => {
         }
       );
       if (!response.ok) throw new Error("Failed to update faculty");
+
       setEditingFaculty(null);
       await fetchFaculties();
+
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: `Faculty has been updated successfully.`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
     }

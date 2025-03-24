@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import config from "../config";
 import Pagination from "../components/Pagination";
 
@@ -8,6 +9,10 @@ const StudentStatuses = () => {
   const [error, setError] = useState(null);
   const [newStatus, setNewStatus] = useState({ name: "" });
   const [editingStatus, setEditingStatus] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const fetchStatuses = async () => {
     setLoading(true);
@@ -26,6 +31,12 @@ const StudentStatuses = () => {
       }
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -42,12 +53,20 @@ const StudentStatuses = () => {
 
   const handleAddStatus = async () => {
     if (!newStatus.name.trim()) {
-      alert("Name cannot be empty!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name cannot be empty!",
+        showConfirmButton: true,
+      });
     }
     if (statuses.some((st) => st.statusName === newStatus.name)) {
-      alert("Name already exists!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name already exists!",
+        showConfirmButton: true,
+      });
     }
     try {
       const response = await fetch(
@@ -61,8 +80,21 @@ const StudentStatuses = () => {
       if (!response.ok) throw new Error("Failed to add status");
       await fetchStatuses();
       setNewStatus({ name: "" });
+      Swal.fire({
+        icon: "success",
+        title: "Added!",
+        text: "Status added successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
@@ -79,8 +111,21 @@ const StudentStatuses = () => {
         throw new Error(errorData.message || "Failed to delete status");
       }
       await fetchStatuses();
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Status deleted successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
@@ -95,9 +140,12 @@ const StudentStatuses = () => {
 
   const handleUpdateStatus = async () => {
     if (!editingStatus.statusName.trim()) {
-      setError("Name cannot be empty!");
-      alert("Name cannot be empty!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name cannot be empty!",
+        showConfirmButton: true,
+      });
     }
     if (
       statuses.some(
@@ -106,9 +154,12 @@ const StudentStatuses = () => {
           st.statusName === editingStatus.statusName
       )
     ) {
-      setError("Name already exists!");
-      alert("Name already exists!");
-      return;
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Name already exists!",
+        showConfirmButton: true,
+      });
     }
     try {
       const response = await fetch(
@@ -116,20 +167,31 @@ const StudentStatuses = () => {
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: editingStatus.statusName }), // ✅ Sửa đúng key
+          body: JSON.stringify({ name: editingStatus.statusName }),
         }
       );
       if (!response.ok) throw new Error("Failed to update status");
       setEditingStatus(null);
       await fetchStatuses();
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Status updated successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (err) {
       setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
   // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentStatuses = statuses.slice(indexOfFirstItem, indexOfLastItem);

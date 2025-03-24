@@ -1,35 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import config from "../config";
 import { formatDateToInput } from "../utils/dateFormatter";
-import { getFaculties } from "../utils/getFaculties";
-import { getStudentStatuses } from "../utils/getStudentStatuses";
-import { getPrograms } from "../utils/getPrograms";
+import { ConfigContext } from "../contexts/ConfigContext";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
-  // Lấy danh sách từ backend
-  const [faculties, setFaculties] = useState([]);
-  const [statuses, setStatuses] = useState([]);
-  const [programs, setPrograms] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fac = await getFaculties();
-        const sts = await getStudentStatuses();
-        const pros = await getPrograms();
-        setFaculties(fac);
-        setStatuses(sts);
-        setPrograms(pros);
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
-    };
-    fetchData();
-  }, []);
+  // để lấy faculties, programs and status
+  const { configs, loading, error } = useContext(ConfigContext);
 
   const id = selectedStudent.studentId;
   // Khởi tạo state từ dữ liệu của student được chọn
@@ -168,6 +148,59 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
       });
     }
 
+    // Validate address nếu được chọn
+    if (showPermanent) {
+      const { street, ward, district, city, country } = permanentAddress;
+      if (
+        !street.trim() ||
+        !ward.trim() ||
+        !district.trim() ||
+        !city.trim() ||
+        !country.trim()
+      ) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "All fields in Permanent Address are required.",
+          showConfirmButton: true,
+        });
+      }
+    }
+    if (showTemporary) {
+      const { street, ward, district, city, country } = temporaryAddress;
+      if (
+        !street.trim() ||
+        !ward.trim() ||
+        !district.trim() ||
+        !city.trim() ||
+        !country.trim()
+      ) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "All fields in Temporary Address are required.",
+          showConfirmButton: true,
+        });
+      }
+    }
+    if (showMailing) {
+      const { street, ward, district, city, country } = mailingAddress;
+      if (
+        !street.trim() ||
+        !ward.trim() ||
+        !district.trim() ||
+        !city.trim() ||
+        !country.trim()
+      ) {
+        return Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "All fields in Mailing Address are required.",
+          showConfirmButton: true,
+        });
+      }
+    }
+
     // Tạo object cập nhật student. Nếu checkbox ẩn thì loại bỏ các trường địa chỉ đó.
     const updatedStudent = {
       studentId: id,
@@ -300,7 +333,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
               className="w-full rounded border p-2"
             >
               <option value="">Select Faculty</option>
-              {faculties.map((fac) => (
+              {configs.faculties.map((fac) => (
                 <option key={fac._id} value={fac._id}>
                   {fac.facultyName}
                 </option>
@@ -318,7 +351,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
               className="w-full rounded border p-2"
             >
               <option value="">Select Program</option>
-              {programs.map((pro) => (
+              {configs.programs.map((pro) => (
                 <option key={pro._id} value={pro._id}>
                   {pro.programName}
                 </option>
@@ -336,7 +369,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
               className="w-full rounded border p-2"
             >
               <option value="">Select Status</option>
-              {statuses.map((st) => (
+              {configs.studentStatuses.map((st) => (
                 <option key={st._id} value={st._id}>
                   {st.statusName}
                 </option>
