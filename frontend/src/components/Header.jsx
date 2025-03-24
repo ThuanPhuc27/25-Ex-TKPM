@@ -1,12 +1,9 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
-  const [activeLink, setActiveLink] = useState("/");
-
-  const handleLinkClick = (path) => {
-    setActiveLink(path);
-  };
+  const location = useLocation();
+  const activeLink = location.pathname; // Lấy pathname hiện tại
 
   return (
     <header className="mb-4 flex items-center justify-between bg-blue-500 p-6 text-white">
@@ -15,7 +12,6 @@ const Header = () => {
         <nav className="mt-4 space-x-6">
           <Link
             to="/"
-            onClick={() => handleLinkClick("/")}
             className={`${
               activeLink === "/" ? "border-b-2 border-white" : ""
             } focus:outline-none`}
@@ -24,7 +20,6 @@ const Header = () => {
           </Link>
           <Link
             to="/faculties"
-            onClick={() => handleLinkClick("/faculties")}
             className={`${
               activeLink === "/faculties" ? "border-b-2 border-white" : ""
             } focus:outline-none`}
@@ -33,7 +28,6 @@ const Header = () => {
           </Link>
           <Link
             to="/programs"
-            onClick={() => handleLinkClick("/programs")}
             className={`${
               activeLink === "/programs" ? "border-b-2 border-white" : ""
             } focus:outline-none`}
@@ -42,7 +36,6 @@ const Header = () => {
           </Link>
           <Link
             to="/student-statuses"
-            onClick={() => handleLinkClick("/student-statuses")}
             className={`${
               activeLink === "/student-statuses"
                 ? "border-b-2 border-white"

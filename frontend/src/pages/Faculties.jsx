@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
 import config from "../config";
+import Pagination from "../components/Pagination";
 
 const Faculties = () => {
   const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // State cho form thêm mới
-  const [newFaculty, setNewFaculty] = useState({ code: "", name: "" });
-  // State cho việc chỉnh sửa
+  // State for adding a new faculty (only "name" field)
+  const [newFaculty, setNewFaculty] = useState({ name: "" });
+  // State for editing a faculty
   const [editingFaculty, setEditingFaculty] = useState(null);
 
-  // Lấy danh sách faculties từ API
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Get faculties from API
   const fetchFaculties = async () => {
     setLoading(true);
     try {
@@ -21,6 +26,12 @@ const Faculties = () => {
       if (!response.ok) throw new Error("Failed to fetch faculties");
       const data = await response.json();
       setFaculties(data);
+
+      // Tính lại số trang sau khi fetch dữ liệu mới
+      const newTotalPages = Math.ceil(data.length / itemsPerPage);
+      if (currentPage > newTotalPages) {
+        setCurrentPage(newTotalPages);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -32,26 +43,19 @@ const Faculties = () => {
     fetchFaculties();
   }, []);
 
-  // Xử lý thay đổi trong form thêm mới
+  // Handle changes for new faculty input
   const handleNewFacultyChange = (e) => {
     const { name, value } = e.target;
     setNewFaculty((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Thêm mới faculty
+  // Add a new faculty (only validating "name")
   const handleAddFaculty = async () => {
-    if (!newFaculty.code.trim() || !newFaculty.name.trim()) {
-      setError("Code and Name cannot be empty!");
-      alert("Code and Name cannot be empty!");
-      return;
-    }
-    if (faculties.some((fac) => fac.code === newFaculty.code)) {
-      setError("Code already exists!");
-      alert("Code already exists!");
+    if (!newFaculty.name.trim()) {
+      alert("Name cannot be empty!");
       return;
     }
     if (faculties.some((fac) => fac.name === newFaculty.name)) {
-      setError("Name already exists!");
       alert("Name already exists!");
       return;
     }
@@ -66,13 +70,13 @@ const Faculties = () => {
       );
       if (!response.ok) throw new Error("Failed to add faculty");
       await fetchFaculties();
-      setNewFaculty({ code: "", name: "" });
+      setNewFaculty({ name: "" });
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Xóa faculty
+  // Delete a faculty
   const handleDeleteFaculty = async (id) => {
     try {
       const response = await fetch(
@@ -88,33 +92,31 @@ const Faculties = () => {
     }
   };
 
-  // Bắt đầu chỉnh sửa một faculty
+  // Start editing a faculty
   const handleEditFaculty = (faculty) => {
-    setEditingFaculty({ ...faculty });
+    setEditingFaculty({ _id: faculty._id, facultyName: faculty.facultyName });
   };
 
-  // Xử lý thay đổi trong form chỉnh sửa
+  // Handle changes for edit form
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditingFaculty((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Lưu thay đổi sau chỉnh sửa
+  // Update a faculty (only "name" validation)
   const handleUpdateFaculty = async () => {
-    if (!editingFaculty.code.trim() || !editingFaculty.name.trim()) {
-      setError("Code and Name cannot be empty!");
-      alert("Code and Name cannot be empty!");
+    if (!editingFaculty.facultyName.trim()) {
+      alert("Name cannot be empty!");
       return;
     }
     if (
       faculties.some(
         (fac) =>
           fac._id !== editingFaculty._id &&
-          (fac.code === editingFaculty.code || fac.name === editingFaculty.name)
+          fac.facultyName === editingFaculty.facultyName
       )
     ) {
-      setError("Code or Name already exists!");
-      alert("Code or Name already exists!");
+      alert("Name already exists!");
       return;
     }
     try {
@@ -123,7 +125,7 @@ const Faculties = () => {
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editingFaculty),
+          body: JSON.stringify({ name: editingFaculty.facultyName }),
         }
       );
       if (!response.ok) throw new Error("Failed to update faculty");
@@ -134,91 +136,78 @@ const Faculties = () => {
     }
   };
 
+  // Pagination calculation
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentFaculties = faculties.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(faculties.length / itemsPerPage);
+
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-2">
       {loading && <div className="text-center">Loading...</div>}
       {error && (
         <div className="mb-4 text-center text-red-500">Error: {error}</div>
       )}
-      <div className=" rounded-l">
-        <div className="flex w-full flex-col items-center justify-around gap-6 md:flex-row md:gap-8">
-          <h1 className="by-2 border-r-2 pr-2 text-xl font-bold">
-            New Faculty
-          </h1>
-
-          <input
-            name="code"
-            placeholder="Code"
-            value={newFaculty.code}
-            onChange={handleNewFacultyChange}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/4"
-          />
+      <div className="mb-4 rounded bg-gray-50 p-2">
+        <div className="flex flex-col items-center justify-around gap-4 md:flex-row md:gap-6">
+          <h1 className="text-lg font-bold">New Faculty</h1>
           <input
             name="name"
             placeholder="Name"
             value={newFaculty.name}
             onChange={handleNewFacultyChange}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/2"
+            className="w-full rounded border border-gray-300 px-3 py-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/2"
           />
           <button
             onClick={handleAddFaculty}
-            className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white transition-colors duration-300 hover:bg-green-700 focus:outline-none"
+            className="rounded bg-green-600 px-4 py-1 font-semibold text-white transition-colors duration-300 hover:bg-green-700 focus:outline-none"
           >
             Add
           </button>
         </div>
       </div>
 
-      <ul className="mt-10 space-y-4">
-        {faculties.map((fac) => (
+      <ul className="space-y-2">
+        {currentFaculties.map((fac) => (
           <li
             key={fac._id}
-            className="flex items-center justify-between rounded bg-white p-4 shadow"
+            className="flex items-center justify-between rounded bg-white p-2 shadow"
           >
             {editingFaculty && editingFaculty._id === fac._id ? (
               <div className="flex w-full flex-col items-center gap-2 md:flex-row">
                 <input
-                  name="code"
-                  value={editingFaculty.code}
-                  onChange={handleEditChange}
-                  placeholder="Code"
-                  className="w-full rounded border px-3 py-2 md:w-1/4"
-                />
-                <input
-                  name="name"
-                  value={editingFaculty.name}
+                  name="facultyName"
+                  value={editingFaculty.facultyName}
                   onChange={handleEditChange}
                   placeholder="Name"
-                  className="w-full rounded border px-3 py-2 md:w-1/2"
+                  className="w-full rounded border px-2 py-1 md:w-1/2"
                 />
                 <button
                   onClick={handleUpdateFaculty}
-                  className="rounded bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+                  className="rounded bg-green-500 px-2 py-1 text-white hover:bg-green-600"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setEditingFaculty(null)}
-                  className="rounded bg-gray-300 px-3 py-2 text-gray-700 hover:bg-gray-400"
+                  className="rounded bg-gray-300 px-2 py-1 text-gray-700 hover:bg-gray-400"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
               <div className="flex w-full items-center justify-between">
-                <span className="text-lg font-medium">
-                  {fac.code} - {fac.name}
-                </span>
+                <span className="text-base font-medium">{fac.facultyName}</span>
                 <div className="space-x-2">
                   <button
                     onClick={() => handleEditFaculty(fac)}
-                    className="rounded bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+                    className="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteFaculty(fac._id)}
-                    className="rounded bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                    className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
                   >
                     Delete
                   </button>
@@ -228,6 +217,15 @@ const Faculties = () => {
           </li>
         ))}
       </ul>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 };

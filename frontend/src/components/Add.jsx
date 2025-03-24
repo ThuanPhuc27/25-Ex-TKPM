@@ -386,7 +386,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
               <option value="">Select Faculty</option>
               {faculties.map((fac) => (
                 <option key={fac._id} value={fac._id}>
-                  {fac.name}
+                  {fac.facultyName}
                 </option>
               ))}
             </select>
@@ -405,7 +405,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
               <option value="">Select Status</option>
               {statuses.map((st) => (
                 <option key={st._id} value={st._id}>
-                  {st.name}
+                  {st.statusName}
                 </option>
               ))}
             </select>
@@ -424,7 +424,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
               <option value="">Select Program</option>
               {programs.map((pro) => (
                 <option key={pro._id} value={pro._id}>
-                  {pro.name}
+                  {pro.programName}
                 </option>
               ))}
             </select>

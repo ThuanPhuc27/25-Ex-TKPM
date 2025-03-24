@@ -24,7 +24,7 @@ const Search = ({
         <option value="">All Faculties</option>
         {faculties.map((fac) => (
           <option key={fac._id} value={fac.name}>
-            {fac.name}
+            {fac.facultyName}
           </option>
         ))}
       </select>
