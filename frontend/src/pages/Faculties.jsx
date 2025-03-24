@@ -80,22 +80,21 @@ const Faculties = () => {
       if (!response.ok) throw new Error("Failed to add faculty");
 
       await fetchFaculties();
-      setNewFaculty({ name: "" });
-
       Swal.fire({
         icon: "success",
         title: "Updated!",
-        text: `faculty has been added successfully.`,
+        text: `${newFaculty.name} has been added successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
+      setNewFaculty({ name: "" });
     } catch (err) {
       setError(err.message);
     }
   };
 
   // Delete a faculty
-  const handleDeleteFaculty = async (id) => {
+  const handleDeleteFaculty = async (id, name) => {
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.faculty}/${id}/delete`,
@@ -103,17 +102,27 @@ const Faculties = () => {
           method: "DELETE",
         }
       );
-      if (!response.ok) throw new Error("Failed to delete faculty");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete faculty");
+      }
       await fetchFaculties();
 
       return Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "faculty has been deleted successfully",
+        icon: "success",
+        title: "Delete!",
+        text: `${name} has been deleted successfully`,
         showConfirmButton: true,
       });
     } catch (err) {
       setError(err.message);
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        showConfirmButton: true,
+      });
     }
   };
 
@@ -163,16 +172,15 @@ const Faculties = () => {
       );
       if (!response.ok) throw new Error("Failed to update faculty");
 
-      setEditingFaculty(null);
-      await fetchFaculties();
-
       Swal.fire({
         icon: "success",
         title: "Updated!",
-        text: `Faculty has been updated successfully.`,
+        text: `${editingFaculty.facultyName} has been updated successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
+      setEditingFaculty(null);
+      await fetchFaculties();
     } catch (err) {
       setError(err.message);
     }
@@ -248,7 +256,9 @@ const Faculties = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteFaculty(fac._id)}
+                    onClick={() =>
+                      handleDeleteFaculty(fac._id, fac.facultyName)
+                    }
                     className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
                   >
                     Delete

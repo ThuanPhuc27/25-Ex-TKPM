@@ -79,14 +79,14 @@ const Programs = () => {
       );
       if (!response.ok) throw new Error("Failed to add program");
       await fetchPrograms();
-      setNewProgram({ name: "" });
       Swal.fire({
         icon: "success",
         title: "Added!",
-        text: "Program added successfully.",
+        text: `${newProgram.name} added successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
+      setNewProgram({ name: "" });
     } catch (err) {
       setError(err.message);
       Swal.fire({
@@ -98,7 +98,7 @@ const Programs = () => {
     }
   };
 
-  const handleDeleteProgram = async (id) => {
+  const handleDeleteProgram = async (id, name) => {
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.program}/${id}/delete`,
@@ -106,12 +106,16 @@ const Programs = () => {
           method: "DELETE",
         }
       );
-      if (!response.ok) throw new Error("Failed to delete program");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete faculty");
+      }
       await fetchPrograms();
       Swal.fire({
         icon: "success",
         title: "Deleted!",
-        text: "Program deleted successfully.",
+        text: `${name} deleted successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
@@ -168,15 +172,15 @@ const Programs = () => {
         }
       );
       if (!response.ok) throw new Error("Failed to update program");
-      setEditingProgram(null);
-      await fetchPrograms();
       Swal.fire({
         icon: "success",
         title: "Updated!",
-        text: "Program updated successfully.",
+        text: `${editingProgram.programName} updated successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
+      setEditingProgram(null);
+      await fetchPrograms();
     } catch (err) {
       setError(err.message);
       Swal.fire({
@@ -257,7 +261,9 @@ const Programs = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteProgram(pro._id)}
+                    onClick={() =>
+                      handleDeleteProgram(pro._id, pro.programName)
+                    }
                     className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
                   >
                     Delete

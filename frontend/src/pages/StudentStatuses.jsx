@@ -79,14 +79,14 @@ const StudentStatuses = () => {
       );
       if (!response.ok) throw new Error("Failed to add status");
       await fetchStatuses();
-      setNewStatus({ name: "" });
       Swal.fire({
         icon: "success",
         title: "Added!",
-        text: "Status added successfully.",
+        text: `${newStatus.name} added successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
+      setNewStatus({ name: "" });
     } catch (err) {
       setError(err.message);
       Swal.fire({
@@ -98,7 +98,7 @@ const StudentStatuses = () => {
     }
   };
 
-  const handleDeleteStatus = async (id) => {
+  const handleDeleteStatus = async (id, name) => {
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.studentStatus}/${id}/delete`,
@@ -106,15 +106,16 @@ const StudentStatuses = () => {
           method: "DELETE",
         }
       );
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete status");
+        throw new Error(data.message || "Failed to delete faculty");
       }
       await fetchStatuses();
       Swal.fire({
         icon: "success",
         title: "Deleted!",
-        text: "Status deleted successfully.",
+        text: `{name} deleted successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
@@ -171,15 +172,15 @@ const StudentStatuses = () => {
         }
       );
       if (!response.ok) throw new Error("Failed to update status");
-      setEditingStatus(null);
-      await fetchStatuses();
       Swal.fire({
         icon: "success",
         title: "Updated!",
-        text: "Status updated successfully.",
+        text: `${editingStatus.statusName} updated successfully.`,
         showConfirmButton: false,
         timer: 1500,
       });
+      setEditingStatus(null);
+      await fetchStatuses();
     } catch (err) {
       setError(err.message);
       Swal.fire({
@@ -260,7 +261,7 @@ const StudentStatuses = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteStatus(st._id)}
+                    onClick={() => handleDeleteStatus(st._id, st.statusName)}
                     className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
                   >
                     Delete
