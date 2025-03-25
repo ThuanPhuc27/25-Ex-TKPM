@@ -57,7 +57,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   useEffect(() => {
     getAllFaculties();
-  });
+  }, []);
 
   // Lọc sinh viên theo tên (searchQuery) và khoa (facultyFilter)
   const filteredStudents = students.filter((student) => {
