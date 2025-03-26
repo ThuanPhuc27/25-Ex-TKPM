@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import config from "../config.js";
+import Swal from "sweetalert2";
 
 const ImportExport = ({ refreshStudents, setIsAdding }) => {
   const fileInputRef = useRef(null);
@@ -27,6 +28,16 @@ const ImportExport = ({ refreshStudents, setIsAdding }) => {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "export student successfull",
+        showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
+      });
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -73,7 +84,16 @@ const ImportExport = ({ refreshStudents, setIsAdding }) => {
         throw new Error("Lỗi khi import dữ liệu.");
       }
       refreshStudents();
-      alert("Import thành công!");
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "import student successfull",
+        showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
+      });
     } catch (error) {
       setErrorMessage(error.message);
     } finally {

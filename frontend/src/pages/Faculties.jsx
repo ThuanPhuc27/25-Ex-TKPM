@@ -58,6 +58,10 @@ const Faculties = () => {
         title: "Error!",
         text: "Name cannot be empty!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
     if (faculties.some((fac) => fac.name === newFaculty.name)) {
@@ -66,6 +70,10 @@ const Faculties = () => {
         title: "Error!",
         text: "Name already exists!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
     try {
@@ -86,6 +94,10 @@ const Faculties = () => {
         text: `${newFaculty.name} has been added successfully.`,
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
       setNewFaculty({ name: "" });
     } catch (err) {
@@ -114,6 +126,10 @@ const Faculties = () => {
         title: "Delete!",
         text: `${name} has been deleted successfully`,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     } catch (err) {
       setError(err.message);
@@ -122,6 +138,10 @@ const Faculties = () => {
         title: "Error!",
         text: err.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
   };

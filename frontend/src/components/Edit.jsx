@@ -5,9 +5,17 @@ import { formatDateToInput } from "../utils/dateFormatter";
 import { getFaculties } from "../utils/getFaculties";
 import { getStudentStatuses } from "../utils/getStudentStatuses";
 import { getPrograms } from "../utils/getPrograms";
+import { isValidEmail, isValidPhoneNumber } from "../utils/validation";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
+
+const validTransitions = {
+  Active: ["Paused", "Graduated", "Dropped Out"],
+  Paused: ["Active", "Dropped Out"],
+  "Dropped Out": [],
+  Graduated: [],
+};
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   // Lấy danh sách từ backend
@@ -48,6 +56,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
 
   const [email, setEmail] = useState(selectedStudent.email);
   const [phone, setPhone] = useState(selectedStudent.phone);
+  const [originStatus, setOriginStatus] = useState(null);
 
   // Các địa chỉ: ban đầu luôn hiển thị (nếu không có dữ liệu, để rỗng)
   const [permanentAddress, setPermanentAddress] = useState(
@@ -108,6 +117,37 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
     };
   });
 
+  useEffect(() => {
+    const initialStatus = statuses.find((st) => st._id === status);
+    if (initialStatus) {
+      setOriginStatus(initialStatus);
+    }
+  }, [statuses]);
+
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value;
+    const newStatusObj = statuses.find((st) => st._id === newStatus);
+
+    if (
+      validTransitions[originStatus.statusName]?.includes(
+        newStatusObj.statusName
+      )
+    ) {
+      setStatus(newStatus);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Cannot change status",
+        showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
+      });
+    }
+  };
+
   // Xử lý thay đổi cho địa chỉ
   const handleAddressChange = (e, addressType, field) => {
     const value = e.target.value;
@@ -147,24 +187,36 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         title: "Error!",
         text: "All basic fields are required.",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "Invalid email format.",
+        text: "Invalid Email!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
-    if (!phoneRegex.test(phone)) {
+    if (!isValidPhoneNumber(nationality, phone)) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "Invalid phone number format.",
+        text: "Invalid Phone number!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
@@ -183,6 +235,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           title: "Error!",
           text: "All fields in Permanent Address are required.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -200,6 +256,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           title: "Error!",
           text: "All fields in Temporary Address are required.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -217,6 +277,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           title: "Error!",
           text: "All fields in Mailing Address are required.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -268,6 +332,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         title: "Error!",
         text: "All common fields in Identity Document are required.",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
@@ -284,6 +352,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           title: "Error!",
           text: "The 'Has Chip' field is required for CCCD.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -298,6 +370,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
           title: "Error!",
           text: "Issue Country and Notes are required for passport.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -326,6 +402,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         text: `${fullName}'s data has been updated successfully.`,
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     } catch (error) {
       Swal.fire({
@@ -333,6 +413,10 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
         title: "Error!",
         text: error.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
   };
@@ -446,7 +530,7 @@ const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
             <select
               id="status"
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={handleStatusChange}
               className="w-full rounded border p-2"
             >
               <option value="">Select Status</option>
