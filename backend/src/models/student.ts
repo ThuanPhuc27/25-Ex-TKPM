@@ -1,22 +1,23 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IIdentityDocument {
-  type: "CMND" | "CCCD" | "passport"; // Loại giấy tờ
-  number: string; // Số giấy tờ
-  issueDate: Date; // Ngày cấp
-  issuePlace: string; // Nơi cấp
-  expirationDate: Date; // Ngày hết hạn
-  hasChip?: boolean; // Chỉ áp dụng cho CCCD, có gắn chip hay không
-  countryIssued?: string; // Quốc gia cấp, chỉ áp dụng cho passport
-  notes?: string; // Ghi chú, nếu có
+  type: "cmnd" | "cccd" | "passport";
+  number: string;
+  issueDate: Date;
+  issuePlace: string;
+  expirationDate: Date;
+  hasChip?: boolean; // only for "CCCD" type
+  issueCountry?: string; // only for "passport" type
+  notes?: string; // only for "passport" type
 }
 
 export interface IAddress {
-  street: string; // Số nhà, tên đường
-  ward: string; // Phường/Xã
-  district: string; // Quận/Huyện
-  city: string; // Tỉnh/Thành phố
-  country: string; // Quốc gia
+  street: string; // house number and street name
+  ward: string; // ward or commune name
+  district: string; // district or town name
+  city: string; // city or province
+  country: string;
 }
 
 export interface IStudent {
@@ -24,78 +25,157 @@ export interface IStudent {
   fullName: string;
   birthDate: Date;
   sex: string;
-  faculty: string;
+  faculty: Types.ObjectId;
   schoolYear: number;
-  program: string;
-  permanentAddress?: IAddress; // Địa chỉ thường trú
-  temporaryAddress?: IAddress; // Địa chỉ tạm trú
-  mailingAddress?: IAddress; // Địa chỉ nhận thư
-  identityDocuments: IIdentityDocument[]; // Giấy tờ chứng minh nhân thân
-  nationality: string; // Quốc tịch
+  program: Types.ObjectId;
+  permanentAddress?: IAddress;
+  temporaryAddress?: IAddress;
+  mailingAddress?: IAddress;
+  identityDocuments: IIdentityDocument[];
+  nationality: string;
   email: string;
   phone: string;
-  status: string;
+  status: Types.ObjectId;
 }
 
-export type IStudentWithId = IStudent & { _id?: mongoose.Types.ObjectId };
+export type IStudentWithId = IStudent & { _id?: Types.ObjectId };
+
+const addressSchema = new Schema<IAddress>(
+  {
+    street: { type: String, required: true },
+    ward: { type: String, required: true },
+    district: { type: String, required: true },
+    city: { type: String, required: true },
+    country: { type: String, required: true },
+  },
+  {
+    _id: false,
+  }
+);
+
+const identityDocumentSchema = new Schema<IIdentityDocument>(
+  {
+    type: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      enum: ["cmnd", "cccd", "passport"],
+      required: true,
+    },
+    number: { type: String, required: true },
+    issueDate: { type: Date, required: true },
+    issuePlace: { type: String, required: true },
+    expirationDate: { type: Date, required: true },
+    hasChip: {
+      type: Boolean,
+      required: [
+        function () {
+          return (this as IIdentityDocument).type === "cccd" ? true : false;
+        },
+        "Chip is required for CCCD type",
+      ],
+    },
+    issueCountry: {
+      type: String,
+      required: [
+        function () {
+          return (this as IIdentityDocument).type === "passport" ? true : false;
+        },
+        "Issue country is required for passport type",
+      ],
+    },
+    notes: {
+      type: String,
+      required: [
+        function () {
+          return (this as IIdentityDocument).type === "passport" ? true : false;
+        },
+        "Notes is required for passport type",
+      ],
+    },
+  },
+  {
+    _id: false,
+  }
+);
 
 const studentSchema = new Schema<IStudent>(
   {
-    studentId: { type: String, required: true, unique: true },
+    studentId: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Student ID must be unique (student id "{VALUE}" already exists)',
+      ],
+    },
     fullName: { type: String, required: true },
     birthDate: { type: Date, required: true },
-    sex: { type: String, enum: ["Male", "Female", "Other"], default: "Other" },
-    faculty: { type: String, required: true },
-    schoolYear: { type: Number, required: true },
-    program: { type: String, required: true },
-    permanentAddress: {
-      street: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-      country: { type: String, required: true },
+    sex: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      enum: ["male", "female", "other"],
+      default: "other",
     },
-    temporaryAddress: {
-      street: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-      country: { type: String, required: true },
-    },
-    mailingAddress: {
-      street: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-      country: { type: String, required: true },
-    },
-    identityDocuments: [
-      {
-        type: {
-          type: String,
-          enum: ["CMND", "CCCD", "passport"],
-          required: true,
+    faculty: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      ref: MODEL_NAMES.FACULTY,
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+          const faculty = await mongoose.models[MODEL_NAMES.FACULTY].findById(
+            value
+          );
+          return !!faculty;
         },
-        number: { type: String, required: true },
-        issueDate: { type: Date, required: true },
-        issuePlace: { type: String, required: true },
-        expirationDate: { type: Date, required: true },
-        hasChip: { type: Boolean },
-        countryIssued: { type: String },
-        notes: { type: String },
+        message: 'Faculty with id "{VALUE}" does not exist',
       },
-    ],
+    },
+    schoolYear: { type: Number, required: true },
+    program: {
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      ref: MODEL_NAMES.PROGRAM,
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+          const program = await mongoose.models[MODEL_NAMES.PROGRAM].findById(
+            value
+          );
+          return !!program;
+        },
+        message: 'Program with id "{VALUE}" does not exist',
+      },
+    },
+    permanentAddress: { type: addressSchema, required: false },
+    temporaryAddress: { type: addressSchema, required: false },
+    mailingAddress: { type: addressSchema, required: false },
+    identityDocuments: {
+      type: [identityDocumentSchema],
+      required: true,
+      minlength: 1,
+    },
     nationality: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
     status: {
-      type: String,
-      default: "Active",
+      type: mongoose.Schema.ObjectId,
+      required: true,
+      ref: MODEL_NAMES.STUDENT_STATUS,
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+          const status = await mongoose.models[
+            MODEL_NAMES.STUDENT_STATUS
+          ].findById(value);
+          return !!status;
+        },
+        message: 'Status with id "{VALUE}" does not exist',
+      },
     },
   },
   { timestamps: true }
 );
 
-const Student = mongoose.model<IStudent>("Student", studentSchema);
+const Student = mongoose.model<IStudent>(MODEL_NAMES.STUDENT, studentSchema);
 
 export default Student;

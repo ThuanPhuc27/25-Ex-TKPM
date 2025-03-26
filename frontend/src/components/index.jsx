@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
-import Header from "./Header";
 import Table from "./Table";
 import Add from "./Add";
 import Edit from "./Edit";
 import Search from "./Search";
 import Pagination from "./Pagination.jsx";
-
 import config from "../config.js";
 import ImportExport from "./ImportExport.jsx";
-import { getFaculties } from "../utils/getFaculties";
+import { getFaculties } from "../utils/getFaculties.js";
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
   const [faculties, setFaculties] = useState([]);
 
   // State cho search và pagination
@@ -25,10 +24,18 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   // Hàm refresh lấy danh sách sinh viên từ API
   const refreshStudents = () => {
-    fetch(`${config.backendApiRoot}${config.apiPaths.students}`)
+    fetch(
+      `${config.backendApiRoot}${config.apiPaths.students}?populated=${true}`
+    )
       .then((res) => res.json())
       .then((data) => {
         setStudents(data.students);
+
+        // Tính lại số trang sau khi fetch dữ liệu mới
+        const newTotalPages = Math.ceil(data.length / itemsPerPage);
+        if (currentPage > newTotalPages) {
+          setCurrentPage(newTotalPages);
+        }
       })
       .catch((err) => {
         console.error("Error fetching students:", err);
@@ -46,6 +53,9 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   useEffect(() => {
     refreshStudents();
+  }, [isAdding, isEditing]);
+
+  useEffect(() => {
     getAllFaculties();
   }, []);
 
@@ -55,7 +65,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
     const matchName = student.fullName.toLowerCase().includes(searchLower);
     const matchId = student.studentId.toLowerCase().includes(searchLower);
     const matchFaculty =
-      facultyFilter === "" || student.faculty === facultyFilter;
+      facultyFilter === "" || student.faculty.facultyName === facultyFilter;
     return (matchName || matchId) && matchFaculty;
   });
 

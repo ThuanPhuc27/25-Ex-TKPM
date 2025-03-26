@@ -1,9 +1,10 @@
 import StudentStatus, { IStudentStatusDocument } from "../models/studentStatus";
+import Student from "../models/student";
 
 export const createStudentStatus = async (
   name: string
 ): Promise<IStudentStatusDocument> => {
-  return await StudentStatus.create({ name });
+  return await StudentStatus.create({ statusName: name });
 };
 
 export const getAllStudentStatuses = async (): Promise<
@@ -14,11 +15,11 @@ export const getAllStudentStatuses = async (): Promise<
 
 export const updateStudentStatus = async (
   id: string,
-  name: string
+  newName: string
 ): Promise<IStudentStatusDocument | null> => {
   return await StudentStatus.findByIdAndUpdate(
     id,
-    { name },
+    { statusName: newName },
     { new: true }
   ).exec();
 };
@@ -26,5 +27,13 @@ export const updateStudentStatus = async (
 export const deleteStudentStatus = async (
   id: string
 ): Promise<IStudentStatusDocument | null> => {
+  // Check if there are any students associated with this student status
+  const studentCount = await Student.countDocuments({ status: id }).exec();
+  if (studentCount > 0) {
+    throw new Error(
+      `Cannot delete student status with id "${id}" because it is referenced by ${studentCount} student(s).`
+    );
+  }
+
   return await StudentStatus.findByIdAndDelete(id).exec();
 };

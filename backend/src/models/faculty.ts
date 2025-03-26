@@ -1,22 +1,28 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IFaculty {
-  name: string;
-  code: string;
+  facultyName: string;
 }
 
-export interface IFacultyDocument extends Document<unknown, {}, IFaculty> {
+export interface IFacultyDocument
+  extends Document<unknown, {}, IFaculty>,
+    IFaculty {
   _id: Types.ObjectId;
-  name: string;
-  code: string;
 }
 
 const FacultySchema: Schema = new Schema<IFaculty>(
   {
-    name: { type: String, required: true, unique: true },
-    code: { type: String, required: true, unique: true },
+    facultyName: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Faculty name must be unique (faculty with name "{VALUE}" already exists)',
+      ],
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IFaculty>("Faculty", FacultySchema);
+export default mongoose.model<IFaculty>(MODEL_NAMES.FACULTY, FacultySchema);

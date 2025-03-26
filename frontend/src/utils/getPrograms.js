@@ -1,4 +1,5 @@
 import config from "../config";
+
 export const getPrograms = async () => {
   const response = await fetch(
     `${config.backendApiRoot}${config.apiPaths.program}`,

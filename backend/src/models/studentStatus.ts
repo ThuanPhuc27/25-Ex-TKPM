@@ -1,23 +1,31 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IStudentStatus {
-  name: string;
+  statusName: string;
 }
 
 export interface IStudentStatusDocument
-  extends Document<unknown, {}, IStudentStatus> {
+  extends Document<unknown, {}, IStudentStatus>,
+    IStudentStatus {
   _id: Types.ObjectId;
-  name: string;
 }
 
 const StudentStatusSchema: Schema = new Schema<IStudentStatus>(
   {
-    name: { type: String, required: true, unique: true },
+    statusName: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Status name must be unique (status with name "{VALUE}" already exists)',
+      ],
+    },
   },
   { timestamps: true }
 );
 
 export default mongoose.model<IStudentStatus>(
-  "StudentStatus",
+  MODEL_NAMES.STUDENT_STATUS,
   StudentStatusSchema
 );

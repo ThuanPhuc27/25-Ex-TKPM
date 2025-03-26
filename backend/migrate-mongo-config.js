@@ -9,7 +9,7 @@ module.exports = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   },
-  migrationsDir: "src/migration",
+  migrationsDir: "./src/migration",
   changelogCollectionName: "changelog",
   migrationFileExtension: ".js",
 };

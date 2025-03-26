@@ -1,22 +1,28 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { MODEL_NAMES } from "../constants/collectionNames";
 
 export interface IProgram {
-  name: string;
-  code: string;
+  programName: string;
 }
 
-export interface IProgramDocument extends Document<unknown, {}, IProgram> {
+export interface IProgramDocument
+  extends Document<unknown, {}, IProgram>,
+    IProgram {
   _id: Types.ObjectId;
-  name: string;
-  code: string;
 }
 
 const ProgramSchema: Schema = new Schema<IProgram>(
   {
-    name: { type: String, required: true, unique: true },
-    code: { type: String, required: true, unique: true },
+    programName: {
+      type: String,
+      required: true,
+      unique: [
+        true,
+        'Program name must be unique (program with name "{VALUE}" already exists)',
+      ],
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IProgram>("Program", ProgramSchema);
+export default mongoose.model<IProgram>(MODEL_NAMES.PROGRAM, ProgramSchema);

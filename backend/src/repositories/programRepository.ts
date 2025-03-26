@@ -1,10 +1,10 @@
+import Student from "@models/student";
 import Program, { IProgramDocument } from "../models/program";
 
 export const createProgram = async (
-  name: string,
-  code: string
+  name: string
 ): Promise<IProgramDocument> => {
-  return await Program.create({ name, code });
+  return await Program.create({ programName: name });
 };
 
 export const getAllPrograms = async (): Promise<IProgramDocument[]> => {
@@ -13,12 +13,11 @@ export const getAllPrograms = async (): Promise<IProgramDocument[]> => {
 
 export const updateProgram = async (
   id: string,
-  name: string,
-  code: string
+  newName: string
 ): Promise<IProgramDocument | null> => {
   return await Program.findByIdAndUpdate(
     id,
-    { name, code },
+    { programName: newName },
     { new: true }
   ).exec();
 };
@@ -26,9 +25,13 @@ export const updateProgram = async (
 export const deleteProgram = async (
   id: string
 ): Promise<IProgramDocument | null> => {
-  return await Program.findByIdAndDelete(id).exec();
-};
+  // Check if there are any students associated with this program
+  const studentCount = await Student.countDocuments({ program: id }).exec();
+  if (studentCount > 0) {
+    throw new Error(
+      `Cannot delete program with id "${id}" because it is referenced by ${studentCount} student(s).`
+    );
+  }
 
-export const getProgramByCode = async (code: string) => {
-  return await Program.findOne({ code }).exec();
+  return await Program.findByIdAndDelete(id).exec();
 };

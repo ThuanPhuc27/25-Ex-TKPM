@@ -56,17 +56,19 @@ export const exportAllStudentsController = async (
         .send(xmlContent);
       logger.info(`[database]: Exported all students to XML`);
     }
-  } catch (error) {
-    logger.error(`[database]: Cannot export all students - ${error}`);
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .send({ message: `Cannot export all students - ${error}` });
+  } catch (error: any) {
+    logger.error(
+      `[database]: Cannot export all students - ${error.message ?? error}`
+    );
+    res.status(http.INTERNAL_SERVER_ERROR).send({
+      message: `${error.message ?? error}`,
+    });
   }
 };
 
 type TextWrappedObject = { [key: string]: { _text: string } | any };
 
-// Hàm unwrapText đệ quy để loại bỏ tất cả `_text`
+// Recursive unwrapText function to remove all `_text` properties
 function unwrapText<T extends TextWrappedObject>(
   jsonArray: T[]
 ): Record<string, any>[] {
@@ -76,14 +78,14 @@ function unwrapText<T extends TextWrappedObject>(
     for (let key in obj) {
       if (typeof obj[key] === "object" && obj[key] !== null) {
         if (Object.keys(obj[key]).length === 0) {
-          newObj[key] = ""; // Nếu object rỗng, gán thành chuỗi rỗng
+          newObj[key] = ""; // If object is empty, assign an empty string
         } else if ("_text" in obj[key]) {
-          newObj[key] = obj[key]._text; // Nếu có _text, lấy giá trị
+          newObj[key] = obj[key]._text; // If _text exists, take its value
         } else {
-          newObj[key] = unwrapText([obj[key]])[0]; // Gọi đệ quy nếu là object lồng nhau
+          newObj[key] = unwrapText([obj[key]])[0]; // Recursively call if nested object
         }
       } else {
-        newObj[key] = obj[key]; // Giữ nguyên nếu không phải object
+        newObj[key] = obj[key]; // Keep as is if not an object
       }
     }
 
@@ -107,11 +109,10 @@ export const importStudentsController = async (req: Request, res: Response) => {
         });
         return;
       }
-
       break;
     case "application/xml":
       const xmlData = req.body as Buffer;
-      console.log("xmlData", xmlData);
+      // console.log("xmlData", xmlData);
 
       let jsonData: string;
       try {
@@ -123,18 +124,18 @@ export const importStudentsController = async (req: Request, res: Response) => {
       } catch (error: any) {
         logger.error(
           `[database]: Cannot parse XML data to JSON - ${
-            error?.message || error
+            error.message ?? error
           }`
         );
         res.status(http.BAD_REQUEST).send({
-          message: "Can't parse XML data to JSON - " + error,
+          message: `Can't parse XML data to JSON - ${error.message ?? error}`,
         });
         return;
       }
 
       try {
         const parsedJsonData = JSON.parse(jsonData);
-        console.log("parsedJsonData", JSON.stringify(parsedJsonData));
+        // console.log("parsedJsonData", JSON.stringify(parsedJsonData));
 
         const studentsContainer = (
           Array.isArray(parsedJsonData.students.student)
@@ -143,26 +144,16 @@ export const importStudentsController = async (req: Request, res: Response) => {
         ) as TextWrappedObject[];
         // console.log(JSON.stringify(studentsContainer));
 
-        const unwrapStudents = unwrapText(
-          studentsContainer
-        ) as IStudentWithId[];
-        console.log(JSON.stringify(unwrapStudents));
-
-        importedStudents = unwrapStudents.map((student) => {
-          // Remove _id field from the student object
-          delete student._id;
-          return student;
-        });
+        importedStudents = unwrapText(studentsContainer) as IStudentWithId[];
       } catch (error: any) {
         logger.error(
-          `[database]: Cannot parse JSON data - ${error?.message || error}`
+          `[database]: Cannot parse JSON data - ${error.message ?? error}`
         );
         res.status(http.BAD_REQUEST).send({
-          message: "Can't parse JSON data - " + error,
+          message: `Can't parse JSON data - ${error.message ?? error}`,
         });
         return;
       }
-
       break;
     default:
       res.status(http.BAD_REQUEST).send({
@@ -178,15 +169,16 @@ export const importStudentsController = async (req: Request, res: Response) => {
   const failedStudents: Record<string, string> = {};
   for (const student of importedStudents) {
     try {
-      console.log("studnet", JSON.stringify(student));
       const replacedStudent = await importStudent(student);
 
       replacedStudents[`${student.studentId}`] = replacedStudent;
     } catch (error: any) {
       logger.error(
-        `[database]: Cannot import student with student id ${student.studentId} - ${error}`
+        `[database]: Cannot import student with student id ${
+          student.studentId
+        } - ${error.message ?? error}`
       );
-      failedStudents[student.studentId] = error?.message || "Unknown error";
+      failedStudents[student.studentId] = error.message ?? "Unknown error";
     }
   }
   res.status(http.OK).json({

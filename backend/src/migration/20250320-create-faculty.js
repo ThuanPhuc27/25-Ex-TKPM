@@ -1,29 +1,29 @@
+const { COLLECTION_NAMES } = require("../constants/collectionNames");
+
 module.exports = {
   async up(db, client) {
     console.log("Migration started...");
 
     const faculties = [
       {
-        code: "LAW", 
-        name: "Faculty of Law",
+        facultyName: "Faculty of Law",
       },
       {
-        code: "BUSINESS_ENGLISH",
-        name: "Faculty of Business English",
+        facultyName: "Faculty of Business English",
       },
       {
-        code: "JAPANESE", 
-        name: "Faculty of Japanese",
+        facultyName: "Faculty of Japanese",
       },
       {
-        code: "FRENCH", 
-        name: "Faculty of French",
+        facultyName: "Faculty of French",
       },
     ];
 
     try {
       console.log("Inserting faculties...");
-      const result = await db.collection("faculties").insertMany(faculties);
+      const result = await db
+        .collection(COLLECTION_NAMES.FACULTY)
+        .insertMany(faculties);
       console.log(`${result.insertedCount} faculties added.`);
     } catch (error) {
       console.error("Error inserting faculties:", error);
@@ -33,7 +33,9 @@ module.exports = {
   async down(db, client) {
     console.log("Rollback started...");
     try {
-      const result = await db.collection("faculties").deleteMany({});
+      const result = await db
+        .collection(COLLECTION_NAMES.FACULTY)
+        .deleteMany({});
       console.log(`${result.deletedCount} faculties deleted.`);
     } catch (error) {
       console.error("Error deleting faculties:", error);
