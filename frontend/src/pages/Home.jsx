@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import Table from "./Table";
-import Add from "./Add";
-import Edit from "./Edit";
-import Search from "./Search";
-import Pagination from "./Pagination.jsx";
+import Table from "../components/Table.jsx";
+import Add from "../components/Add.jsx";
+import Edit from "../components/Edit.jsx";
+import Search from "../components/Search.jsx";
+import Pagination from "../components/Pagination.jsx";
 import config from "../config.js";
-import ImportExport from "./ImportExport.jsx";
+import ImportExport from "../components/ImportExport.jsx";
 import { getFaculties } from "../utils/getFaculties.js";
 
-const Dashboard = ({ setIsAuthenticated }) => {
+const Home = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -145,4 +145,4 @@ const Dashboard = ({ setIsAuthenticated }) => {
   );
 };
 
-export default Dashboard;
+export default Home;
