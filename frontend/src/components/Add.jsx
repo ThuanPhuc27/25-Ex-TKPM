@@ -4,6 +4,13 @@ import config from "../config";
 import { getFaculties } from "../utils/getFaculties";
 import { getStudentStatuses } from "../utils/getStudentStatuses";
 import { getPrograms } from "../utils/getPrograms";
+import { isValidEmail, isValidPhoneNumber } from "../utils/validation";
+import { countries } from "countries-list";
+import { getCountryDialCodeFromCountryCodeOrNameOrFlagEmoji } from "country-codes-flags-phone-codes";
+const countryOptions = Object.entries(countries).map(([code, { name }]) => ({
+  code,
+  name,
+}));
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 const phoneRegex = /^[0-9\s\-()]+$/;
@@ -19,6 +26,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
     program: "",
     nationality: "",
     email: "",
+    code: "",
     phone: "",
     status: "",
     // Mặc định để Address rỗng (và chỉ hiển thị khi checkbox được tích)
@@ -86,7 +94,23 @@ const Add = ({ students, setStudents, setIsAdding }) => {
   // Xử lý thay đổi cho các trường cơ bản
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCountryChange = (e) => {
+    const selectedCountry = countryOptions.find(
+      (country) => country.name === e.target.value
+    );
+    setFormData({
+      ...formData,
+      nationality: e.target.value,
+      code: selectedCountry
+        ? getCountryDialCodeFromCountryCodeOrNameOrFlagEmoji(
+            selectedCountry.code
+          )
+        : "",
+    });
   };
 
   // Xử lý thay đổi cho các trường địa chỉ
@@ -118,6 +142,7 @@ const Add = ({ students, setStudents, setIsAdding }) => {
       sex,
       nationality,
       email,
+      code,
       phone,
       faculty,
       status,
@@ -143,15 +168,36 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         title: "Error!",
         text: "Please fill in all required basic fields.",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
-    if (!emailRegex.test(email) || !phoneRegex.test(phone)) {
+    if (!isValidEmail(email)) {
       return Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "Invalid email or phone number format.",
+        text: "Invalid Email!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
+      });
+    }
+
+    if (!isValidPhoneNumber(nationality, phone)) {
+      return Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Invalid Phone number!",
+        showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
@@ -161,6 +207,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         title: "Error!",
         text: "Student ID is duplicate.",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
@@ -180,6 +230,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           title: "Error!",
           text: "All fields in Permanent Address are required.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -198,6 +252,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           title: "Error!",
           text: "All fields in Temporary Address are required.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -215,6 +273,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           title: "Error!",
           text: "All fields in Mailing Address are required.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -233,6 +295,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         title: "Error!",
         text: "All fields in Identity Document are required.",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
 
@@ -249,6 +315,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           title: "Error!",
           text: "The 'Has Chip' field is required for CCCD.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -260,6 +330,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
           title: "Error!",
           text: "Issue Country and Notes are required for passport.",
           showConfirmButton: true,
+          customClass: {
+            confirmButton:
+              "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+          },
         });
       }
     }
@@ -295,6 +369,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         text: `${formData.fullName}'s data has been added successfully.`,
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     } catch (error) {
       Swal.fire({
@@ -302,6 +380,10 @@ const Add = ({ students, setStudents, setIsAdding }) => {
         title: "Error!",
         text: error.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
   };
@@ -380,15 +462,20 @@ const Add = ({ students, setStudents, setIsAdding }) => {
             <label htmlFor="nationality" className="block font-medium">
               Nationality
             </label>
-            <input
-              type="text"
+            <select
               id="nationality"
               name="nationality"
-              placeholder="Nationality"
               value={formData.nationality}
-              onChange={handleChange}
+              onChange={handleCountryChange}
               className="w-full border p-2"
-            />
+            >
+              <option value="">Select a country</option>
+              {countryOptions.map((country) => (
+                <option key={country.code} value={country.name}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="email" className="block font-medium">
@@ -408,15 +495,27 @@ const Add = ({ students, setStudents, setIsAdding }) => {
             <label htmlFor="phone" className="block font-medium">
               Phone
             </label>
-            <input
-              type="text"
-              id="phone"
-              name="phone"
-              placeholder="Phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full border p-2"
-            />
+            <div className="flex">
+              <input
+                type="text"
+                id="code"
+                name="code"
+                placeholder=""
+                value={formData.code}
+                onChange={handleChange}
+                className="mr-2 w-20 border p-2"
+                readOnly
+              />
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                placeholder="Phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full border p-2"
+              />
+            </div>
           </div>
           <div>
             <label htmlFor="faculty" className="block font-medium">

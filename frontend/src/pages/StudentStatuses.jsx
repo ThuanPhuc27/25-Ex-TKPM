@@ -36,6 +36,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: err.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     } finally {
       setLoading(false);
@@ -58,6 +62,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: "Name cannot be empty!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
     if (statuses.some((st) => st.statusName === newStatus.name)) {
@@ -66,6 +74,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: "Name already exists!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
     try {
@@ -85,6 +97,10 @@ const StudentStatuses = () => {
         text: `${newStatus.name} added successfully.`,
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
       setNewStatus({ name: "" });
     } catch (err) {
@@ -94,6 +110,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: err.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
   };
@@ -118,6 +138,10 @@ const StudentStatuses = () => {
         text: `{name} deleted successfully.`,
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     } catch (err) {
       setError(err.message);
@@ -126,6 +150,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: err.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
   };
@@ -146,6 +174,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: "Name cannot be empty!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
     if (
@@ -160,6 +192,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: "Name already exists!",
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
     try {
@@ -178,6 +214,10 @@ const StudentStatuses = () => {
         text: `${editingStatus.statusName} updated successfully.`,
         showConfirmButton: false,
         timer: 1500,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
       setEditingStatus(null);
       await fetchStatuses();
@@ -188,6 +228,10 @@ const StudentStatuses = () => {
         title: "Error!",
         text: err.message,
         showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
       });
     }
   };

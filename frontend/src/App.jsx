@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./components/index";
+import Home from "./pages/Home";
 import StudentDetails from "./pages/StudentDetails";
 import Faculties from "./pages/Faculties";
 import StudentStatuses from "./pages/StudentStatuses";
@@ -12,7 +12,7 @@ function App() {
       <Header />
       <div>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Home />} />
           <Route path="/students/:id" element={<StudentDetails />} />
           <Route path="/faculties" element={<Faculties />} />
           <Route path="/student-statuses" element={<StudentStatuses />} />

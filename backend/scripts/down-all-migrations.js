@@ -1,12 +1,16 @@
 const { database, config, down } = require("migrate-mongo");
 
-async function downAllMigrations() {
+async function downAllMigrationsAndDropDB() {
+  let client;
   try {
-    // Initialize connection
-    const { db, client } = await database.connect();
+    // Connect to MongoDB
+    const { db, client: mongoClient } = await database.connect();
+    client = mongoClient;
+
+    // Read migration configuration
     const migrationConfig = await config.read();
 
-    // Get all applied migrations from the changelog collection
+    // Get all applied migrations
     const changelogCollection = db.collection(
       migrationConfig.changelogCollectionName || "changelog"
     );
@@ -15,30 +19,38 @@ async function downAllMigrations() {
       .sort({ appliedAt: -1 })
       .toArray();
 
-    console.log(`Found ${appliedMigrations.length} migrations to roll back`);
+    if (appliedMigrations.length === 0) {
+      console.log("No migrations to roll back.");
+    } else {
+      console.log(`Found ${appliedMigrations.length} migrations to roll back.`);
 
-    // Down each migration in reverse chronological order (newest first)
-    for (const migration of appliedMigrations) {
-      const fileName = migration.fileName;
-      console.log(`Rolling back migration: ${fileName}`);
+      // Roll back each migration
+      for (const migration of appliedMigrations) {
+        const fileName = migration.fileName;
+        console.log(`Rolling back migration: ${fileName}`);
 
-      try {
-        await down(db, migrationConfig);
-        console.log(`Successfully rolled back: ${fileName}`);
-      } catch (err) {
-        console.error(
-          `Failed to roll back migration ${fileName}: ${err.message}`
-        );
-        console.error(err);
-        break; // Stop on first error
+        try {
+          await down(db, fileName);
+          console.log(`✔️ Successfully rolled back: ${fileName}`);
+        } catch (err) {
+          console.error(`❌ Error rolling back migration ${fileName}:`, err);
+          throw err; // Stop if an error occurs
+        }
       }
     }
-    console.log("All migrations have been rolled back");
-    await client.close();
+
+    // Drop the entire database
+    const dbName = db.databaseName;
+    console.log(`🗑️ Dropping database: ${dbName}`);
+    await db.dropDatabase();
+    console.log(`✅ Database ${dbName} has been successfully dropped.`);
   } catch (err) {
-    console.error("Error during migration rollback:", err);
+    console.error("❌ Error during rollback and database drop:", err);
+  } finally {
+    if (client) await client.close();
+    console.log("🔌 MongoDB connection closed.");
   }
 }
 
 // Execute the function
-downAllMigrations();
+downAllMigrationsAndDropDB();
