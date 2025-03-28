@@ -1,0 +1,6 @@
+{
+  "Active": ["Paused", "Graduated", "Dropped Out"],
+  "Paused": ["Active", "Dropped Out"],
+  "Dropped Out": [],
+  "Graduated": []
+}
