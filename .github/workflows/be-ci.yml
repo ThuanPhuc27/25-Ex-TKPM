@@ -1,4 +1,4 @@
-name: CI
+name: CI Backend
 
 on:
   push:
@@ -12,6 +12,36 @@ on:
       - 'backend/**'  
 
 jobs:
+  Snyk_Composition_Analysis:
+    runs-on: ubuntu-latest
+
+    env:
+      REPORT_NAME: be_snyk_report
+      SNYK_IMAGE_NAME: snyk_scan_image
+      SNYK_CONTAINER_NAME: snyk_scan
+      SCAN_DIR: backend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image with Snyk scan
+      run: |
+        docker build --rm --build-arg SCAN_DIR=$SCAN_DIR --build-arg SNYK_AUTH_TOKEN=${{ secrets.SNYK_TOKEN }} --build-arg OUTPUT_FILENAME=$REPORT_NAME -t $SNYK_IMAGE_NAME -f Dockerfile-snyk .
+
+    - name: Run Docker container to perform Snyk scan
+      run: docker run --name $SNYK_CONTAINER_NAME $SNYK_IMAGE_NAME
+
+    - name: Copy Snyk HTML report from Docker container
+      run: |
+        docker cp $SNYK_CONTAINER_NAME:/app/$REPORT_NAME.html ./$REPORT_NAME.html
+        pwd && ls
+
+    - name: Upload Snyk HTML report as an artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: shoeshop_fe-snyk-report
+        path: ./$REPORT_NAME.html
+
   Push_Image:
     runs-on: ubuntu-latest
 
