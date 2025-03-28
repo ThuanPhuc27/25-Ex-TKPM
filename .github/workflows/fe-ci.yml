@@ -32,14 +32,14 @@ jobs:
 
     - name: Copy Snyk HTML report from Docker container
       run: |
-        docker cp $SNYK_CONTAINER_NAME:/app/$REPORT_NAME.html $GITHUB_WORKSPACE/$REPORT_NAME.html
+        docker cp $SNYK_CONTAINER_NAME:/app/$REPORT_NAME.html $GITHUB_WORKSPACE/report.html
         pwd && ls
 
     - name: Upload Snyk HTML report as an artifact
       uses: actions/upload-artifact@v4
       with:
         name: shoeshop_fe-snyk-report
-        path: $GITHUB_WORKSPACE/$REPORT_NAME.html
+        path: $GITHUB_WORKSPACE/report.html
 
   Push_Image:
     runs-on: ubuntu-latest
