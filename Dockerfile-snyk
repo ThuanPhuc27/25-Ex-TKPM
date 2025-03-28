@@ -1,0 +1,18 @@
+FROM node:18-alpine
+WORKDIR /app
+
+ARG SCAN_DIR=.
+ENV SCAN_DIR=$SCAN_DIR
+
+COPY $SCAN_DIR .
+
+RUN npm install -g snyk
+RUN npm install snyk-to-html -g
+
+ARG SNYK_AUTH_TOKEN
+ENV SNYK_AUTH_TOKEN=$SNYK_AUTH_TOKEN
+
+ARG OUTPUT_FILENAME
+ENV OUTPUT_FILENAME=$OUTPUT_FILENAME
+
+RUN snyk auth $SNYK_AUTH_TOKEN && snyk test --json | snyk-to-html -o $OUTPUT_FILENAME.html || true
