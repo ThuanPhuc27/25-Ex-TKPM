@@ -6,22 +6,19 @@ import { getFaculties } from "../utils/getFaculties";
 import { getStudentStatuses } from "../utils/getStudentStatuses";
 import { getPrograms } from "../utils/getPrograms";
 import { isValidEmail, isValidPhoneNumber } from "../utils/validation";
-
-const emailRegex = /^\S+@\S+\.\S+$/;
-const phoneRegex = /^[0-9\s\-()]+$/;
-
-const validTransitions = {
-  Active: ["Paused", "Graduated", "Dropped Out"],
-  Paused: ["Active", "Dropped Out"],
-  "Dropped Out": [],
-  Graduated: [],
-};
+// import validTransitions from "../assets/transitions.json";
+const LOCAL_STORAGE_KEY = "STUDENT_STATUS_RULES";
+const validTransitions = localStorage.getItem(LOCAL_STORAGE_KEY);
 
 const Edit = ({ students, selectedStudent, setStudents, setIsEditing }) => {
   // Lấy danh sách từ backend
   const [faculties, setFaculties] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [programs, setPrograms] = useState([]);
+
+  const validTransitions = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+
+  console.log(validTransitions);
 
   useEffect(() => {
     const fetchData = async () => {

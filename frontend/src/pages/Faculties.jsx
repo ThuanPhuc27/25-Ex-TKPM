@@ -28,7 +28,6 @@ const Faculties = () => {
       const data = await response.json();
       setFaculties(data);
 
-      // Tính lại số trang sau khi fetch dữ liệu mới
       const newTotalPages = Math.ceil(data.length / itemsPerPage);
       if (currentPage > newTotalPages) {
         setCurrentPage(newTotalPages);

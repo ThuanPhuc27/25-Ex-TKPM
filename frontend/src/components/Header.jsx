@@ -44,6 +44,22 @@ const Header = () => {
           >
             Student Statuses
           </Link>
+          <Link
+            to="/email-format"
+            className={`${
+              activeLink === "/email-format" ? "border-b-2 border-white" : ""
+            } focus:outline-none`}
+          >
+            Email Format
+          </Link>
+          <Link
+            to="/rules"
+            className={`${
+              activeLink === "/rules" ? "border-b-2 border-white" : ""
+            } focus:outline-none`}
+          >
+            Status Rules
+          </Link>
         </nav>
       </div>
     </header>
