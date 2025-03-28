@@ -168,41 +168,10 @@ npm run dev
 ```
 - Frontend 
 ```
-cd frontend
+cd ../frontend
 npm install
 npm run dev
-``` 
-###### Hoặc chạy bằng docker, cấu hình trong docker-compose.yml như sau:
 
-```
-service:
-  frontend:
-    image: thuanlp/studentmanagerment_fe:latest
-    container_name: frontend
-    ports:
-      - "5731:5731"
-    networks:
-      - app-network
-    depends_on:
-      - backend
-    environment:
-      - VITE_BACKEND_URL=http://localhost:3001
-
-  backend:
-    image: thuanlp/studentmanagerment_be:latest
-    container_name: backend
-    ports:
-      - "3001:3001"
-    networks:
-      - app-network
-    environment:
-      - PORT=3001
-      - DB_CONNECTION_STRING="mongodb://user:pass@mongodb:27017/studentmanagement?authSource=admin"
-      - DB_NAME="studentmanagerment"
-
-  networks:
-    app-network:
-      driver: bridge
 
 ```
 Ứng dụng sẽ chạy tại `http://localhost:5173` 
