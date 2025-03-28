@@ -2,7 +2,7 @@ name: CI Frontend
 
 on:
   push:
-    branches: [ "fix/backend-ver2" ]
+    branches: [ "main" ]
     paths:
       - 'frontend/**' 
   pull_request:
@@ -32,14 +32,14 @@ jobs:
 
     - name: Copy Snyk HTML report from Docker container
       run: |
-        docker cp $SNYK_CONTAINER_NAME:/app/$REPORT_NAME.html ./$REPORT_NAME.html
+        docker cp $SNYK_CONTAINER_NAME:/app/$REPORT_NAME.html $GITHUB_WORKSPACE/report.html
         pwd && ls
 
     - name: Upload Snyk HTML report as an artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: shoeshop_fe-snyk-report
-        path: ./$REPORT_NAME.html
+        path: /home/runner/work/25-Ex-TKPM/25-Ex-TKPM/report.html
 
   Push_Image:
     runs-on: ubuntu-latest

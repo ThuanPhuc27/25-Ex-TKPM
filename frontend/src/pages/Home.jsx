@@ -7,6 +7,10 @@ import Pagination from "../components/Pagination.jsx";
 import config from "../config.js";
 import ImportExport from "../components/ImportExport.jsx";
 import { getFaculties } from "../utils/getFaculties.js";
+import Swal from "sweetalert2";
+
+const LOCAL_STORAGE_KEY = "ALLOWED_EMAIL_DOMAINS";
+const RULES_KEY = "STUDENT_STATUS_RULES";
 
 const Home = ({ setIsAuthenticated }) => {
   const [students, setStudents] = useState([]);
@@ -20,7 +24,52 @@ const Home = ({ setIsAuthenticated }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [facultyFilter, setFacultyFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // số lượng sinh viên hiển thị trên mỗi trang
+  const itemsPerPage = 5;
+
+  const fetchDomainsAndRules = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.domains}/`
+      );
+      if (!response.ok) throw new Error("Error call API");
+      const data = await response.json();
+
+      const backendDomains = data.ALLOWED_EMAIL_DOMAINS || [];
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(backendDomains));
+      console.log(backendDomains);
+
+      const response2 = await fetch(
+        `${config.backendApiRoot}${config.apiPaths.rules}/`
+      );
+
+      if (!response2.ok) {
+        throw new Error("Failed to fetch rules from the backend");
+      }
+
+      const rules = await response2.json();
+
+      localStorage.setItem(RULES_KEY, JSON.stringify(rules));
+
+      console.log("Fetched rules:", rules);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Cannot load domain from server.",
+        showConfirmButton: true,
+        customClass: {
+          confirmButton:
+            "bg-blue-500 text-white hover:bg-blue-600 py-2 px-6 mr-2",
+        },
+      });
+      console.error("Fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDomainsAndRules();
+  }, []);
 
   // Hàm refresh lấy danh sách sinh viên từ API
   const refreshStudents = () => {

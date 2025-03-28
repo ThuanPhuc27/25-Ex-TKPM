@@ -6,6 +6,8 @@ import studentStatusRoutes from "@routes/studentStatusRoute";
 import facultyRoutes from "@routes/facultyRoute";
 import programRoutes from "@routes/programRoute";
 import configRoutes from "@routes/configRoute";
+import domainRoutes from "@routes/domainRoute"
+import ruleRoutes from "@routes/ruleRoutes";
 
 import { connectToDatabase } from "@services/database.service";
 import logger from "./logger";
@@ -48,6 +50,8 @@ app.use("/config", configRoutes);
 app.use("/studentStatus", studentStatusRoutes);
 app.use("/faculty", facultyRoutes);
 app.use("/program", programRoutes);
+app.use("/domains", domainRoutes);
+app.use("/rules", ruleRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error(`[server]: Something broke on the server!`);
