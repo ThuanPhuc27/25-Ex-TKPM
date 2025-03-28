@@ -37,7 +37,7 @@ jobs:
         pwd && ls
 
     - name: Upload Snyk HTML report as an artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: shoeshop_fe-snyk-report
         path: ./$REPORT_NAME.html
