@@ -75,7 +75,7 @@ export const deleteCourseController = async (req: Request, res: Response) => {
     const deletedCourse = await courseRepository.deleteCourse(courseId);
 
     if (!deletedCourse) {
-      res.status(http.NOT_FOUND).json({ message: "Course not found" });
+      res.status(http.OK).json({ message: "Course deactivated successfully" });
       return;
     }
 

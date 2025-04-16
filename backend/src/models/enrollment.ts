@@ -50,15 +50,27 @@ const EnrollmentSchema: Schema = new Schema<IEnrollment>(
     classCode: {
       type: String,
       required: true,
-      validate: {
-        validator: async function (v: string) {
-          const classDoc = await mongoose.models[MODEL_NAMES.CLASS].findOne({
-            classCode: v,
-          });
-          return !!classDoc && !classDoc.deactivated;
+      validate: [
+        {
+          validator: async function (v: string) {
+            const classDoc = await mongoose.models[MODEL_NAMES.CLASS].findOne({
+              classCode: v,
+            });
+            return !!classDoc;
+          },
+          message: 'Class with code "{VALUE}" does not exist',
         },
-        message: 'Class with code "{VALUE}" does not exist or is deactivated',
-      },
+        {
+          validator: async function (v: string) {
+            const classDoc = await mongoose.models[MODEL_NAMES.CLASS].findOne({
+              classCode: v,
+            });
+            return !classDoc?.deactivated;
+          },
+          message:
+            'Cannot enroll students in a deactivated class with code "{VALUE}"',
+        },
+      ],
     },
     isCanceled: {
       type: Boolean,

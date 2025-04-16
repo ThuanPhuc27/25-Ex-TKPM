@@ -72,7 +72,7 @@ export const deleteClassController = async (req: Request, res: Response) => {
     const deletedClass = await classRepository.deleteClass(classId);
 
     if (!deletedClass) {
-      res.status(http.NOT_FOUND).json({ message: "Class not found" });
+      res.status(http.OK).json({ message: "Class deactivated successfully" });
       return;
     }
 

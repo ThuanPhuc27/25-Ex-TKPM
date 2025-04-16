@@ -154,16 +154,17 @@ CourseSchema.pre("findOneAndDelete", async function () {
     courseCode: course.courseCode,
   });
 
-  if (classes.length == 0) {
-    // If no classes are associated, proceed with deletion
-    return;
-  } else {
+  if (classes.length > 0) {
+    // Deactivate the associated classes and halt the deletion
     await mongoose.models[MODEL_NAMES.CLASS]
       .updateOne(
         { courseCode: course.courseCode },
         { $set: { deactivated: true } }
       )
       .exec();
+
+    this.setQuery({ _id: null }); // Modify the query to prevent deletion
+    return;
   }
 });
 

@@ -1,5 +1,6 @@
 import mongoose, { Types, Schema, Document } from "mongoose";
 import { MODEL_NAMES } from "@collectionNames";
+import { ICourseDocument } from "./course";
 
 export interface IClass {
   classCode: string; // Unique identifier for the class
@@ -32,15 +33,32 @@ const ClassSchema: Schema = new Schema<IClass>(
     courseCode: {
       type: String,
       required: true,
-      validate: {
-        validator: async function (v: string) {
-          const course = await mongoose.models[MODEL_NAMES.COURSE].findOne({
-            courseCode: v,
-          });
-          return !!course;
+      validate: [
+        {
+          validator: async function (v: string) {
+            const course = await mongoose.models[MODEL_NAMES.COURSE].findOne({
+              courseCode: v,
+            });
+            return !!course;
+          },
+          message: 'Course with code "{VALUE}" does not exist',
         },
-        message: 'Course with code "{VALUE}" does not exist',
-      },
+        {
+          validator: async function (v: string) {
+            const course: ICourseDocument | null = await mongoose.models[
+              MODEL_NAMES.COURSE
+            ].findOne({
+              courseCode: v,
+            });
+            if (course && course.deactivated) {
+              return false; // Course is deactivated
+            }
+            return true;
+          },
+          message:
+            'Course with code "{VALUE}" is deactivated and cannot be used',
+        },
+      ],
     },
     academicYear: {
       type: Number,
@@ -106,6 +124,9 @@ ClassSchema.pre("findOneAndDelete", async function () {
       { _id: classId },
       { $set: { deactivated: true } }
     );
+
+    this.setQuery({ _id: null }); // Modify the query to prevent deletion
+    return;
   }
 });
 
