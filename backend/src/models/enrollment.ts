@@ -1,8 +1,8 @@
 import mongoose, { Types, Schema, Document, UpdateQuery } from "mongoose";
-import { MODEL_NAMES } from "../constants/collectionNames";
-import { IClassDocument } from "./class";
-import { IStudentWithId } from "./student";
-import { ICourseDocument } from "./course";
+import { MODEL_NAMES } from "@collectionNames";
+import { IClassDocument } from "@models/class";
+import { IStudentWithId } from "@models/student";
+import { ICourseDocument } from "@models/course";
 
 export interface IEnrollment {
   student?: Types.ObjectId; // Reference to the student (optional, populated in middleware)

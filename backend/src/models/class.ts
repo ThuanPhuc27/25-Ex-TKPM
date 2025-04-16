@@ -1,5 +1,5 @@
 import mongoose, { Types, Schema, Document } from "mongoose";
-import { MODEL_NAMES } from "../constants/collectionNames";
+import { MODEL_NAMES } from "@collectionNames";
 
 export interface IClass {
   classCode: string; // Unique identifier for the class

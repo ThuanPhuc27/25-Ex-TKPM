@@ -1,5 +1,5 @@
 import mongoose, { Types, Schema, Document, UpdateQuery } from "mongoose";
-import { MODEL_NAMES } from "../constants/collectionNames";
+import { MODEL_NAMES } from "@collectionNames";
 
 export interface ICourse {
   courseCode: string;
@@ -11,8 +11,8 @@ export interface ICourse {
   prequisiteCourses?: Types.ObjectId[]; // Array of ObjectId references to other courses
   deactivated?: boolean; // Optional field to indicate if the course is deactivated
 
-  createdAt: Date; // Optional field to store the creation date
-  updatedAt: Date; // Optional field to store the last update date
+  createdAt?: Date; // Optional field to store the creation date
+  updatedAt?: Date; // Optional field to store the last update date
 }
 
 export interface ICourseDocument
@@ -21,7 +21,7 @@ export interface ICourseDocument
   _id: Types.ObjectId;
 }
 
-const CourseSchema: Schema = new Schema<ICourse>(
+const CourseSchema = new Schema<ICourse>(
   {
     courseCode: {
       type: String,
@@ -46,9 +46,11 @@ const CourseSchema: Schema = new Schema<ICourse>(
       required: true,
       validate: {
         validator: async function (v: Types.ObjectId) {
-          const faculty = await mongoose.models[MODEL_NAMES.FACULTY].findById(
-            v
-          );
+          console.log("mongoose.models: ", mongoose.models);
+          const faculty = await mongoose.models[MODEL_NAMES.FACULTY]
+            .findById(v)
+            .exec();
+          console.log("Faculty found:", faculty);
           return !!faculty;
         },
         message: 'Faculty with id "{VALUE}" does not exist',
@@ -64,9 +66,9 @@ const CourseSchema: Schema = new Schema<ICourse>(
         ref: MODEL_NAMES.COURSE,
         validate: {
           validator: async function (v: Types.ObjectId) {
-            const course = await mongoose.models[MODEL_NAMES.COURSE].findById(
-              v
-            );
+            const course = await mongoose.models[MODEL_NAMES.COURSE]
+              .findById(v)
+              .exec();
             return !!course;
           },
           message: 'Course with id "{VALUE}" does not exist',
@@ -135,7 +137,9 @@ CourseSchema.pre("deleteOne", async function () {
   }
 
   const currentTimestamp = new Date().getTime();
-  const createdAtTimestamp = new Date(course.createdAt).getTime();
+  const createdAtTimestamp = new Date(
+    course?.createdAt || currentTimestamp
+  ).getTime();
   if (
     (currentTimestamp - createdAtTimestamp) / (1000 * 60) >=
     DELETE_INTERVAL_IN_MINUTES
@@ -163,4 +167,5 @@ CourseSchema.pre("deleteOne", async function () {
   }
 });
 
-export default mongoose.model<ICourse>(MODEL_NAMES.COURSE, CourseSchema);
+const Course = mongoose.model<ICourse>(MODEL_NAMES.COURSE, CourseSchema);
+export default Course;
