@@ -184,7 +184,7 @@ const SEMESTER_START_MONTH_OFFSET = {
 const DEADLINE_MONTH_OFFSET = 1; // 1 month after the semester start
 
 // Middleware to handle updates
-EnrollmentSchema.pre("updateOne", async function () {
+EnrollmentSchema.pre("findOneAndUpdate", async function () {
   const update: UpdateQuery<Partial<IEnrollment>> | null = this.getUpdate();
   if (!update) {
     return;

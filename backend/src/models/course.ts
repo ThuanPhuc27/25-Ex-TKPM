@@ -85,7 +85,7 @@ const CourseSchema = new Schema<ICourse>(
 
 const DELETE_INTERVAL_IN_MINUTES = 1;
 
-CourseSchema.pre("updateOne", async function () {
+CourseSchema.pre("findOneAndUpdate", async function () {
   const update: UpdateQuery<Partial<ICourse>> | null = this.getUpdate();
   if (!update) {
     return;
@@ -122,7 +122,7 @@ CourseSchema.pre("updateOne", async function () {
   }
 });
 
-CourseSchema.pre("deleteOne", async function () {
+CourseSchema.pre("findOneAndDelete", async function () {
   const courseId = this.getFilter()._id; // Get the course ID from the query
   const course: ICourse | null = await mongoose.models[MODEL_NAMES.COURSE]
     .findById(courseId)

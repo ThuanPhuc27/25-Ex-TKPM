@@ -79,7 +79,7 @@ const ClassSchema: Schema = new Schema<IClass>(
   { timestamps: true }
 );
 
-ClassSchema.pre("deleteOne", async function () {
+ClassSchema.pre("findOneAndDelete", async function () {
   const classId = this.getFilter()._id; // Get the class ID from the query
   const classDoc: IClass | null = await mongoose.models[MODEL_NAMES.CLASS]
     .findById(classId)
