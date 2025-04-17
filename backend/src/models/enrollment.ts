@@ -272,6 +272,11 @@ EnrollmentSchema.pre("findOneAndUpdate", async function () {
   }
 });
 
+// Populate the student and class fields when finding enrollments
+EnrollmentSchema.pre("find", function () {
+  this.populate("student").populate("class");
+});
+
 export default mongoose.model<IEnrollment>(
   MODEL_NAMES.ENROLLMENT,
   EnrollmentSchema

@@ -5,6 +5,7 @@ import { IntentionalError } from "@utils/intentionalError";
 
 export interface IClass {
   classCode: string; // Unique identifier for the class
+  course?: Types.ObjectId; // Reference to the course (optional, populated in middleware)
   courseCode: string; // Reference to the course by its code (string)
   academicYear: number; // Academic year
   semester: "I" | "II" | "III"; // Semester as Roman numerals
@@ -27,6 +28,11 @@ const ClassSchema: Schema = new Schema<IClass>(
       type: String,
       required: true,
       unique: true,
+    },
+    course: {
+      type: Types.ObjectId,
+      required: false,
+      ref: MODEL_NAMES.COURSE,
     },
     courseCode: {
       type: String,
@@ -95,6 +101,29 @@ const ClassSchema: Schema = new Schema<IClass>(
   { timestamps: true }
 );
 
+// Populate the course field when saving a new class
+// or updating an existing class with a new courseCode
+ClassSchema.pre("save", async function () {
+  if (this.isNew || this.isModified("courseCode")) {
+    const course: IClassDocument | null = await mongoose.models[
+      MODEL_NAMES.COURSE
+    ].findOne({
+      courseCode: this.courseCode,
+    });
+
+    if (!course) {
+      throw new Error(`Course with code "${this.courseCode}" does not exist`);
+    }
+
+    this.course = course._id;
+  }
+});
+
+// Populate the course field when finding classes
+ClassSchema.pre("find", function () {
+  this.populate("course");
+});
+
 ClassSchema.pre("findOneAndDelete", async function () {
   const classId = this.getFilter()._id; // Get the class ID from the query
   const classDoc: IClass | null = await mongoose.models[MODEL_NAMES.CLASS]
@@ -126,7 +155,6 @@ ClassSchema.pre("findOneAndDelete", async function () {
     throw new IntentionalError(
       `Class "${classDoc.classCode}" cannot be deleted because students are enrolled. The class has been deactivated instead.`
     );
-    return;
   }
 });
 
