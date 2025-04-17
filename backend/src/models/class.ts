@@ -40,9 +40,11 @@ const ClassSchema: Schema = new Schema<IClass>(
       validate: [
         {
           validator: async function (v: string) {
-            const course = await mongoose.models[MODEL_NAMES.COURSE].findOne({
-              courseCode: v,
-            });
+            const course = await mongoose.models[MODEL_NAMES.COURSE]
+              .findOne({
+                courseCode: v,
+              })
+              .exec();
             return !!course;
           },
           message: 'Course with code "{VALUE}" does not exist',
@@ -51,9 +53,11 @@ const ClassSchema: Schema = new Schema<IClass>(
           validator: async function (v: string) {
             const course: ICourseDocument | null = await mongoose.models[
               MODEL_NAMES.COURSE
-            ].findOne({
-              courseCode: v,
-            });
+            ]
+              .findOne({
+                courseCode: v,
+              })
+              .exec();
             if (course && course.deactivated) {
               return false; // Course is deactivated
             }
@@ -107,9 +111,11 @@ ClassSchema.pre("save", async function () {
   if (this.isNew || this.isModified("courseCode")) {
     const course: IClassDocument | null = await mongoose.models[
       MODEL_NAMES.COURSE
-    ].findOne({
-      courseCode: this.courseCode,
-    });
+    ]
+      .findOne({
+        courseCode: this.courseCode,
+      })
+      .exec();
 
     if (!course) {
       throw new Error(`Course with code "${this.courseCode}" does not exist`);
