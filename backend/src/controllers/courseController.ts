@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as courseRepository from "../repositories/courseRepository";
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
+import { IntentionalError } from "@utils/intentionalError";
 
 /**
  * Add a new course.
@@ -57,6 +58,17 @@ export const updateCourseController = async (req: Request, res: Response) => {
 
     res.status(http.OK).json(updatedCourse);
   } catch (error: any) {
+    if (error.name === "MongoServerError" && error.code === 11000) {
+      // MongoDB duplicate key error code
+      logger.warn(
+        `[validation]: Course with id ${req.params.courseId} already exists`
+      );
+      res.status(http.BAD_REQUEST).json({
+        message: `Course with id ${req.params.courseId} already existed`,
+      });
+      return;
+    }
+
     logger.error(
       `[database]: Error updating course - ${error.message ?? error}`
     );
@@ -81,6 +93,12 @@ export const deleteCourseController = async (req: Request, res: Response) => {
 
     res.status(http.OK).json({ message: "Course deleted successfully" });
   } catch (error: any) {
+    if (error instanceof IntentionalError) {
+      logger.warn(`[intentional]: ${error.message}`);
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+
     logger.error(
       `[database]: Error deleting course - ${error.message ?? error}`
     );

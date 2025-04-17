@@ -1,5 +1,6 @@
 import mongoose, { Types, Schema, Document, UpdateQuery } from "mongoose";
 import { MODEL_NAMES } from "@collectionNames";
+import { IntentionalError } from "@utils/intentionalError";
 
 export interface ICourse {
   courseCode: string;
@@ -26,10 +27,7 @@ const CourseSchema = new Schema<ICourse>(
     courseCode: {
       type: String,
       required: true,
-      unique: [
-        true,
-        'Course code must be unique (course with code "{VALUE}" already exists)',
-      ],
+      unique: true,
     },
     courseName: {
       type: String,
@@ -46,11 +44,9 @@ const CourseSchema = new Schema<ICourse>(
       required: true,
       validate: {
         validator: async function (v: Types.ObjectId) {
-          console.log("mongoose.models: ", mongoose.models);
           const faculty = await mongoose.models[MODEL_NAMES.FACULTY]
             .findById(v)
             .exec();
-          console.log("Faculty found:", faculty);
           return !!faculty;
         },
         message: 'Faculty with id "{VALUE}" does not exist',
@@ -84,6 +80,22 @@ const CourseSchema = new Schema<ICourse>(
 );
 
 const DELETE_INTERVAL_IN_MINUTES = 1;
+
+// CourseSchema.post<ICourseDocument>(
+//   "save",
+//   function (error: any, _: any, next: any) {
+//     if (error) {
+//       if (error.name === "MongoServerError" && error.code === 11000) {
+//         const message = `Course with code ${this.get(
+//           "courseCode"
+//         )} already exists.`;
+//         next(new mongoose.MongooseError(message));
+//       } else {
+//         next();
+//       }
+//     }
+//   }
+// );
 
 CourseSchema.pre("findOneAndUpdate", async function () {
   const update: UpdateQuery<Partial<ICourse>> | null = this.getUpdate();
@@ -150,21 +162,21 @@ CourseSchema.pre("findOneAndDelete", async function () {
   }
 
   // Check if the course has any classes associated with it
-  const classes = await mongoose.models[MODEL_NAMES.CLASS].find({
-    courseCode: course.courseCode,
-  });
+  const classes = await mongoose.models[MODEL_NAMES.CLASS]
+    .find({
+      courseCode: course.courseCode,
+    })
+    .exec();
 
   if (classes.length > 0) {
-    // Deactivate the associated classes and halt the deletion
-    await mongoose.models[MODEL_NAMES.CLASS]
-      .updateOne(
-        { courseCode: course.courseCode },
-        { $set: { deactivated: true } }
-      )
+    // Deactivate the course and halt the deletion
+    await mongoose.models[MODEL_NAMES.COURSE]
+      .updateOne({ _id: courseId }, { $set: { deactivated: true } })
       .exec();
 
-    this.setQuery({ _id: null }); // Modify the query to prevent deletion
-    return;
+    throw new IntentionalError(
+      `Course "${course.courseCode}" cannot be deleted because it has associated classes. The course has been deactivated instead.`
+    );
   }
 });
 
