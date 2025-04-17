@@ -9,6 +9,7 @@ import Header from "./components/Header";
 import EmailManager from "./pages/Email";
 import RuleManager from "./pages/Rules";
 import Courses from "./pages/Courses";
+import Classes from "./pages/Classes";
 function App() {
   return (
     <Router>
@@ -23,6 +24,7 @@ function App() {
           <Route path="/email-format" element={<EmailManager />} />
           <Route path="/rules" element={<RuleManager />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/classes" element={<Classes />} />
         </Routes>
       </div>
     </Router>
