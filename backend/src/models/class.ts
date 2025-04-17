@@ -1,6 +1,7 @@
 import mongoose, { Types, Schema, Document } from "mongoose";
 import { MODEL_NAMES } from "@collectionNames";
 import { ICourseDocument } from "./course";
+import { IntentionalError } from "@utils/intentionalError";
 
 export interface IClass {
   classCode: string; // Unique identifier for the class
@@ -25,10 +26,7 @@ const ClassSchema: Schema = new Schema<IClass>(
     classCode: {
       type: String,
       required: true,
-      unique: [
-        true,
-        'Class code must be unique (class with code "{VALUE}" already exists)',
-      ],
+      unique: true,
     },
     courseCode: {
       type: String,
@@ -125,7 +123,9 @@ ClassSchema.pre("findOneAndDelete", async function () {
       { $set: { deactivated: true } }
     );
 
-    this.setQuery({ _id: null }); // Modify the query to prevent deletion
+    throw new IntentionalError(
+      `Class "${classDoc.classCode}" cannot be deleted because students are enrolled. The class has been deactivated instead.`
+    );
     return;
   }
 });
