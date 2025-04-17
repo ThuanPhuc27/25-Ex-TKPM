@@ -29,6 +29,36 @@ export const cancelEnrollment = async (
 };
 
 /**
+ * Update the score for a specific enrollment.
+ * @param enrollmentId - The ID of the enrollment to update.
+ * @param score - The new score to be set.
+ * @returns The updated enrollment document or null if not found.
+ */
+export const updateEnrollmentScore = async (
+  enrollmentId: string,
+  score: number
+): Promise<IEnrollmentDocument | null> => {
+  return await Enrollment.findByIdAndUpdate(
+    enrollmentId,
+    { score },
+    { new: true }
+  ).exec();
+};
+
+/**
+ * Get the scoreboard for a specific student.
+ * @param studentId - The ID of the student.
+ * @returns An array of enrollment documents with scores for the student.
+ */
+export const getStudentScoreboard = async (
+  studentId: string
+): Promise<IEnrollmentDocument[]> => {
+  return await Enrollment.find({ studentId, isCanceled: false })
+    .populate("class")
+    .exec();
+};
+
+/**
  * Get all enrollments in the database.
  * @returns An array of enrollment documents.
  */

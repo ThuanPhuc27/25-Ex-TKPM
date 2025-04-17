@@ -53,6 +53,82 @@ export const cancelEnrollmentController = async (
 };
 
 /**
+ * Update enrollment score.
+ */
+export const updateEnrollmentScoreController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { enrollmentId } = req.params;
+    const { score } = req.body;
+
+    if (score < 0 || score > 10) {
+      res
+        .status(http.BAD_REQUEST)
+        .json({ message: "Score must be between 0 and 10" });
+      return;
+    }
+
+    const updatedEnrollment = await enrollmentRepository.updateEnrollmentScore(
+      enrollmentId,
+      score
+    );
+
+    if (!updatedEnrollment) {
+      res.status(http.NOT_FOUND).json({ message: "Enrollment not found" });
+      return;
+    }
+
+    res.status(http.OK).json(updatedEnrollment);
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error updating enrollment score - ${error.message ?? error}`
+    );
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: `${error.message ?? error}` });
+  }
+};
+
+/**
+ * Get student scoreboard.
+ */
+export const getScoreboardByStudentController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { studentId } = req.params;
+
+    const enrollments = await enrollmentRepository.getStudentScoreboard(
+      studentId
+    );
+
+    if (!enrollments.length) {
+      res
+        .status(http.NOT_FOUND)
+        .json({ message: "No enrollments found for the student" });
+      return;
+    }
+
+    const scoreboard = enrollments.map((enrollment) => ({
+      classCode: enrollment.classCode,
+      score: enrollment.score,
+    }));
+
+    res.status(http.OK).json(scoreboard);
+  } catch (error: any) {
+    logger.error(
+      `[database]: Error fetching scoreboard - ${error.message ?? error}`
+    );
+    res
+      .status(http.INTERNAL_SERVER_ERROR)
+      .json({ message: `${error.message ?? error}` });
+  }
+};
+
+/**
  * Get all enrollments.
  */
 export const getAllEnrollmentsController = async (

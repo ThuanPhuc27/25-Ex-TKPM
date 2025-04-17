@@ -11,6 +11,7 @@ export interface IEnrollment {
   classCode: string; // Reference to the class by its code (string)
   isCanceled: boolean; // Indicates if the enrollment has been canceled
   cancellationReason?: string; // Optional field for cancellation reason
+  score?: number; // Optional field for storing the score of the student in the class, may expand to `scores` in the future
 
   createdAt?: Date; // Store the date of enrollment creation
   updatedAt?: Date; // Store the cancel date if the enrollment is canceled
@@ -80,6 +81,12 @@ const EnrollmentSchema: Schema = new Schema<IEnrollment>(
     cancellationReason: {
       type: String,
       required: false,
+    },
+    score: {
+      type: Number,
+      required: false, // Optional, as scores may not be assigned immediately
+      min: [0, "Score cannot be less than 0"],
+      max: [10, "Score cannot be greater than 10"],
     },
   },
   { timestamps: true }
@@ -231,6 +238,14 @@ EnrollmentSchema.pre("findOneAndUpdate", async function () {
   // Validate cancellation
   if (update?.isCanceled === false) {
     throw new Error("Reactivating an enrollment is not allowed!");
+  }
+
+  // Validate score update
+  if (update?.score !== undefined) {
+    if (update.score < 0 || update.score > 10) {
+      throw new Error("Score must be between 0 and 10.");
+    }
+    return; // No need to check further if only the score is being updated
   }
 
   // Extract the populated class document
