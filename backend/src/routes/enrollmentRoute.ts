@@ -19,7 +19,7 @@ router.get("/", getAllEnrollmentsController);
 router.post("/add", addEnrollmentController);
 
 // Cancel an enrollment
-router.patch("/:enrollmentId/cancel", cancelEnrollmentController);
+router.delete("/:enrollmentId/cancel", cancelEnrollmentController);
 // Update enrollment score
 router.patch("/:enrollmentId/score", updateEnrollmentScoreController);
 

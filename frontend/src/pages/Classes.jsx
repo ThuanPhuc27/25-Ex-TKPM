@@ -3,6 +3,7 @@ import config from "../config";
 import Swal from "sweetalert2";
 import Pagination from "../components/Pagination";
 import CustomModal from "../components/CustomModal";
+import { Link } from "react-router-dom";
 
 const Classes = () => {
   const [classes, setClasses] = useState([]);
@@ -249,7 +250,13 @@ const Classes = () => {
           <li key={cls._id} className="rounded bg-white p-3 shadow">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
-                <div className="font-semibold">{cls.classCode}</div>
+                <Link
+                  to={`/classes/${cls._id}`}
+                  state={{ cls }}
+                  className="font-semibold text-blue-600 hover:underline"
+                >
+                {cls.classCode}
+                </Link>   
                 <div className="text-sm text-gray-600">
                   Course: {cls.courseCode} | Year: {cls.academicYear} | Sem:{" "}
                   {cls.semester}

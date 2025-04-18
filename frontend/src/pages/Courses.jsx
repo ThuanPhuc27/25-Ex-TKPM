@@ -16,16 +16,16 @@ const Courses = () => {
   const [newCourse, setNewCourse] = useState({
     courseCode: "",
     courseName: "",
-    courseCredits: 0,
+    courseCredits: 2,
     courseDescription: "",
     managingFaculty: "",
-    prerequisiteCourses: [],
+    prequisiteCourses: [],
   });
 
   const [editingCourse, setEditingCourse] = useState(null);
+  const [originCourse, setOriginCourse] = useState(null);
 
   // Ref to store original course data for diff
-  const originalCourseRef = useRef(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -97,7 +97,7 @@ const Courses = () => {
       return false;
     }
 
-    const prereqInvalid = newCourse.prerequisiteCourses.some((id) => {
+    const prereqInvalid = newCourse.prequisiteCourses.some((id) => {
       const course = courses.find((c) => c._id === id);
       return course?.managingFaculty !== newCourse.managingFaculty;
     });
@@ -112,7 +112,7 @@ const Courses = () => {
     }
 
     const validCourseIds = courses.map((c) => c._id);
-    const allExist = newCourse.prerequisiteCourses.every((id) =>
+    const allExist = newCourse.prequisiteCourses.every((id) =>
       validCourseIds.includes(id)
     );
     if (!allExist) {
@@ -123,6 +123,8 @@ const Courses = () => {
       });
       return false;
     }
+
+    console.log("add data", newCourse)
 
     try {
       const response = await fetch(
@@ -141,11 +143,12 @@ const Courses = () => {
       setNewCourse({
         courseCode: "",
         courseName: "",
-        courseCredits: 0,
+        courseCredits: 2,
         courseDescription: "",
         managingFaculty: "",
-        prerequisiteCourses: [],
+        prequisiteCourses: [],
       });
+
       await Swal.fire({
         icon: "success",
         title: "Success!",
@@ -161,7 +164,8 @@ const Courses = () => {
     }
   };
 
-  const handleDeleteCourse = async (id, courseName) => {
+  const handleDeleteCourse = async (id, course) => {
+
     try {
       const response = await fetch(
         `${config.backendApiRoot}${config.apiPaths.courses}/${id}/delete`,
@@ -175,7 +179,7 @@ const Courses = () => {
       Swal.fire({
         icon: "success",
         title: "Deleted!",
-        text: `${courseName} has been deleted.`,
+        text: `${course.courseName} has been deleted.`,
         timer: 1500,
         showConfirmButton: false,
       });
@@ -187,6 +191,9 @@ const Courses = () => {
 
   // Build diff object of only changed fields
   const buildDiff = (original, updated) => {
+    console.log("ori", original)
+    console.log("up", updated)
+
     const diff = {};
     Object.keys(updated).forEach((key) => {
       if (key === "_id") return;
@@ -205,7 +212,9 @@ const Courses = () => {
     });
     return diff;
   };
+
   const handleEditCourse = (course) => {
+    setOriginCourse({ ...course });
     setEditingCourse({ ...course });
     setIsEditModalOpen(true);
   };
@@ -224,7 +233,8 @@ const Courses = () => {
       });
     }
 
-    const original = originalCourseRef.current;
+    const original = originCourse;
+    console
     const updated = editingCourse;
 
     // const prereqInvalid = updated.prerequisiteCourses.some((id) => {
@@ -314,10 +324,10 @@ const Courses = () => {
                 </div>
                 <div className="text-sm">{course.courseDescription}</div>
               </div>
-              {course.prerequisiteCourses?.length > 0 && (
+              {course.prequisiteCourses?.length > 0 && (
                 <div className="text-sm text-gray-500">
                   Prerequisites:{" "}
-                  {course.prerequisiteCourses
+                  {course.prequisiteCourses
                     .map((id) => {
                       const prereq = courses.find((c) => c._id === id);
                       return prereq ? prereq.courseCode : "Unknown";
@@ -334,7 +344,7 @@ const Courses = () => {
                 </button>
                 <button
                   onClick={() =>
-                    handleDeleteCourse(course._id, course.courseName)
+                    handleDeleteCourse(course._id, course)
                   }
                   className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
                 >
@@ -405,15 +415,16 @@ const CourseForm = ({
   isEditModalOpen,
 }) => {
   // Xử lý toggle checkbox
-  const handlePrerequisiteChange = (e) => {
+  const handlePrequisiteChange = (e) => {
     const { value, checked } = e.target;
     setFormData((prev) => {
       const next = checked
         ? // thêm vào nếu checked
-          [...prev.prerequisiteCourses, value]
+          [...prev.prequisiteCourses, value]
         : // xóa đi nếu unchecked
-          prev.prerequisiteCourses.filter((id) => id !== value);
-      return { ...prev, prerequisiteCourses: next };
+          prev.prequisiteCourses.filter((id) => id !== value);
+      console.log("formdata: ", formData)
+      return { ...prev, prequisiteCourses: next };
     });
   };
 
@@ -449,6 +460,7 @@ const CourseForm = ({
           value={formData.courseCredits}
           onChange={onChange}
           className="w-full rounded border p-2"
+          min={2}
         />
       </div>
       <div>
@@ -488,9 +500,9 @@ const CourseForm = ({
 
         {isEditModalOpen ? (
           // EDIT MODE: chỉ xem
-          formData.prerequisiteCourses?.length > 0 ? (
+          formData.prequisiteCourses?.length > 0 ? (
             <div className="mt-1 text-sm text-gray-700">
-              {formData.prerequisiteCourses
+              {formData.prequisiteCourses
                 .map((id) => {
                   const c = courses.find((c) => c._id === id);
                   return c ? `${c.courseCode} - ${c.courseName}` : "Unknown";
@@ -517,8 +529,8 @@ const CourseForm = ({
                     <input
                       type="checkbox"
                       value={c._id}
-                      checked={formData.prerequisiteCourses.includes(c._id)}
-                      onChange={handlePrerequisiteChange}
+                      checked={formData.prequisiteCourses.includes(c._id)}
+                      onChange={handlePrequisiteChange}
                       className="form-checkbox h-4 w-4"
                     />
                     <span>

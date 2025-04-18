@@ -93,6 +93,8 @@ const EnrollmentSchema: Schema = new Schema<IEnrollment>(
       required: false, // Optional, as scores may not be assigned immediately
       min: [0, "Score cannot be less than 0"],
       max: [10, "Score cannot be greater than 10"],
+      default: 0,
+
     },
   },
   { timestamps: true }
