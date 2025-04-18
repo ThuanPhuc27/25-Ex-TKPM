@@ -97,6 +97,10 @@ const DELETE_INTERVAL_IN_MINUTES = 1;
 //   }
 // );
 
+CourseSchema.pre("find", function () {
+  this.populate("managingFaculty").populate("prequisiteCourses");
+});
+
 CourseSchema.pre("findOneAndUpdate", async function () {
   const update: UpdateQuery<Partial<ICourse>> | null = this.getUpdate();
   if (!update) {
