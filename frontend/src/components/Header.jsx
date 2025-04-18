@@ -14,6 +14,9 @@ const Header = () => {
     { path: "/rules", label: "Status Rules" },
     { path: "/courses", label: "Courses" },
     { path: "/classes", label: "Classes" },
+    { path: "/cancel-history", label: "Cancel History" },
+    { path: "/transcript", label: "Transcript" },
+
   ];
 
   return (

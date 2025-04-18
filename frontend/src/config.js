@@ -9,6 +9,8 @@ const config = Object.freeze({
     rules: "/rules",
     courses: "/courses",
     classes: "/classes",
+    enrollments: "/enrollments",
+
   },
 });
 

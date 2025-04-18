@@ -56,6 +56,7 @@ const CourseSchema = new Schema<ICourse>(
       type: String,
       required: true,
     },
+  
     prequisiteCourses: [
       {
         type: Types.ObjectId,

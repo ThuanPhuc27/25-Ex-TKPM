@@ -17,6 +17,7 @@
     "country-codes-flags-phone-codes": "^1.1.1",
     "dotenv": "^16.4.7",
     "i18n-iso-countries": "^7.14.0",
+    "jspdf": "^3.0.1",
     "libphonenumber-js": "^1.12.6",
     "path": "^0.12.7",
     "react": "^18.2.0",
@@ -25,7 +26,8 @@
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^7.2.0",
     "react-select": "^5.10.1",
-    "sweetalert2": "^11.17.2"
+    "sweetalert2": "^11.17.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.26",

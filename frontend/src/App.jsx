@@ -10,6 +10,9 @@ import EmailManager from "./pages/Email";
 import RuleManager from "./pages/Rules";
 import Courses from "./pages/Courses";
 import Classes from "./pages/Classes";
+import ClassDetail from "./pages/ClassDetail";
+import CancelHistoryPage from "./pages/CancelHistoryPage"
+import TranscriptPage from "./pages/TranscriptPage"
 function App() {
   return (
     <Router>
@@ -25,6 +28,10 @@ function App() {
           <Route path="/rules" element={<RuleManager />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/classes" element={<Classes />} />
+          <Route path="/classes/:classId" element={<ClassDetail />} />
+          <Route path="/cancel-history" element={<CancelHistoryPage />} />
+          <Route path="/transcript" element={<TranscriptPage />} />
+
         </Routes>
       </div>
     </Router>
