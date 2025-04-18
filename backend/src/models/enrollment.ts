@@ -35,9 +35,11 @@ const EnrollmentSchema: Schema = new Schema<IEnrollment>(
       required: true,
       validate: {
         validator: async function (v: string) {
-          const student = await mongoose.models[MODEL_NAMES.STUDENT].findOne({
-            studentId: v,
-          });
+          const student = await mongoose.models[MODEL_NAMES.STUDENT]
+            .findOne({
+              studentId: v,
+            })
+            .exec();
           return !!student;
         },
         message: 'Student with ID "{VALUE}" does not exist',
@@ -54,18 +56,22 @@ const EnrollmentSchema: Schema = new Schema<IEnrollment>(
       validate: [
         {
           validator: async function (v: string) {
-            const classDoc = await mongoose.models[MODEL_NAMES.CLASS].findOne({
-              classCode: v,
-            });
+            const classDoc = await mongoose.models[MODEL_NAMES.CLASS]
+              .findOne({
+                classCode: v,
+              })
+              .exec();
             return !!classDoc;
           },
           message: 'Class with code "{VALUE}" does not exist',
         },
         {
           validator: async function (v: string) {
-            const classDoc = await mongoose.models[MODEL_NAMES.CLASS].findOne({
-              classCode: v,
-            });
+            const classDoc = await mongoose.models[MODEL_NAMES.CLASS]
+              .findOne({
+                classCode: v,
+              })
+              .exec();
             return !classDoc?.deactivated;
           },
           message:
@@ -110,9 +116,11 @@ EnrollmentSchema.pre("save", async function () {
   // Populate the `student` field using `studentId`
   const existingStudent: IStudentWithId | null = await mongoose.models[
     MODEL_NAMES.STUDENT
-  ].findOne({
-    studentId: enrollment.studentId,
-  });
+  ]
+    .findOne({
+      studentId: enrollment.studentId,
+    })
+    .exec();
   if (!existingStudent) {
     throw new Error(`Student with ID "${enrollment.studentId}" does not exist`);
   }
@@ -219,9 +227,9 @@ EnrollmentSchema.pre("findOneAndUpdate", async function () {
     throw new Error(`Enrollment with ID ${enrollmentId} not found`);
   }
 
-  if (enrollment.isCanceled) {
-    throw new Error("Cannot update a canceled enrollment.");
-  }
+  // if (enrollment.isCanceled) {
+  //   throw new Error("Cannot update a canceled enrollment.");
+  // }
 
   // Prevent updating the student or class after enrollment
   if (
@@ -270,6 +278,11 @@ EnrollmentSchema.pre("findOneAndUpdate", async function () {
       `Cancellation is not allowed after the deadline (${cancellationDeadline.toDateString()})`
     );
   }
+});
+
+// Populate the student and class fields when finding enrollments
+EnrollmentSchema.pre("find", function () {
+  this.populate("student").populate("class");
 });
 
 export default mongoose.model<IEnrollment>(

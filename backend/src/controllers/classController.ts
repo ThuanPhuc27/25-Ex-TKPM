@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as classRepository from "../repositories/classRepository";
 import { http } from "../constants/httpStatusCodes";
 import logger from "../logger";
+import { IntentionalError } from "@utils/intentionalError";
 
 /**
  * Add a new class.
@@ -12,12 +13,19 @@ export const addClassController = async (req: Request, res: Response) => {
     const newClass = await classRepository.createClass(classData);
     res.status(http.CREATED).json(newClass);
   } catch (error: any) {
-    logger.error(
-      `[database]: Error creating class - ${error.message ?? error}`
-    );
-    res
-      .status(http.INTERNAL_SERVER_ERROR)
-      .json({ message: `${error.message ?? error}` });
+    if (error.name === "MongoServerError" && error.code === 11000) {
+      const duplicateKey = Object.keys(error.keyValue)[0];
+      res.status(http.BAD_REQUEST).json({
+        message: `Class with ${duplicateKey} '${error.keyValue[duplicateKey]}' already existed`,
+      });
+    } else {
+      logger.error(
+        `[database]: Error creating class - ${error.message ?? error}`
+      );
+      res
+        .status(http.INTERNAL_SERVER_ERROR)
+        .json({ message: `${error.message ?? error}` });
+    }
   }
 };
 
@@ -78,6 +86,12 @@ export const deleteClassController = async (req: Request, res: Response) => {
 
     res.status(http.OK).json({ message: "Class deleted successfully" });
   } catch (error: any) {
+    if (error instanceof IntentionalError) {
+      logger.warn(`[intentional]: ${error.message}`);
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+
     logger.error(
       `[database]: Error deleting class - ${error.message ?? error}`
     );
