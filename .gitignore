@@ -26,3 +26,6 @@ dist-ssr
 *.sw?
 
 package*.json
+
+# Local data files
+backend/src/data/*-local.json
