@@ -7,6 +7,12 @@ export const createFaculty = async (
   return await Faculty.create({ facultyName: name });
 };
 
+export const getFacultyById = async (
+  id: string
+): Promise<IFacultyDocument | null> => {
+  return await Faculty.findById(id).exec();
+};
+
 export const getAllFaculties = async (): Promise<IFacultyDocument[]> => {
   return await Faculty.find().exec();
 };
@@ -28,8 +34,9 @@ export const deleteFaculty = async (
   // Check if there are any students associated with this faculty
   const studentCount = await Student.countDocuments({ faculty: id }).exec();
   if (studentCount > 0) {
+    const currentFaculty = await getFacultyById(id);
     throw new Error(
-      `Cannot delete faculty with id "${id}" because it is referenced by ${studentCount} student(s).`
+      `Cannot delete faculty "${currentFaculty?.facultyName}" because it is referenced by ${studentCount} student(s).`
     );
   }
 

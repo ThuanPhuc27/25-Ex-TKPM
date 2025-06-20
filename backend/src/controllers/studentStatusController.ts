@@ -14,10 +14,6 @@ export const addStudentStatusController = async (
 ) => {
   try {
     const { name } = req.body;
-    if (!name) {
-      res.status(http.BAD_REQUEST).json({ message: "Name is required" });
-      return;
-    }
 
     const newStudentStatus = await createStudentStatus(name);
     res.status(http.CREATED).json(newStudentStatus);
@@ -56,7 +52,9 @@ export const editStudentStatusController = async (
     const { statusId } = req.params;
     const { name } = req.body;
     if (!name) {
-      res.status(http.BAD_REQUEST).json({ message: "Name is required" });
+      res
+        .status(http.BAD_REQUEST)
+        .json({ message: "Name is required when editing student status" });
       return;
     }
 
