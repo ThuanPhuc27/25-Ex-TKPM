@@ -17,26 +17,18 @@ Group25-Ex-TKPM
 ├── backend
 │   ├── Dockerfile
 │   ├── migrate-mongo-config.js
-│   ├── package-lock.json
-│   ├── package.json
 │   ├── src
 │   │   ├── constants
 │   │   │   └── httpStatusCodes.ts
 │   │   ├── controllers
 │   │   │   ├── configController.ts
 │   │   │   ├── facultyController.ts
-│   │   │   ├── programController.ts
-│   │   │   ├── studentController.ts
-│   │   │   ├── studentStatusController.ts
-│   │   │   └── studentTransferingController.ts
-│   │   ├── index.ts
+│   │   │   ├── ...
 │   │   ├── logger
 │   │   │   └── index.ts
 │   │   ├── migration
 │   │   │   ├── 20250320-add-student-collection.js
-│   │   │   ├── 20250320-create-faculty.js
-│   │   │   ├── 20250320-create-programs.js
-│   │   │   └── 20250321-create-studentstatuses.js
+│   │   │   ├── ...
 │   │   ├── models
 │   │   │   ├── faculty.ts
 │   │   │   ├── program.ts
@@ -44,15 +36,11 @@ Group25-Ex-TKPM
 │   │   │   └── studentStatus.ts
 │   │   ├── repositories
 │   │   │   ├── facultyRepository.ts
-│   │   │   ├── programRepository.ts
-│   │   │   ├── studentRepository.ts
-│   │   │   └── studentStatusRepository.ts
+│   │   │   ├── ...
 │   │   ├── routes
 │   │   │   ├── configRoute.ts
 │   │   │   ├── facultyRoute.ts
-│   │   │   ├── programRoute.ts
-│   │   │   ├── studentRoute.ts
-│   │   │   └── studentStatusRoute.ts
+│   │   │   ├── ....
 │   │   └── services
 │   │       └── database.service.ts
 │   └── tsconfig.json
@@ -60,49 +48,25 @@ Group25-Ex-TKPM
 ├── frontend
 │   ├── Dockerfile
 │   ├── index.html
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── postcss.config.cjs
-│   ├── prettier.config.cjs
 │   ├── src
 │   │   ├── App.jsx
 │   │   ├── assets
 │   │   │   ├── bg-boost-desktop.svg
 │   │   │   ├── bg-boost-mobile.svg
-│   │   │   ├── bg-shorten-desktop.svg
-│   │   │   ├── bg-shorten-mobile.svg
-│   │   │   ├── icon-brand-recognition.svg
-│   │   │   ├── icon-detailed-records.svg
-│   │   │   ├── icon-facebook.svg
-│   │   │   ├── icon-fully-customizable.svg
-│   │   │   ├── icon-instagram.svg
-│   │   │   ├── icon-pinterest.svg
-│   │   │   ├── icon-twitter.svg
-│   │   │   ├── illustration-working.svg
-│   │   │   ├── logo.svg
-│   │   │   └── menu-outline.svg
+│   │   │   ├── ...
 │   │   ├── components
 │   │   │   ├── Add.jsx
 │   │   │   ├── Edit.jsx
-│   │   │   ├── Header.jsx
-│   │   │   ├── ImportExport.jsx
-│   │   │   ├── Pagination.jsx
-│   │   │   ├── Search.jsx
-│   │   │   ├── Table.jsx
-│   │   │   └── index.jsx
+│   │   │   ├── ...
 │   │   ├── config.js
 │   │   ├── index.css
 │   │   ├── main.jsx
 │   │   ├── pages
 │   │   │   ├── Faculties.jsx
-│   │   │   ├── Programs.jsx
-│   │   │   ├── StudentDetails.jsx
-│   │   │   └── StudentStatuses.jsx
+│   │   │   ├── ...
 │   │   └── utils
 │   │       ├── dateFormatter.js
-│   │       ├── getFaculties.js
-│   │       ├── getPrograms.js
-│   │       └── getStudentStatuses.js
+│   │       ├── ...
 │   ├── tailwind.config.cjs
 │   └── vite.config.js
 └── public
@@ -171,7 +135,79 @@ npm run dev
 cd ../frontend
 npm install
 npm run dev
-
-
 ```
 Ứng dụng sẽ chạy tại `http://localhost:5173` 
+
+
+
+
+
+
+# 🎓 University Management System
+
+Hệ thống quản lý trường đại học toàn diện với đầy đủ các module quản lý sinh viên, lớp học, môn học và các nghiệp vụ liên quan.
+
+## 🌟 Tính Năng Nổi Bật
+
+### 1. 👨‍🎓 Quản Lý Sinh Viên
+- **CRUD** thông tin sinh viên
+- **Nhập/Xuất hàng loạt** định dạng XML
+- Tìm kiếm và cập nhật theo `studentId`
+
+### 2. 🏫 Quản Lý Lớp Học
+- Tạo và quản lý lớp học với các thuộc tính:
+  - Mã lớp
+  - Tên lớp
+  - Giảng viên phụ trách
+- Chỉnh sửa/xóa theo `classId`
+
+### 3. 📚 Quản Lý Môn Học
+- Quản lý thông tin môn học:
+  - Mã môn học
+  - Tên môn học
+  - Thông tin liên quan
+- Hỗ trợ cập nhật và xóa môn học
+
+### 4. 📝 Quản Lý Ghi Danh
+- Ghi danh sinh viên vào lớp
+- Cập nhật điểm theo từng ghi danh
+- Truy xuất thông tin theo:
+  - `studentId`
+  - `classCode`
+- Xuất bảng điểm cá nhân
+
+### 5. 🧑‍🏫 Quản Lý Khoa/Viện
+- Thêm/cập nhật/xóa thông tin khoa
+- Quản lý cây tổ chức trường học
+
+### 6. 🎓 Quản Lý Chương Trình Đào Tạo
+- Quản lý các hệ đào tạo:
+  - Đại học
+  - Cao học
+  - ...
+- Chỉnh sửa thông tin chương trình
+
+### 7. 📌 Quản Lý Trạng Thái Sinh Viên
+- Theo dõi trạng thái học tập:
+  - Đang học
+  - Bảo lưu
+  - Tốt nghiệp
+  - ...
+- CRUD các trạng thái
+
+### 8. ⚙️ Cấu Hình Hệ Thống
+- Cài đặt hệ thống:
+  - Email mặc định
+  - Quy tắc điểm
+  - Giới hạn ghi danh
+- API truy xuất cấu hình
+
+### 9. 📧 Quản Lý Email Domain
+- Danh sách domain email được phép
+- Cập nhật qua API POST
+
+### 10. 🔁 Quy Tắc Chuyển Trạng Thái
+- Xây dựng luồng nghiệp vụ:
+  - Đang học → Tốt nghiệp
+  - Đang học → Bảo lưu
+
