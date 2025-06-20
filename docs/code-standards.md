@@ -1,5 +1,7 @@
 # Code Standards - Student Management System
 
+([_Return to index_](index.md))
+
 ## 1. Project Structure
 
 ```
@@ -25,21 +27,27 @@
 ## 2. Naming Conventions
 
 ### 2.1 Folders and Files
+
 - Use `kebab-case` for file and folder names: `faculty-controller.ts`
 
 ### 2.2 Variables, Functions, Parameters
+
 - Use `camelCase`: `studentList`, `getStudentInfo()`
 
 ### 2.3 Class, Interface, Component
+
 - Use `PascalCase`: `StudentService`, `FacultyRepository`
 
 ### 2.4 Constants
+
 - Use `UPPER_SNAKE_CASE`: `MAX_RETRY_COUNT`, `MODEL_NAMES`
 
 ### 2.5 Generic Types
+
 - Use `T` or `TEntity`, `TData` for generic data types.
 
 ### 2.6 Private Fields
+
 - Prefix `_` for private fields: `_id`, `_privateMethod()`
 
 ## 3. Coding Rules
@@ -66,6 +74,7 @@
 ### 3.2 Mongoose Schema
 
 Example:
+
 ```ts
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { MODEL_NAMES } from "../constants/collectionNames";
@@ -74,7 +83,9 @@ export interface IFaculty {
   facultyName: string;
 }
 
-export interface IFacultyDocument extends Document<unknown, {}, IFaculty>, IFaculty {
+export interface IFacultyDocument
+  extends Document<unknown, {}, IFaculty>,
+    IFaculty {
   _id: Types.ObjectId;
 }
 
@@ -83,7 +94,7 @@ const FacultySchema: Schema = new Schema<IFaculty>(
     facultyName: {
       type: String,
       required: true,
-      unique: [true, 'Faculty name must be unique'],
+      unique: [true, "Faculty name must be unique"],
     },
   },
   { timestamps: true }
@@ -95,6 +106,7 @@ export default mongoose.model<IFaculty>(MODEL_NAMES.FACULTY, FacultySchema);
 ### 3.3 Error Handling
 
 - Backend:
+
   ```ts
   try {
     const data = await getData();
@@ -119,6 +131,7 @@ export default mongoose.model<IFaculty>(MODEL_NAMES.FACULTY, FacultySchema);
 - Use 2 spaces for indentation.
 - No extra spaces in `()` or before `{}`.
 - Add spaces before and after operators:
+
   ```ts
   const total = a + b;
   ```
@@ -143,13 +156,14 @@ export default mongoose.model<IFaculty>(MODEL_NAMES.FACULTY, FacultySchema);
 
 ### 6.1 RESTful Endpoints
 
-| Resource             | GET              | POST        | PUT                | DELETE             |
-|----------------------|------------------|-------------|--------------------|--------------------|
-| /students            | Get list         | Create new  | -                  | -                  |
-| /students/{id}       | Get details      | -           | Update             | Delete             |
-| /faculties           | Get list         | Create new  | -                  | -                  |
+| Resource       | GET         | POST       | PUT    | DELETE |
+| -------------- | ----------- | ---------- | ------ | ------ |
+| /students      | Get list    | Create new | -      | -      |
+| /students/{id} | Get details | -          | Update | Delete |
+| /faculties     | Get list    | Create new | -      | -      |
 
 ### 6.2 Response Format
+
 ```json
 {
   "success": true,
@@ -193,3 +207,4 @@ Example:
   function avg(scores) { ... }
   ```
 
+([_Return to index_](index.md))

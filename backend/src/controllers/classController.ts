@@ -56,7 +56,9 @@ export const updateClassController = async (req: Request, res: Response) => {
     const updatedClass = await classRepository.updateClass(classId, updateData);
 
     if (!updatedClass) {
-      res.status(http.NOT_FOUND).json({ message: "Class not found" });
+      res
+        .status(http.NOT_FOUND)
+        .json({ message: `Class with id ${classId} not found` });
       return;
     }
 
@@ -80,11 +82,15 @@ export const deleteClassController = async (req: Request, res: Response) => {
     const deletedClass = await classRepository.deleteClass(classId);
 
     if (!deletedClass) {
-      res.status(http.OK).json({ message: "Class deactivated successfully" });
+      res.status(http.OK).json({
+        message: `Class with id "${classId}" deactivated successfully ?!`,
+      });
       return;
     }
 
-    res.status(http.OK).json({ message: "Class deleted successfully" });
+    res.status(http.OK).json({
+      message: `Class with code "${deletedClass.classCode}" have been deleted successfully`,
+    });
   } catch (error: any) {
     if (error instanceof IntentionalError) {
       logger.warn(`[intentional]: ${error.message}`);

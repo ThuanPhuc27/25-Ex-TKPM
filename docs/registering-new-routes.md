@@ -1,3 +1,7 @@
+# Registering New Routes
+
+([_Return to index_](index.md))
+
 ## 1. Overview
 
 This project uses Express with TypeScript and organizes routes by feature in the `routes/` directory. Each route file represents a module such as: students, classes, courses, faculties, etc.
@@ -40,9 +44,9 @@ import {
 
 const router = Router();
 
-router.get("/", getAllClassesController);                // GET /classes
-router.post("/add", addClassController);                 // POST /classes/add
-router.patch(":classId/edit", updateClassController);    // PATCH /classes/:id/edit
+router.get("/", getAllClassesController); // GET /classes
+router.post("/add", addClassController); // POST /classes/add
+router.patch(":classId/edit", updateClassController); // PATCH /classes/:id/edit
 router.delete(":classId/delete", deleteClassController); // DELETE /classes/:id/delete
 
 export default router;
@@ -76,10 +80,10 @@ app.use("/enrollments", enrollmentRoutes);
 
 ## 5. Benefits
 
-* 🪜 Clear separation by feature
-* 🚀 Easy to extend and test
-* 🚪 Easy to apply middleware (like auth, logging...)
-* 🏋️ Optimized for teamwork and module division
+- 🪜 Clear separation by feature
+- 🚀 Easy to extend and test
+- 🚪 Easy to apply middleware (like auth, logging...)
+- 🏋️ Optimized for teamwork and module division
 
 ---
 
@@ -93,6 +97,7 @@ app.use("/enrollments", enrollmentRoutes);
    router.get("/", getAllTeachers);
    export default router;
    ```
+
 3. Import and register it in `app.ts`:
 
    ```ts
@@ -106,3 +111,4 @@ app.use("/enrollments", enrollmentRoutes);
 
 Registering new routes makes the project easier to manage, extend, and apply RESTful API standards in the backend.
 
+([_Return to index_](index.md))

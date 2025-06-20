@@ -52,7 +52,9 @@ export const updateCourseController = async (req: Request, res: Response) => {
     );
 
     if (!updatedCourse) {
-      res.status(http.NOT_FOUND).json({ message: "Course not found" });
+      res
+        .status(http.NOT_FOUND)
+        .json({ message: `Course with id "${courseId}" not found` });
       return;
     }
 
@@ -61,10 +63,10 @@ export const updateCourseController = async (req: Request, res: Response) => {
     if (error.name === "MongoServerError" && error.code === 11000) {
       // MongoDB duplicate key error code
       logger.warn(
-        `[validation]: Course with id ${req.params.courseId} already exists`
+        `[validation]: Course with id "${req.params.courseId}" already exists`
       );
       res.status(http.BAD_REQUEST).json({
-        message: `Course with id ${req.params.courseId} already existed`,
+        message: `Course with id "${req.params.courseId}" already existed`,
       });
       return;
     }
@@ -84,14 +86,19 @@ export const updateCourseController = async (req: Request, res: Response) => {
 export const deleteCourseController = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
+    const deletingCourse = await courseRepository.getCourseById(courseId);
     const deletedCourse = await courseRepository.deleteCourse(courseId);
 
     if (!deletedCourse) {
-      res.status(http.OK).json({ message: "Course deactivated successfully" });
+      res.status(http.OK).json({
+        message: `Course "${deletingCourse?.courseName}" has been deactivated successfully`,
+      });
       return;
     }
 
-    res.status(http.OK).json({ message: "Course deleted successfully" });
+    res.status(http.OK).json({
+      message: `Course "${deletingCourse?.courseName}" has been deleted successfully`,
+    });
   } catch (error: any) {
     if (error instanceof IntentionalError) {
       logger.warn(`[intentional]: ${error.message}`);

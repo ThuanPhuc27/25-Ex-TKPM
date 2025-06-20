@@ -7,6 +7,12 @@ export const createStudentStatus = async (
   return await StudentStatus.create({ statusName: name });
 };
 
+export const getStudentStatusById = async (
+  id: string
+): Promise<IStudentStatusDocument | null> => {
+  return await StudentStatus.findById(id).exec();
+};
+
 export const getAllStudentStatuses = async (): Promise<
   IStudentStatusDocument[]
 > => {
@@ -30,8 +36,9 @@ export const deleteStudentStatus = async (
   // Check if there are any students associated with this student status
   const studentCount = await Student.countDocuments({ status: id }).exec();
   if (studentCount > 0) {
+    const currentStatus = await getStudentStatusById(id);
     throw new Error(
-      `Cannot delete student status with id "${id}" because it is referenced by ${studentCount} student(s).`
+      `Cannot delete student status "${currentStatus?.statusName}" because it is referenced by ${studentCount} student(s).`
     );
   }
 

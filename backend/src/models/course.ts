@@ -1,6 +1,8 @@
 import mongoose, { Types, Schema, Document, UpdateQuery } from "mongoose";
 import { MODEL_NAMES } from "@collectionNames";
 import { IntentionalError } from "@utils/intentionalError";
+import { DELETE_INTERVAL_IN_MINUTES } from "../constants/chrono";
+import { updateClass } from "@repositories/classRepository";
 
 export interface ICourse {
   courseCode: string;
@@ -56,7 +58,7 @@ const CourseSchema = new Schema<ICourse>(
       type: String,
       required: true,
     },
-  
+
     prequisiteCourses: [
       {
         type: Types.ObjectId,
@@ -80,23 +82,9 @@ const CourseSchema = new Schema<ICourse>(
   { timestamps: true }
 );
 
-const DELETE_INTERVAL_IN_MINUTES = 1;
-
-// CourseSchema.post<ICourseDocument>(
-//   "save",
-//   function (error: any, _: any, next: any) {
-//     if (error) {
-//       if (error.name === "MongoServerError" && error.code === 11000) {
-//         const message = `Course with code ${this.get(
-//           "courseCode"
-//         )} already exists.`;
-//         next(new mongoose.MongooseError(message));
-//       } else {
-//         next();
-//       }
-//     }
-//   }
-// );
+// CourseSchema.pre("find", function () {
+//   this.populate("managingFaculty").populate("prequisiteCourses");
+// });
 
 CourseSchema.pre("findOneAndUpdate", async function () {
   const update: UpdateQuery<Partial<ICourse>> | null = this.getUpdate();
@@ -175,8 +163,16 @@ CourseSchema.pre("findOneAndDelete", async function () {
       .updateOne({ _id: courseId }, { $set: { deactivated: true } })
       .exec();
 
+    // Deactivate the associated classes
+    for (const classDoc of classes) {
+      await updateClass(classDoc._id, {
+        deactivated: true,
+      });
+    }
+
     throw new IntentionalError(
-      `Course "${course.courseCode}" cannot be deleted because it has associated classes. The course has been deactivated instead.`
+      `Course "${course.courseCode}" cannot be deleted because it has associated classes. The course has been deactivated instead.` +
+        ` All associated classes have also been deactivated.`
     );
   }
 });

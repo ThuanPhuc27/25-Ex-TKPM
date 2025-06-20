@@ -12,6 +12,17 @@ export const addCourse = async (
 };
 
 /**
+ * Retrieve a course by its ID.
+ * @param courseId - The ID of the course to retrieve.
+ * @returns The course document or null if not found.
+ */
+export const getCourseById = async (
+  courseId: string
+): Promise<ICourseDocument | null> => {
+  return await Course.findById(courseId).exec();
+};
+
+/**
  * Retrieve all courses from the database.
  * @returns An array of course documents.
  */
