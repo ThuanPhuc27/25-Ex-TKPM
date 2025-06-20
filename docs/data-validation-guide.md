@@ -1,5 +1,7 @@
 # Data Validation Guide
 
+([_Return to index_](index.md))
+
 ## Overview
 
 This guide covers validation strategies implemented in the Student Management System, organized by validation type with real examples from the codebase.
@@ -181,3 +183,5 @@ it("should validate unique courseCode", async () => {
 ---
 
 **Version**: 1.0
+
+([_Return to index_](index.md))

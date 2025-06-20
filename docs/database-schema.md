@@ -1,5 +1,7 @@
 # Database Schema Documentation
 
+([_Return to index_](index.md))
+
 ## Overview
 
 This document provides comprehensive documentation for the Student Management System database schema. The system uses MongoDB as the primary database with Mongoose ODM for TypeScript integration.
@@ -776,3 +778,5 @@ The system includes comprehensive data transfer capabilities through the `studen
 
 _Last Updated: June 20, 2025_
 _Version: 1.0_
+
+([_Return to index_](index.md))

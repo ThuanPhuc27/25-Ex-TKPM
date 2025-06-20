@@ -1,5 +1,7 @@
 # Code Standards - Student Management System
 
+([_Return to index_](index.md))
+
 ## 1. Project Structure
 
 ```
@@ -204,3 +206,5 @@ Example:
    */
   function avg(scores) { ... }
   ```
+
+([_Return to index_](index.md))

@@ -1,5 +1,7 @@
 # Entity Updates Guide: Adding New Properties to Existing Models
 
+([_Return to index_](index.md))
+
 ## Overview
 
 This guide provides step-by-step instructions for safely adding new properties to existing entities in the Student Management System. It ensures data integrity, backward compatibility, and system functionality.
@@ -287,3 +289,5 @@ it("should handle email verification workflow", async () => {
   expect(verificationResult.emailVerified).toBe(true);
 });
 ```
+
+([_Return to index_](index.md))

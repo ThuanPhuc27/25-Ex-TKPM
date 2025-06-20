@@ -1,5 +1,7 @@
 # Getting Started with Your App Development
 
+([_Return to index_](index.md))
+
 This guide will help you set up and run the Student Management System application on your local development environment.
 
 ## Prerequisites
@@ -119,3 +121,5 @@ Check application logs for detailed error information:
 
 - Backend logs will appear in the terminal where you ran `npm run dev`
 - Frontend logs will appear in both the terminal and browser console
+
+([_Return to index_](index.md))

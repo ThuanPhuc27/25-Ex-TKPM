@@ -1,5 +1,7 @@
 # Student Management System – API Documentation
 
+([_Return to index_](index.md))
+
 ## Overview
 
 The Student Management System is a RESTful web service designed to manage academic entities such as students, classes, courses, and faculty. It supports both standard CRUD operations and advanced features like score tracking, XML data import, and dynamic configuration through a clean and consistent API.
@@ -120,3 +122,5 @@ The Student Management System is a RESTful web service designed to manage academ
 - Role-based access control (RBAC) for route-level permissions
 - API versioning via `/api/v1/...` path prefix
 - Pagination for large GET responses
+
+([_Return to index_](index.md))
