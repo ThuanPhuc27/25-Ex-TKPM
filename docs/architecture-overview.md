@@ -1,6 +1,5 @@
 # System Architecture Overview
 
-🏗️ System Architecture Overview
 The Student Management System is designed with a modern client-server architecture, clearly separating the user interface, business logic server, and database. The goal of this architecture is to ensure scalability, maintainability, and long-term development.
 
 ## 1. User Interface (Frontend)
@@ -77,3 +76,4 @@ Frontend ReactJS (SPA)
 Backend ExpressJS (Node + TypeScript)
       ↓
 MongoDB Database
+```
