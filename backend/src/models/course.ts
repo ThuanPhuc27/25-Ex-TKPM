@@ -86,6 +86,10 @@ const CourseSchema = new Schema<ICourse>(
 //   this.populate("managingFaculty").populate("prequisiteCourses");
 // });
 
+CourseSchema.pre("find", function () {
+  this.populate("managingFaculty").populate("prequisiteCourses");
+});
+
 CourseSchema.pre("findOneAndUpdate", async function () {
   const update: UpdateQuery<Partial<ICourse>> | null = this.getUpdate();
   if (!update) {
